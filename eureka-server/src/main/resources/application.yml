@@ -2,14 +2,25 @@ server:
   port: 1111
 
 eureka:
+  server:
+    # 自我保护模式（缺省为打开）
+    enable-self-preservation: true
+    # 续期时间，即扫描失效服务的间隔时间（缺省为60*1000ms）
+    # eviction-interval-timer-in-ms: 2000
   instance:
     hostname: localhost
+    prefer-ip-address: true
   client:
-    #通过
-    #eureka.client.registerWithEureka：false 不向注册中心注册自己
-    #fetchRegistry：false  由于注册中心的职责就是维护服务实例，它不需要去检索服务（false）
-    #来表明自己是一个eureka server
+    # 设置是否从注册中心获取注册信息（缺省true）
+    # 因为这是一个单点的EurekaServer，不需要同步其它EurekaServer节点的数据，故设为false
+    # 如果要设置Eureka注册中心高可用就要设置成true
+    # 因为Eureka的高可用其实就是将自己作为服务注册到其他注册中心，各个服务中心相互注册，以此实现服务清单的同步，达到高可用的效果
+    fetch-registry: true
+
+    # 设置是否将自己作为客户端注册到注册中心（缺省true）
+    # 这里为不需要（查看@EnableEurekaServer注解的源码，会发现它间接用到了@EnableDiscoveryClient）
     register-with-eureka: false
-    fetch-registry: false
+
+    # 在未设置defaultZone的情况下，注册中心在本例中的默认地址就是http://localhost:port/eureka/
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
