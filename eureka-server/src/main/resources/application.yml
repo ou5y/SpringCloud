@@ -3,8 +3,8 @@ server:
 
 eureka:
   server:
-    # 自我保护模式（缺省为打开）
-    enable-self-preservation: true
+    # 自我保护模式，即检查注册实例（服务提供者）的心跳（缺省为打开）
+    enable-self-preservation: false
     # 续期时间，即扫描失效服务的间隔时间（缺省为60*1000ms）
     # eviction-interval-timer-in-ms: 2000
   instance:

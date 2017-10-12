@@ -26,8 +26,9 @@ public class HelloController {
     public String hello(@PathVariable(value = "n", required = false) String n){
 
         ServiceInstance instance = client.getLocalServiceInstance();
-        logger.info("hello，host：" + instance.getHost() + "，port：" + instance.getPort() + "，serviceName：" + instance.getServiceId());
+        String info = "hello，host：" + instance.getHost() + "，port：" + instance.getPort() + "，serviceName：" + instance.getServiceId();
+        logger.info(info);
 
-        return "hello" + (n==null?"...":n);
+        return "hello" + (n==null?"...":n) + info;
     }
 }
