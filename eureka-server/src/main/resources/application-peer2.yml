@@ -12,3 +12,4 @@ eureka:
     serviceUrl:
       defaultZone: http://peer1:1111/eureka/
 
+#范德萨
