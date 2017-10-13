@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/menu_bg"
+    android:orientation="vertical"
+    >
+    
+   <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/menuheaderbk" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/menu_name"
+            android:textColor="@color/white"
+            android:textSize="16sp" >
+        </TextView>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout 
+            android:id="@+id/layout_change_password"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_menu_item"
+            android:orientation="horizontal">
+            <ImageView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/password">
+            </ImageView>
+            <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="15dp"
+	            android:layout_gravity="center"
+	            android:gravity="center"
+	            android:text="@string/change_password"
+	            android:textColor="@color/white"
+	            android:textSize="16sp" >
+
+        	</TextView>
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:id="@+id/layout_web"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_menu_item"
+            android:orientation="horizontal">
+            <ImageView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/communicateicon">
+            </ImageView>
+            <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="15dp"
+	            android:layout_gravity="center"
+	            android:gravity="center"
+	            android:text="@string/web_config"
+	            android:textColor="@color/white"
+	            android:textSize="16sp" >
+
+        	</TextView>
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:id="@+id/layout_about"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_menu_item"
+            android:orientation="horizontal">
+            <ImageView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/about">
+            </ImageView>
+            <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="15dp"
+	            android:layout_gravity="center"
+	            android:gravity="center"
+	            android:text="@string/about"
+	            android:textColor="@color/white"
+	            android:textSize="16sp" >
+
+        	</TextView>
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:id="@+id/layout_quit"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:addStatesFromChildren="true"
+            android:background="@drawable/bg_menu_item"
+            android:orientation="horizontal">
+            <ImageView 
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/quiticon">
+            </ImageView>
+            <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="15dp"
+	            android:layout_gravity="center"
+	            android:gravity="center"
+	            android:text="@string/quit"
+	            android:textColor="@color/white"
+	            android:textSize="16sp" >
+
+        	</TextView>
+        </LinearLayout>
+        
+    </LinearLayout>
+</LinearLayout>

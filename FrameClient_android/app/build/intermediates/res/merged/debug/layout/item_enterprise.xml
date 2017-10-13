@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/enterprise_bold_color"
+    android:orientation="vertical" >
+    <LinearLayout 
+        android:id="@+id/linear_enterprise"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginTop="1dp"
+       	android:background="@color/enterprise_bg_coler"
+        android:orientation="horizontal"> 
+        <ImageView
+            android:id="@+id/iv_unfold"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center"
+            android:focusable="false"
+			android:clickable="false" 
+			android:focusableInTouchMode="false"
+            android:background="@drawable/bg_enterprise_fold_style">
+            
+        </ImageView>
+        <TextView
+            android:id="@+id/tv_enterprise"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left|center"
+            android:gravity="left|center"
+            android:text="某某单位01"
+            android:textSize="20dp"
+            android:focusable="false"
+			android:clickable="false" 
+			android:focusableInTouchMode="false"
+            android:textColor="@color/text_color">    
+        </TextView>
+    </LinearLayout>
+</LinearLayout>

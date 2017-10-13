@@ -1,0 +1,70 @@
+[
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_resource_button_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_resource_button_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_big.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_big.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_checkbox_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_checkbox_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_username_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_username_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_ip_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_ip_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_right.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_right.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_enterprise_fold_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_enterprise_fold_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_passpord_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_passpord_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_left.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_left.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\login_button_image.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\login_button_image.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_backgroud_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_backgroud_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_menu_item.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_menu_item.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_up.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_up.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_down.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_down.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_font_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_font_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\bg_video_style.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\bg_video_style.xml"
+    },
+    {
+        "merged": "E:\\develop\\android\\as\\FrameClient_android\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\button_control_small.xml",
+        "source": "E:\\develop\\android\\as\\FrameClient_android\\app\\src\\main\\res\\drawable\\button_control_small.xml"
+    }
+]

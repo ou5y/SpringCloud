@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <LinearLayout
+        android:id="@+id/layout_video_header"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:visibility="gone"
+        android:background="@drawable/headerbk" >
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2">
+			<Button
+	            android:id="@+id/btn_cameralist"
+	            android:layout_width="80dp"
+	            android:layout_height="30dp"
+	            android:layout_marginBottom="5dp"
+	            android:layout_marginLeft="20dp"
+	            android:layout_marginTop="5dp"
+	            android:layout_gravity="center"
+	            android:background="@drawable/bg_resource_button_style"
+	            android:gravity="center"
+	            android:text="@string/video_list"
+	            android:textColor="@color/white"
+	            android:textSize="14dp" >
+       		</Button>
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_weight="0.2">
+       		<TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:gravity="center"
+	            android:text="@string/real_video"
+	            android:textColor="@color/white"
+	            android:textSize="16dp" >
+
+       		 </TextView>
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2">
+       		<TextView
+	            android:layout_width="80dp"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:layout_marginRight="20dp"
+	            android:gravity="center"
+	            android:textColor="@color/white"
+	            android:textSize="16dp" >
+
+       		 </TextView>
+        </LinearLayout>
+
+    </LinearLayout>
+    
+    <FrameLayout 
+         android:id="@+id/layout_glsurfaceview"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:layout_marginTop="1dp"
+         android:layout_marginBottom="1dp"
+         android:layout_weight="0.6">
+         <SurfaceView 
+            android:id="@+id/sf_test"
+         	android:layout_width="match_parent"
+         	android:layout_height="match_parent" />
+        
+    </FrameLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"
+        android:orientation="horizontal" >
+        <TextView
+          android:id="@+id/test_frame"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:layout_marginLeft="10dp"
+          android:gravity="left|center_vertical"
+          android:textColor="#ffffff"
+          android:textSize="16dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/menuheaderbk"
+        android:visibility="gone"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_remote_play"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.25"
+            android:background="@drawable/bg_video_style"
+            android:gravity="center"
+            android:text="@string/remote_play"
+            android:textColor="@color/white"
+            android:textSize="14dp" >
+        </Button>
+        
+        <Button
+            android:id="@+id/btn_alarm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.25"
+            android:background="@drawable/bg_video_style"
+            android:gravity="center"
+            android:text="@string/alarm"
+            android:textColor="@color/white"
+            android:textSize="14dp" >
+        </Button>
+        
+        <Button
+            android:id="@+id/btn_local_save"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.25"
+            android:background="@drawable/bg_video_style"
+            android:gravity="center"
+            android:text="@string/local_save"
+            android:textColor="@color/white"
+            android:textSize="14dp" >
+        </Button>
+        
+        <Button
+            android:id="@+id/btn_return_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+             android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.25"
+            android:background="@drawable/bg_video_style"
+            android:gravity="center"
+            android:text="@string/return_list"
+            android:textColor="@color/white"
+            android:textSize="14dp" >
+        </Button>
+
+    </LinearLayout>
+    
+
+</LinearLayout>
