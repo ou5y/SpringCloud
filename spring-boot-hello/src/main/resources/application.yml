@@ -7,4 +7,8 @@ eureka:
   client:
     serviceUrl:
       # defaultZone: http://localhost:1111/eureka/
+      # 下面写俩注册中心，是为了向多个注册中心注册服务
+      # 但是下面这peer1和peer2俩注册中心是相互注册集群高可用的，他们的服务清单是共享的
+      # 所以，下面俩写一个就成了，不用两个都写上。写一个和两个没差就（经过试验的）
+      # 除非，下面俩注册中心是两个不同的集群的注册地址
       defaultZone: http://peer1:1111/eureka/,http://peer2:1112/eureka/
