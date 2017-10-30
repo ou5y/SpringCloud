@@ -6,7 +6,7 @@ eureka:
     # 自我保护模式，即检查注册实例（服务提供者）的心跳（缺省为打开）
     enable-self-preservation: false
     # 续期时间，即扫描失效服务的间隔时间（缺省为60*1000ms）
-    # eviction-interval-timer-in-ms: 2000
+    eviction-interval-timer-in-ms: 60000
   instance:
     hostname: localhost
     prefer-ip-address: true
@@ -20,6 +20,11 @@ eureka:
     # 设置是否将自己作为客户端注册到注册中心（缺省true）
     # 这里为不需要（查看@EnableEurekaServer注解的源码，会发现它间接用到了@EnableDiscoveryClient）
     register-with-eureka: false
+
+    # 心跳健康检查，这个是对于Eureka客户端来说的，本身配置也是在eureka.client.registry-fetch-interval-seconds
+    # 在配置注册中心高可用的时候，注册中心本身也是Eureka的一个客户端
+    # 所以这儿可以理解成：修改服务清单（Eureka采取的是一个只读的缓存列表）的更新时间间隔，默认30秒
+    registry-fetch-interval-seconds: 30
 
     # 在未设置defaultZone的情况下，注册中心在本例中的默认地址就是http://localhost:port/eureka/
     serviceUrl:

@@ -1,0 +1,9 @@
+Eureka作为一个注册中心，服务提供者和服务消费者其实就是Eureka的客户端
+服务提供者和服务消费者是主动发起者，Eureka作为处理请求的接受者
+
+一个SpringBoot应用注册到Eureka Server、或者从Eureka Server获取服务清单时，主要事件：
+1、在SpringBoot(Eureka客户端)应用主类中配置了@EnableDiscoveryClient注解
+2、在application配置中eureka.client.serviceUrl.defaultZone指定服务注册中心的位置
+
+
+

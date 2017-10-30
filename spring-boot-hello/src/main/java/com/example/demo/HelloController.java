@@ -29,6 +29,6 @@ public class HelloController {
         String info = "hello，host：" + instance.getHost() + "，port：" + instance.getPort() + "，serviceName：" + instance.getServiceId();
         logger.info(info);
 
-        return "hello" + (n==null?"...":n) + info;
+        return "hello —— " + (n==null ? "..." : n) + "\t" + info;
     }
 }

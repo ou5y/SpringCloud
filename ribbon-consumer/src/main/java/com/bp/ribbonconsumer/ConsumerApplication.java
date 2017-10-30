@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@EnableDiscoveryClient
+@EnableDiscoveryClient	//注册为Eureka客户端应用，获取服务发现的能力
 public class ConsumerApplication {
 
 	public static void main(String[] args) {
@@ -16,7 +16,7 @@ public class ConsumerApplication {
 	}
 
 	@Bean
-	@LoadBalanced
+	@LoadBalanced // 开启客户端负载均衡
 	public RestTemplate restTemplate(){
 		return new RestTemplate();
 	}
