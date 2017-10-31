@@ -1,28 +1,19 @@
-package com.bp.ribbonconsumer;
+package com.bp.ribbonconsumer.controller;
 
-import org.apache.tomcat.jni.User;
+import com.bp.ribbonconsumer.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Created by baipan
- * Date: 2017/9/24
- */
 @RestController
 public class ConsumerController {
 
+    //@Autowired
+    //private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private HelloService helloService;
 
 
     /**
@@ -33,11 +24,15 @@ public class ConsumerController {
      */
     @RequestMapping(value = "/ribbon-consumer/{n}")
     public String helloConsumer(@PathVariable(value = "n", required = false) String n){
+        return helloService.helloService(n);
+
+
+
         // * * * * * * * * GET请求方式 * * * * * * * * *
         // A1 ↓
         //ResponseEntity<String> body = restTemplate.getForEntity("http://hello-service/hello/"+n, String.class);
-        ResponseEntity<String> body = restTemplate.getForEntity("http://hello-service/hello/{1}", String.class, n);
-        String str = body.getBody();
+        //ResponseEntity<String> body = restTemplate.getForEntity("http://hello-service/hello/{1}", String.class, n);
+        //String str = body.getBody();
 
         // A2 ↓
         //ResponseEntity<User> userBody = restTemplate.getForEntity("http://hello-service/getUser?id={1}", User.class, 123L);
@@ -80,6 +75,6 @@ public class ConsumerController {
 
         //System.out.println(user);
 
-        return str==null?"...":str;
+        //return str==null?"...":str;
     }
 }

@@ -1,7 +1,7 @@
 server:
-  # port: 9000
+  port: 9000
   # 这样可以在本地测试的时候，启动与注册多个服务实例
-  port: ${random.int[9000,10000]}
+  # port: ${random.int[9000,10000]}
 
 spring:
   application:
