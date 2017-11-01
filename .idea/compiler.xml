@@ -25,6 +25,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="customer_main" target="1.8" />
+      <module name="customer_test" target="1.8" />
       <module name="demo" target="1.8" />
       <module name="eureka-server" target="1.8" />
       <module name="ribbon-consumer" target="1.8" />
