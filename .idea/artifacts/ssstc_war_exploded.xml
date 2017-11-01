@@ -4,13 +4,13 @@
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
-          <element id="module-output" name="ssstcjava" />
+          <element id="module-output" name="ssstc" />
         </element>
       </element>
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/ssstcjava/target/ssstc/META-INF/MANIFEST.MF" />
       </element>
-      <element id="javaee-facet-resources" facet="ssstcjava/web/Web" />
+      <element id="javaee-facet-resources" facet="ssstc/web/Web" />
     </root>
   </artifact>
 </component>

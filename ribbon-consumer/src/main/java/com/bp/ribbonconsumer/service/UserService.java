@@ -27,7 +27,9 @@ public class UserService {
     /**
      * Hystrix默认超时为2000ms，可以设置
      */
-    @HystrixCommand(fallbackMethod = "helloFallback",
+    @HystrixCommand(fallbackMethod = "userBack",
+            groupKey = "user",
+            commandKey = "getUserBySync",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
@@ -39,7 +41,9 @@ public class UserService {
     }
 
 
-    @HystrixCommand(fallbackMethod = "helloFallback",
+    @HystrixCommand(fallbackMethod = "userBack",
+            groupKey = "user",
+            commandKey = "getUserByAsync",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
@@ -55,7 +59,9 @@ public class UserService {
     }
 
 
-    @HystrixCommand(fallbackMethod = "helloFallback",
+    @HystrixCommand(fallbackMethod = "userBack",
+            groupKey = "user",
+            commandKey = "getUserByObservable",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
             },
@@ -88,7 +94,9 @@ public class UserService {
     }
 
 
-    @HystrixCommand(fallbackMethod = "helloFallback",
+    @HystrixCommand(fallbackMethod = "userBack",
+            groupKey = "user",
+            commandKey = "getUserByToObservable",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
             },
@@ -113,7 +121,7 @@ public class UserService {
         return user;
     }
 
-    public User helloFallback(Integer id){
+    public User userBack(Integer id){
         return new User();
     }
 

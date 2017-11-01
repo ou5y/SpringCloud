@@ -1,5 +1,7 @@
 package com.bp.ribbonconsumer.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.bp.ribbonconsumer.entity.User;
 import com.bp.ribbonconsumer.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,5 +78,12 @@ public class HelloController {
         //System.out.println(user);
 
         //return str==null?"...":str;
+    }
+
+
+    @RequestMapping(value = "/sss22222/{n}")
+    public String helloConsumer(@PathVariable(value = "n", required = false) Integer id) {
+        User user = helloService.getUserBySync22(id);
+        return JSON.toJSONString(user);
     }
 }

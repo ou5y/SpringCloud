@@ -1,5 +1,6 @@
 package com.bp.ribbonconsumer.service;
 
+import com.bp.ribbonconsumer.entity.User;
 import com.netflix.hystrix.HystrixObservableCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
@@ -17,9 +18,9 @@ public class HelloService {
     private RestTemplate restTemplate;
 
     @HystrixCommand(fallbackMethod = "helloFallback",
-                commandProperties = {
-                        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
-                })
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+            })
     //Hystrix默认超时为2000ms，可以设置
     public String helloService(String name){
         long start = System.currentTimeMillis();
@@ -40,6 +41,33 @@ public class HelloService {
     //这个参数得和helloService一致
     public String helloFallback(String name){
         return String.format("request error：\t%s", name);
+    }
+
+
+    /**
+     * Hystrix默认超时为2000ms，可以设置
+     */
+    @HystrixCommand(fallbackMethod = "userBack22",
+            groupKey = "user22",
+            commandKey = "getUserBySync22",
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
+            })
+    public User getUserBySync22(Integer id){
+        System.out.println("888888888888");
+        //同步方式请求数据
+        System.out.println(id);
+        User user = new User(id);
+        //return restTemplate.postForObject("http://hello-service/user", user, User.class);
+
+        ResponseEntity<String> body = restTemplate.getForEntity("http://hello-service/hello/{1}", String.class, id.toString());
+        user.setName(body.getBody());
+        return user;
+    }
+
+
+    public User userBack22(Integer id){
+        return new User();
     }
 
 }
