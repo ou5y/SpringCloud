@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.agency.dao.AgencyBatchDao">
+	
+	<!-- 根据code查询区域 -->
+	<select id="findRegionByName" parameterType="String" resultType="Region">
+		select `code`,parentCode,type,`name`,fullName,price,state 
+		from region 
+		where fullName like CONCAT('%',#{name},'%')
+	</select>
+	
+	<!-- 根据code查询区域 -->
+	<select id="findRegionByCode" parameterType="String" resultType="Region">
+		select `code`,parentCode,type,`name`,fullName,price,state 
+		from region 
+		where `code`=#{code}
+	</select>
+
+	<!-- 根据userId查询全部代理区域 -->
+	<select id="findAgencyByPhone" parameterType="Map" resultType="Agency">
+		select id,phone,user_type from `user`
+		<where>
+			<if test="phone!=null and phone!=''">
+				and phone=#{phone}
+			</if>
+			<if test="userType!=null">
+				and user_type=#{userType}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 根据id查询行业名称 -->
+	<select id="findTradeByName" parameterType="String" resultType="Trade">
+		select id,`name` from trade where `name` like CONCAT('%',#{name},'%')
+	</select>
+	
+	<!-- 查询代理关系是否已经存在 -->
+	<select id="findUserAgencyExist" parameterType="Map" resultType="int">
+		select count(*) from user_agency 
+		where user_id=#{userId} 
+		and area_id=#{areaId} 
+		and trade_id=#{tradeId} 
+	</select>
+	
+	<!-- 添加代理商账号 -->
+	<insert id="addAgency" parameterType="Map">
+		insert into `user` (
+								`phone`, 
+								`pass`, 
+								`name`, 
+								`user_type`, 
+								`level`, 
+								`create_time`
+							)
+		values 				(
+								#{phone},
+								'000000',
+								#{name},
+								2,
+								9,
+								now()
+							)
+	</insert>
+	
+	<!-- 添加用户代理商关系 -->
+	<insert id="addUserAgency" parameterType="Map">
+		INSERT INTO `user_agency` (
+										`user_id`, 
+										`area_id`, 
+										`trade_id`, 
+										`level`,
+										`percent`, 
+										`creat_time`
+		) VALUES (
+										#{userId}, 
+										#{areaId}, 
+										#{tradeId}, 
+										'9', 
+										#{percent},
+										now()
+									)
+	</insert>
+
+	<update id="updateUserTypeAndLevel" parameterType="Map">
+		UPDATE user u set u.user_type =#{userType},u.level = 9 where u.id = #{userId}
+	</update>
+
+	<!-- 更新用户类型 -->
+	<update id="updateUserType" parameterType="String">
+		update `user` SET
+		user_type=2,
+		`level`=9
+		where phone=#{phone}
+	</update>
+
+	<!-- 根据用户查找店铺 -->
+	<select id="findBusinessByUser" parameterType="Long" resultType="int">
+		select count(id) from business where user_id=#{userId} and state=0
+	</select>
+	
+</mapper>

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ConsumerController {
+public class HelloController {
 
     //@Autowired
     //private RestTemplate restTemplate;
@@ -22,7 +22,7 @@ public class ConsumerController {
      * Created by baipan
      * Date: 2017/10/27
      */
-    @RequestMapping(value = "/ribbon-consumer/{n}")
+    @RequestMapping(value = "/hello-ribbon-consumer/{n}")
     public String helloConsumer(@PathVariable(value = "n", required = false) String n){
         return helloService.helloService(n);
 

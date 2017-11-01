@@ -4,6 +4,10 @@ import com.bp.ribbonconsumer.entity.User;
 import com.netflix.hystrix.HystrixCommand;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * 这个类是用原生代码实现的熔断
+ * UserService类是用HystrixCommand注解实现的熔断
+ */
 public class UserCommand extends HystrixCommand<User>{
 
     private RestTemplate restTemplate;

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.controller;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +41,9 @@ public class HelloController {
             System.out.println("name Is Null 是空的");
             return "...";
         }
+
+
+
 
         String info = "hello，" + n + "host：" + instance.getHost() + "，port：" + instance.getPort() + "，serviceName：" + instance.getServiceId();
         System.out.println(info);

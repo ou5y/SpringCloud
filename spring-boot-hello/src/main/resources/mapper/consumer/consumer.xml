@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.azcx9d.consumer.dao.ConsumerDao">
+
+    <select id="selectUser" parameterType="com.azcx9d.consumer.entity.Consumer" resultType="com.azcx9d.consumer.entity.Consumer">
+#         select u.id,u.pass password,u.phone,u.level,u.bank_card,u.transaction_psw,u.shandian,u.identity_card
+#         from user u
+#         where u.phone = #{phone} and u.pass=#{password} and u.user_type=0
+
+        SELECT
+            ura.id,
+            u.name,
+            ura.user_id,
+            u.phone,
+            u.avatar,
+            ura.integral,
+            ura.shandian,
+            ura.love,
+            ps.level_name
+        FROM
+            user_role_attribute ura
+            LEFT JOIN
+            user u ON ura.user_id = u.id
+            LEFT JOIN
+            platform_status ps ON ps.identity_id = ura.id
+        WHERE
+            ura.role_id = 1
+            AND u.id=#{id}
+            and u.pass=#{password}
+    </select>
+
+    <select id ="selectByIdentify" resultType="com.azcx9d.consumer.entity.Consumer">
+        select u.id from user u where u.phone = #{phone}
+    </select>
+
+    <select id="selectUserById" resultType="com.azcx9d.consumer.entity.Consumer">
+        select u.id,u.level,u.phone,u.create_time,u.name,u.bank_card  from user u where u.id =#{value}
+    </select>
+
+    <select id="checkPhone" resultType="com.azcx9d.consumer.entity.Consumer">
+        select u.id,u.phone,u.name from user u where u.phone =#{phone}
+    </select>
+
+    <select id="checkRecommendPhone" resultType="com.azcx9d.consumer.entity.Consumer">
+        select u.id,u.phone,u.name from user u where u.phone =#{phone}
+    </select>
+
+    <insert id="insertUser" parameterType="com.azcx9d.consumer.entity.Consumer">
+        insert into user(
+          phone,
+          pass,
+          user_type,
+          create_time,
+          parent_id
+        )
+        values(
+          #{phone},
+          #{password},
+          0,
+          now(),
+          #{parentId}
+        )
+    </insert>
+
+    <update id="resetPassword" parameterType="com.azcx9d.consumer.entity.Consumer">
+        update user set pass=#{password}  where id=#{id}
+    </update>
+
+    <!-- 查询大盘善心(比例） -->
+    <select id="queryLovePercent" resultType="Map">
+        select love_percentage percent from market_customer where DATEDIFF(now(),create_time)=0
+    </select>
+</mapper>
+

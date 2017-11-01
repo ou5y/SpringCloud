@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.IncomePredicateDao">
+
+	<!-- 历史总收益 -->
+	<select id="queryTotalIncome" resultType="java.lang.Integer" parameterType="java.util.HashMap">
+		SELECT  ifnull(sum(bdsz),0) total from xfz_dzb where bdsz>0 and user_id=#{userId} and leixing=#{type}
+	</select>
+
+	<!-- 历史被动善点总收益 -->
+	<select id="queryTotalPassiveShandian" resultType="java.lang.Integer" parameterType="java.util.HashMap">
+		SELECT  ifnull(sum(bdsz),0) total
+		from passive_shandian  where user_id=#{userId} and bdsz > 0
+	</select>
+
+	<!-- 查询积分总条数 -->
+	<select id="countMyIntegral" resultType="Integer" parameterType="Map">
+		SELECT count(0)
+		from xfz_dzb x left join order_form ofm on x.order_id=ofm.id
+		where x.user_id=#{userId} and x.leixing=1
+	</select>
+
+	<!-- 累计积分 -->
+	<select id="countMyIntegralTotal" resultType="Double" parameterType="Map">
+		SELECT ifnull(sum(x.bdsz), 0) total
+		from xfz_dzb x left join order_form ofm on x.order_id=ofm.id
+		where x.user_id=#{userId} and x.leixing=1 and x.bdsz>0
+	</select>
+
+	<!-- 积分明细 -->
+	<select id="queryMyIntegral" resultType="com.azcx9d.business.dto.MyPointDto" parameterType="Map">
+		SELECT
+		(case when x.bdsz>0 then CONCAT('+', x.bdsz) else x.bdsz end) value,
+		x.bdsj dateTime ,IFNULL(ofm.money,'') money,IFNULL(ofm.rangli,'') rangli
+		from xfz_dzb x left join order_form ofm on x.order_id=ofm.id
+		where x.user_id=#{userId} and x.leixing=1
+		order by x.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<!-- 查询善点总条数 -->
+	<select id="countMyShandian" resultType="Integer" parameterType="Map">
+		SELECT count(0)
+		from xfz_dzb x left join order_form ofm on x.order_id=ofm.id
+		where x.user_id=#{userId} and x.leixing=0
+	</select>
+
+	<!-- 累计善点 -->
+	<select id="countMyShandianTotal" resultType="Double" parameterType="Map">
+		SELECT ifnull(sum(x.bdsz), 0) total
+		from xfz_dzb x left join order_form ofm on x.order_id=ofm.id
+		where x.user_id=#{userId} and x.leixing=0 and x.bdsz>0
+	</select>
+
+	<!-- 主动善点明细 -->
+	<select id="queryMyShandian" resultType="com.azcx9d.business.dto.MyPointDto" parameterType="Map">
+		SELECT (case when x.bdsz>0 then CONCAT('+', x.bdsz) else x.bdsz end) value,
+		x.bdsj dateTime, x.bdsz money,quota_type quotaType from xfz_dzb x
+		where x.leixing=0 and x.user_id=#{userId}
+		order by x.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<!-- 查询被动善点总条数 -->
+	<select id="countPassiveShandian" resultType="Integer" parameterType="Map">
+		SELECT count(0)
+		FROM passive_shandian ps
+		WHERE ps.user_id = (select user_id from c_user_role_attribute where id = #{userId})
+	</select>
+
+	<!-- 查询被动善点总条数 -->
+	<select id="countPassiveShandianTotal" resultType="Double" parameterType="Map">
+		SELECT ifnull(sum(ps.bdsz), 0) total
+		FROM passive_shandian ps
+		WHERE ps.user_id = (select user_id from c_user_role_attribute where id = #{userId}) and ps.bdsz>0
+	</select>
+
+	<!-- 被动善点明细 -->
+	<select id="queryPassiveShandian" resultType="com.azcx9d.business.dto.MyPointDto" parameterType="Map">
+		SELECT
+			ps.bdsj dateTime,
+			(case when ps.bdsz>0 then CONCAT('+', ps.bdsz) else ps.bdsz end) VALUE,
+			(case
+			when grantType=0 then '推荐消费奖励'
+			when grantType=1 then '业务奖励'
+			when grantType=2 then '区域奖励'
+			when grantType=3 then '行业奖励'
+			when grantType=4 then '配送'
+			when bdsz&lt;0 then '兑换扣除'
+			else '其他' end) as type
+		FROM passive_shandian ps
+		WHERE ps.user_id = (select user_id from c_user_role_attribute where id = #{userId})
+		order by ps.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+</mapper>
+
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.system.dao.SConvertibilityRecordDAO">
+
+    <select id="countTotalByQueryDate" parameterType="map" resultType="int">
+        select count(0) from (select c.bankcard_no bankcardNo,c.sjdk money,u.name businessUserName,b.identity_card businessIDCard from convertibility_record c
+            left join user u on c.user_id=u.id
+                left join business b on u.id=b.user_id
+            <if test="queryDate!=null and queryDate!=''">
+              where c.qrsj &lt; #{queryDate}
+            </if>
+            ) zz
+    </select>
+
+    <select id="selectRecordByQueryDate" parameterType="map" resultType="map">
+        select ifnull(c.bankcard_no,'') bankcardNo,c.sjdk money,ifnull(u.name,'') businessUserName,ifnull(b.identity_card,'') businessIDCard from convertibility_record c
+            left join user u on c.user_id=u.id
+                left join business b on u.id=b.user_id
+            <if test="queryDate!=null and queryDate!=''">
+                where c.qrsj &lt; #{queryDate}
+            </if>
+        limit #{offset},#{pageSize}
+    </select>
+
+    <!--导出excel-->
+    <select id="selectAllByQueryDay" parameterType="map" resultType="map">
+        select ifnull(c.bankcard_no,'') bankcardNo,c.sjdk money,ifnull(u.name,'') businessUserName,ifnull(b.identity_card,'') businessIDCard from convertibility_record c
+            left join user u on c.user_id=u.id
+                left join business b on u.id=b.user_id
+            <if test="queryDay!=null and queryDay!=''">
+                where date_format(c.qrsj,'%Y-%m-%d')=#{queryDay}
+            </if>
+    </select>
+
+</mapper>
+
+

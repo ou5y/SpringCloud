@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.user.dao.AppDao">
+
+    <!-- 查询公告 -->
+    <select id="findByParams" parameterType="Map" resultType="Notice">
+        select id,is_open,message,`type` from notice
+        <include refid="NOTICE_WHERE" />
+        order by creat_time desc limit 1
+    </select>
+
+    <sql id="NOTICE_WHERE">
+        <where>
+            <if test="appType!=null and appType!=''">
+                and app_type=#{appType}
+            </if>
+        </where>
+    </sql>
+</mapper>

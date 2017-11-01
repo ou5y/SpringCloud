@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.controller.HelloController;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;

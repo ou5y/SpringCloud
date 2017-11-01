@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.mybatisgenerator.dao.OrderFormMapper">
+  <resultMap id="BaseResultMap" type="com.azcx9d.mybatisgenerator.model.OrderForm">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="store_id" jdbcType="INTEGER" property="storeId" />
+    <result column="money" jdbcType="DOUBLE" property="money" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="caiwu_time" jdbcType="TIMESTAMP" property="caiwuTime" />
+    <result column="seller_time" jdbcType="TIMESTAMP" property="sellerTime" />
+    <result column="goods_id" jdbcType="BIGINT" property="goodsId" />
+    <result column="rangli" jdbcType="DOUBLE" property="rangli" />
+    <result column="huikuan_id" jdbcType="INTEGER" property="huikuanId" />
+    <result column="seller_id" jdbcType="INTEGER" property="sellerId" />
+    <result column="shanxin_user" jdbcType="DOUBLE" property="shanxinUser" />
+    <result column="shanxin_store" jdbcType="DOUBLE" property="shanxinStore" />
+    <result column="jifen_user" jdbcType="DOUBLE" property="jifenUser" />
+    <result column="jifen_store" jdbcType="DOUBLE" property="jifenStore" />
+    <result column="ranli_money" jdbcType="DECIMAL" property="ranliMoney" />
+    <result column="voucherPic" jdbcType="VARCHAR" property="voucherpic" />
+    <result column="orderSource" jdbcType="INTEGER" property="ordersource" />
+    <result column="caiwu_id" jdbcType="BIGINT" property="caiwuId" />
+    <result column="consumptionPic" jdbcType="VARCHAR" property="consumptionpic" />
+    <result column="close_time" jdbcType="TIMESTAMP" property="closeTime" />
+    <result column="quota_type" jdbcType="INTEGER" property="quotaType" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, order_id, user_id, store_id, money, state, create_time, caiwu_time, seller_time, 
+    goods_id, rangli, huikuan_id, seller_id, shanxin_user, shanxin_store, jifen_user, 
+    jifen_store, ranli_money, voucherPic, orderSource, caiwu_id, consumptionPic, close_time, 
+    quota_type
+  </sql>
+  <select id="selectByExample" parameterType="com.azcx9d.mybatisgenerator.model.OrderFormCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from order_form
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="com.azcx9d.mybatisgenerator.model.OrderFormKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from order_form
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.azcx9d.mybatisgenerator.model.OrderFormKey">
+    delete from order_form
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.azcx9d.mybatisgenerator.model.OrderForm">
+    insert into order_form (id, order_id, user_id, 
+      store_id, money, state, 
+      create_time, caiwu_time, seller_time, 
+      goods_id, rangli, huikuan_id, 
+      seller_id, shanxin_user, shanxin_store, 
+      jifen_user, jifen_store, ranli_money, 
+      voucherPic, orderSource, caiwu_id, 
+      consumptionPic, close_time, quota_type
+      )
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
+      #{storeId,jdbcType=INTEGER}, #{money,jdbcType=DOUBLE}, #{state,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{caiwuTime,jdbcType=TIMESTAMP}, #{sellerTime,jdbcType=TIMESTAMP}, 
+      #{goodsId,jdbcType=BIGINT}, #{rangli,jdbcType=DOUBLE}, #{huikuanId,jdbcType=INTEGER}, 
+      #{sellerId,jdbcType=INTEGER}, #{shanxinUser,jdbcType=DOUBLE}, #{shanxinStore,jdbcType=DOUBLE}, 
+      #{jifenUser,jdbcType=DOUBLE}, #{jifenStore,jdbcType=DOUBLE}, #{ranliMoney,jdbcType=DECIMAL}, 
+      #{voucherpic,jdbcType=VARCHAR}, #{ordersource,jdbcType=INTEGER}, #{caiwuId,jdbcType=BIGINT}, 
+      #{consumptionpic,jdbcType=VARCHAR}, #{closeTime,jdbcType=TIMESTAMP}, #{quotaType,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.azcx9d.mybatisgenerator.model.OrderForm" useGeneratedKeys="true" keyProperty="id" >
+    insert into order_form
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="storeId != null">
+        store_id,
+      </if>
+      <if test="money != null">
+        money,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="caiwuTime != null">
+        caiwu_time,
+      </if>
+      <if test="sellerTime != null">
+        seller_time,
+      </if>
+      <if test="goodsId != null">
+        goods_id,
+      </if>
+      <if test="rangli != null">
+        rangli,
+      </if>
+      <if test="huikuanId != null">
+        huikuan_id,
+      </if>
+      <if test="sellerId != null">
+        seller_id,
+      </if>
+      <if test="shanxinUser != null">
+        shanxin_user,
+      </if>
+      <if test="shanxinStore != null">
+        shanxin_store,
+      </if>
+      <if test="jifenUser != null">
+        jifen_user,
+      </if>
+      <if test="jifenStore != null">
+        jifen_store,
+      </if>
+      <if test="ranliMoney != null">
+        ranli_money,
+      </if>
+      <if test="voucherpic != null">
+        voucherPic,
+      </if>
+      <if test="ordersource != null">
+        orderSource,
+      </if>
+      <if test="caiwuId != null">
+        caiwu_id,
+      </if>
+      <if test="consumptionpic != null">
+        consumptionPic,
+      </if>
+      <if test="closeTime != null">
+        close_time,
+      </if>
+      <if test="quotaType != null">
+        quota_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null">
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="money != null">
+        #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="caiwuTime != null">
+        #{caiwuTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sellerTime != null">
+        #{sellerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodsId != null">
+        #{goodsId,jdbcType=BIGINT},
+      </if>
+      <if test="rangli != null">
+        #{rangli,jdbcType=DOUBLE},
+      </if>
+      <if test="huikuanId != null">
+        #{huikuanId,jdbcType=INTEGER},
+      </if>
+      <if test="sellerId != null">
+        #{sellerId,jdbcType=INTEGER},
+      </if>
+      <if test="shanxinUser != null">
+        #{shanxinUser,jdbcType=DOUBLE},
+      </if>
+      <if test="shanxinStore != null">
+        #{shanxinStore,jdbcType=DOUBLE},
+      </if>
+      <if test="jifenUser != null">
+        #{jifenUser,jdbcType=DOUBLE},
+      </if>
+      <if test="jifenStore != null">
+        #{jifenStore,jdbcType=DOUBLE},
+      </if>
+      <if test="ranliMoney != null">
+        #{ranliMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="voucherpic != null">
+        #{voucherpic,jdbcType=VARCHAR},
+      </if>
+      <if test="ordersource != null">
+        #{ordersource,jdbcType=INTEGER},
+      </if>
+      <if test="caiwuId != null">
+        #{caiwuId,jdbcType=BIGINT},
+      </if>
+      <if test="consumptionpic != null">
+        #{consumptionpic,jdbcType=VARCHAR},
+      </if>
+      <if test="closeTime != null">
+        #{closeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="quotaType != null">
+        #{quotaType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.azcx9d.mybatisgenerator.model.OrderForm">
+    update order_form
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null">
+        store_id = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="money != null">
+        money = #{money,jdbcType=DOUBLE},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="caiwuTime != null">
+        caiwu_time = #{caiwuTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sellerTime != null">
+        seller_time = #{sellerTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodsId != null">
+        goods_id = #{goodsId,jdbcType=BIGINT},
+      </if>
+      <if test="rangli != null">
+        rangli = #{rangli,jdbcType=DOUBLE},
+      </if>
+      <if test="huikuanId != null">
+        huikuan_id = #{huikuanId,jdbcType=INTEGER},
+      </if>
+      <if test="sellerId != null">
+        seller_id = #{sellerId,jdbcType=INTEGER},
+      </if>
+      <if test="shanxinUser != null">
+        shanxin_user = #{shanxinUser,jdbcType=DOUBLE},
+      </if>
+      <if test="shanxinStore != null">
+        shanxin_store = #{shanxinStore,jdbcType=DOUBLE},
+      </if>
+      <if test="jifenUser != null">
+        jifen_user = #{jifenUser,jdbcType=DOUBLE},
+      </if>
+      <if test="jifenStore != null">
+        jifen_store = #{jifenStore,jdbcType=DOUBLE},
+      </if>
+      <if test="ranliMoney != null">
+        ranli_money = #{ranliMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="voucherpic != null">
+        voucherPic = #{voucherpic,jdbcType=VARCHAR},
+      </if>
+      <if test="ordersource != null">
+        orderSource = #{ordersource,jdbcType=INTEGER},
+      </if>
+      <if test="caiwuId != null">
+        caiwu_id = #{caiwuId,jdbcType=BIGINT},
+      </if>
+      <if test="consumptionpic != null">
+        consumptionPic = #{consumptionpic,jdbcType=VARCHAR},
+      </if>
+      <if test="closeTime != null">
+        close_time = #{closeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="quotaType != null">
+        quota_type = #{quotaType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.azcx9d.mybatisgenerator.model.OrderForm">
+    update order_form
+    set order_id = #{orderId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      store_id = #{storeId,jdbcType=INTEGER},
+      money = #{money,jdbcType=DOUBLE},
+      state = #{state,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      caiwu_time = #{caiwuTime,jdbcType=TIMESTAMP},
+      seller_time = #{sellerTime,jdbcType=TIMESTAMP},
+      goods_id = #{goodsId,jdbcType=BIGINT},
+      rangli = #{rangli,jdbcType=DOUBLE},
+      huikuan_id = #{huikuanId,jdbcType=INTEGER},
+      seller_id = #{sellerId,jdbcType=INTEGER},
+      shanxin_user = #{shanxinUser,jdbcType=DOUBLE},
+      shanxin_store = #{shanxinStore,jdbcType=DOUBLE},
+      jifen_user = #{jifenUser,jdbcType=DOUBLE},
+      jifen_store = #{jifenStore,jdbcType=DOUBLE},
+      ranli_money = #{ranliMoney,jdbcType=DECIMAL},
+      voucherPic = #{voucherpic,jdbcType=VARCHAR},
+      orderSource = #{ordersource,jdbcType=INTEGER},
+      caiwu_id = #{caiwuId,jdbcType=BIGINT},
+      consumptionPic = #{consumptionpic,jdbcType=VARCHAR},
+      close_time = #{closeTime,jdbcType=TIMESTAMP},
+      quota_type = #{quotaType,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="checkStoreById" resultType="com.azcx9d.business.dto.CheckBusinessDto" parameterType="Map">
+    SELECT
+    b.id,
+    ifnull(b.b_name, '') bName,
+    b.user_id userId,
+    b.max_amount maxAmount,
+    b.quota_type quotaType,
+    (CASE
+    WHEN bsi.merchant_number is not null and bsi.merchant_number != '' THEN 1
+    ELSE 0
+    END) isOpen
+    FROM
+    business b
+    LEFT JOIN business_support_info bsi ON b.id = bsi.b_id and bsi.state = 5
+    WHERE
+    b.state = 1
+    AND b.id = #{storeId}
+  </select>
+
+  <select id="getOrderSum" resultType="String" parameterType="Map">
+    SELECT
+    IFNULL(SUM(money), 0)
+    FROM
+    order_form
+    WHERE
+    state >= 0
+    AND state != 4
+    AND to_days(now()) = to_days(create_time)
+    AND store_id = #{storeId}
+  </select>
+</mapper>

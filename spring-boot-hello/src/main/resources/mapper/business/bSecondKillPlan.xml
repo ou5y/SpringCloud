@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.business.dao.BSecondKillDao">
+
+	<!-- 我要做秒杀 -->
+	<insert id="addSecondKillPlan" parameterType="Map">
+		INSERT INTO `b_second_kill_plan` (
+											`goods_name`,
+											`business_id`,
+											`phone`
+		) VALUES (
+											#{goodsName},
+											#{userId},
+											#{phone}
+		)
+	</insert>
+
+</mapper>
+
+

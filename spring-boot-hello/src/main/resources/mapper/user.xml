@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.user.dao.UserDao">
+    <select id="selectUser" parameterType="Agency" resultType="Agency">
+        select u.id,u.pass password,u.phone,u.level,u.bank_card,ifnull(u.transaction_psw,'') transaction_psw,
+        u.shandian,u.identity_card,IFNULL(u.avatar,'') avatar,u.jifen,u.shanxin 
+        from user u
+        where u.pass=#{password} and u.phone = #{phone} and u.user_type=2
+     </select>
+     <select id ="selectByIdentify" resultType="int">
+     	select count(u.id) from user u where u.phone = #{phone} and user_type=2
+     </select>
+     <select id="selectUserById" resultType="Agency">
+     	select id,level,phone,create_time,`name`,bank_card,shandian,shandian2,jifen,jifen2  from user where id =#{value}
+     </select>
+     
+     <!-- 查询用户交易密码 -->
+     <select id="selectTransPwd" resultType="Agency">
+     	select transaction_psw  from user where id =#{value} 
+     </select>
+     
+     <!-- 查询登录用户的全部银行卡 -->
+     <select id="queryMyBankCard" parameterType="Map" resultType="BankCard">
+     	select id,bank_card_no,bank_name,user_id from bank_card where user_id=#{userId} and user_type=2
+     </select>
+     
+     <!-- 新增银行卡 -->
+     <insert id="addBankCard" parameterType="Map">
+     	<!-- insert into bank_card(bank_card_no,bank_name,user_id)
+     	values(#{bankCardNo},#{bankName},#{userId}) -->
+     	
+     	insert into bank_card(
+						     	bank_card_no,
+						     	bank_name,
+						     	card_name,
+						     	card_type,
+						     	user_id,
+						     	is_default,
+						     	card_holder,
+						     	user_type,
+						     	identity_card,
+						     	bank_id,
+						     	bank_phone
+     						)
+			     	values (
+						     	#{bankCardNo},
+						     	#{bankName},
+						     	#{cardName},
+						     	#{cardType},
+						     	#{userId},
+						     	0,
+						     	#{name},
+						     	#{userType},
+						     	#{identifyCard},
+						     	#{bankId},
+						     	#{bankPhone}
+     	)
+     </insert>
+     
+     <!-- 接触银行卡绑定关系 -->
+     <delete id="deleteBankCard" parameterType="Map">
+     	delete from bank_card where bank_card_no=#{bankCardNo} and user_type=#{userType}
+     </delete>
+     
+     <!-- 根据银行卡id查询银行卡信息 -->
+     <select id="findBankCardById" parameterType="Map" resultType="BankCard">
+     	select id,bank_card_no,bank_name,user_id,card_holder from bank_card where id=#{id}
+     </select>
+     
+     <!-- 根据银行卡id查询银行卡信息 -->
+     <select id="findBankCard" parameterType="Map" resultType="BankCard">
+     	select id,bank_card_no,bank_name,user_id,card_holder from bank_card 
+     	<where>
+     		<if test="bankCardNo!=null and bankCardNo!=''">
+     			and bank_card_no=#{bankCardNo}
+     		</if>
+     		<if test="userType!=null and userType!=''">
+     			and user_type=#{userType}
+     		</if>
+     		<if test="userId!=null and userId!=''">
+     			and user_id=#{userId}
+     		</if>
+     	</where>
+     </select>
+     
+     <select id="selectQRCode" resultType="com.azcx9d.common.entity.QRCode" parameterType="Agency">
+     		select w.user_id,w.ticket,w.sqsj from wx_qr_code w,user u where u.id=#{id} and u.id=w.user_id 
+     </select>
+     
+     <!-- 更新身份证信息 -->
+     <update id="updateUser" parameterType="Agency">
+     	Update user set
+     		identity_card_up = #{identityCardUp},
+     		identity_card_down = #{identityCardDown},
+     		update_time = now()
+     	where id = #{id}
+     </update>
+     
+     <!-- 推荐记录 -->
+     <select id="queryRecommend" parameterType="Map" resultType="hashmap" >
+     	select `name`,date_format(recom_time,'%Y-%m-%d %H:%i:%s') recomTime,avatar from user where parent_id=#{parentId}
+     </select>
+
+
+	<!-- 更新交易密码  -->
+    <update id="updateTransPwd" parameterType="Map">
+    	update `user` set transaction_psw=#{transactionPwd} where id=#{id}
+    </update>
+     
+    <!-- 查询用户密码 -->
+    <select id="queryPassword" parameterType="Map" resultType="Map">
+    	select pass `password` from `user` where id=#{id}
+    </select>
+    
+    <!-- 更新登录密码  -->
+    <update id="updateLoginPwd" parameterType="Map">
+    	update `user` set pass=#{password} 
+    	<where>
+    		<if test="id !=null and id !=''">
+    			and id=#{id}
+    		</if>
+    		<if test="phone !=null and phone !=''">
+    			and phone=#{phone}
+    		</if>
+    		<if test="userType!=null and userType!=''">
+    			and user_type=#{userType}
+    		</if>
+    	</where>
+    </update>
+    
+    <!-- 查询用户的系统消息 -->
+    <select id="queryMessage" parameterType="Map" resultType="SystemMessage">
+    	select id,content,creat_time from system_message 
+		where user_id in(#{userId},0) order by creat_time desc
+    </select>
+    
+    <!-- 更新是否阅读状态 -->
+    <update id="updateReadState" parameterType="Map">
+    	update system_message set is_read=1 where id=#{id}
+    </update>
+    
+    <!-- 根据用户id查询善心,善点,积分 -->
+    <select id="queryShanxin" parameterType="Map" resultType="Map">
+    	select shanxin,shandian from user where id=#{id}
+    </select>
+    
+    <!-- 查询大盘善心(比例） -->
+    <select id="queryLovePercent" resultType="Map">
+    	select love_percentage percent from market_customer where DATEDIFF(now(),create_time)=0
+    </select>
+    
+    <!-- 添加用户建议反馈 -->
+    <insert id="addUserSuggest" parameterType="UserSuggest">
+    	insert into user_suggest(content,user_id,creat_time)
+		values(#{content},#{userId},now())
+    </insert>
+    
+    <!-- 更新用户善点 -->
+    <update id="updateShandian">
+    	Update user set
+     		shandian = #{currentShandian},
+     		jifen = #{currentJifen},
+     		update_time = now()
+     	where id = #{userId}
+    </update>
+
+	<!-- 更新用户善点 -->
+	<update id="updateShandian2">
+		Update user set
+		shandian2 = #{currentShandian},
+		jifen2 = #{currentJifen},
+		update_time = now()
+		where id = #{userId}
+	</update>
+    
+    <!-- 查询更新版本信息 -->
+    <select id="queryVersionInfo" resultType="Map" parameterType="Map">
+    	select id,version_code versionCode,version_name versionName,is_update isUpdate,
+		upgrade_info upgradeInfo,update_url updateUrl,creat_time creatTime 
+		from version_manage
+		where app_type=#{appType}
+		order by creat_time desc limit 1
+    </select>
+    
+    <!-- 根据手机号码查询用户是否存在 -->
+    <select id="selectByPhone" parameterType="Map" resultType="Map">
+    	select id,user_type userType from `user` where phone=#{phone}
+    </select>
+    
+    <!-- 保存用户记录 -->
+    <insert id="saveUser" parameterType="Map">
+    	INSERT INTO `user` (
+							phone,
+							pass,
+							user_type,
+							level,
+							create_time,
+							shandian,
+							jifen,
+							shanxin
+							)
+		VALUES(
+							#{phone},
+							'000000',
+							'1',
+							0,
+							now(),
+							0.0,
+							0.0,
+							0.0
+				)
+    </insert>
+    
+</mapper>
+
