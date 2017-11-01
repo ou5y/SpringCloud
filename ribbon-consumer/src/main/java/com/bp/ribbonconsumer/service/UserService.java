@@ -29,46 +29,46 @@ public class UserService {
      */
     @HystrixCommand(fallbackMethod = "userBack",
             groupKey = "user",
-            commandKey = "getUserBySync",
+            commandKey = "getUserBySyncPOST",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
-    public User getUserBySync(Integer id){
+    public User getUserBySyncPOST(Integer id){
         //同步方式请求数据
         System.out.println("进来了："+id);
         User user = new User(id);
-        return restTemplate.postForObject("http://hello-service/getUser", user, User.class);
+        return restTemplate.postForObject("http://hello-service/post-user", user, User.class);
     }
 
     @HystrixCommand(fallbackMethod = "userBack",
             groupKey = "user",
-            commandKey = "getUserBySyncs",
+            commandKey = "getUserBySyncGET",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
-    public User getUserBySyncs(Integer id){
+    public User getUserBySyncGET(Integer id){
         //同步方式请求数据
-        System.out.println("进来了s："+id);
+        System.out.println("GET进来了："+id);
         User user = new User(id);
-        user = restTemplate.getForObject("http://hello-service/getUsers/{1}", User.class, id.toString());
-        System.out.println("User返回的结果是："+user);
+        user = restTemplate.getForObject("http://hello-service/get-user/{1}", User.class, id.toString());
+        System.out.println("GET-User返回的结果是："+user);
         return user;
     }
 
 
     @HystrixCommand(fallbackMethod = "userBack",
             groupKey = "user",
-            commandKey = "getUserByAsync",
+            commandKey = "getUserByAsyncPOST",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
-    public Future<User> getUserByAsync(final Integer id){
+    public Future<User> getUserByAsyncPOST(final Integer id){
         //异步的方式请求数据
         return new AsyncResult<User>() {
             @Override
             public User invoke() {
                 User user = new User(id);
-                return restTemplate.postForObject("http://hello-service/getUser", user, User.class);
+                return restTemplate.postForObject("http://hello-service/post-user", user, User.class);
             }
         };
     }
@@ -76,7 +76,7 @@ public class UserService {
 
     @HystrixCommand(fallbackMethod = "userBack",
             groupKey = "user",
-            commandKey = "getUserByObservable",
+            commandKey = "getUserByObservablePOST",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
             },
@@ -89,14 +89,14 @@ public class UserService {
             //当所有订阅者都订阅它后才会执行
             //observableExecutionMode = ObservableExecutionMode.LAZY
     )
-    public Observable<User> getUserByObservable(final Integer id){
+    public Observable<User> getUserByObservablePOST(final Integer id){
         Observable<User> user = Observable.create(new Observable.OnSubscribe<User>(){
             @Override
             public void call(Subscriber<? super User> observable) {
                 try {
                     if (!observable.isUnsubscribed()){
                         User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/getUser", temp, User.class);
+                        temp = restTemplate.postForObject("http://hello-service/post-user", temp, User.class);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }
@@ -111,20 +111,20 @@ public class UserService {
 
     @HystrixCommand(fallbackMethod = "userBack",
             groupKey = "user",
-            commandKey = "getUserByToObservable",
+            commandKey = "getUserByToObservablePOST",
             commandProperties = {
                     @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
             },
             observableExecutionMode = ObservableExecutionMode.LAZY
     )
-    public Observable<User> getUserByToObservable(final Integer id){
+    public Observable<User> getUserByToObservablePOST(final Integer id){
         Observable<User> user = Observable.create(new Observable.OnSubscribe<User>(){
             @Override
             public void call(Subscriber<? super User> observable) {
                 try {
                     if (!observable.isUnsubscribed()){
                         User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/getUser", temp, User.class);
+                        temp = restTemplate.postForObject("http://hello-service/post-user", temp, User.class);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }

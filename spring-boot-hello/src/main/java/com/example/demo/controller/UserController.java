@@ -27,9 +27,9 @@ public class UserController {
 
 
     @ApiOperation(value = "获取用户信息", notes = "根据url的id来获取用户对象")
-    @RequestMapping(value = "/getUser", method = RequestMethod.POST)
+    @RequestMapping(value = "/post-user", method = RequestMethod.POST)
     public Object user(@ApiParam(value = "用户ID") @RequestParam(required = false) Integer id) {
-        System.out.println("收到参数："+id);
+        System.out.println("post收到参数："+id);
         JSONObject jsonObject = new JSONObject();
         if (StringUtils.isEmpty(id)) {
             jsonObject.put("error", "id参数为空");
@@ -39,7 +39,7 @@ public class UserController {
                 if (user == null) {
                     jsonObject.put("error", "未找到ID=" + id + "的User信息");
                 } else {
-                    System.out.println("返回信息：");
+                    System.out.println("post返回信息：");
                     System.out.println(JSON.toJSONString(user));
                     return user;
                 }
@@ -52,19 +52,19 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "/getUsers/{n}")
-    public Object users(@PathVariable(value = "n", required = false) String id) {
-        System.out.println("收到参数s："+id);
+    @RequestMapping(value = "/get-user/{n}", method = RequestMethod.GET)
+    public Object users(@PathVariable(value = "n", required = false) Integer id) {
+        System.out.println("get收到参数："+id);
         JSONObject jsonObject = new JSONObject();
         if (StringUtils.isEmpty(id)) {
             jsonObject.put("error", "id参数为空");
         } else {
             try {
-                User user = userService.get(Integer.valueOf(id));
+                User user = userService.get(id);
                 if (user == null) {
-                    jsonObject.put("error", "未找到IDs=" + id + "的User信息");
+                    jsonObject.put("error", "未找到ID=" + id + "的User信息");
                 } else {
-                    System.out.println("返回信息s：");
+                    System.out.println("get返回信息：");
                     System.out.println(JSON.toJSONString(user));
                     return user;
                 }
