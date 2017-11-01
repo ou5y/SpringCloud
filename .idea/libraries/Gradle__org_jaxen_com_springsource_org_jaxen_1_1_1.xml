@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.jaxen:com.springsource.org.jaxen:1.1.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jaxen/com.springsource.org.jaxen/1.1.1/c59c8dcd984cf4629002484b3c321c3d3468880a/com.springsource.org.jaxen-1.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jaxen/com.springsource.org.jaxen/1.1.1/57b11647e38c2d7d01b43663bca4231e2f37eede/com.springsource.org.jaxen-1.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

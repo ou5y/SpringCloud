@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.COrderMapper">
+
+    <select id="checkStoreById" resultType="com.customer.dto.CheckBusinessDto" parameterType="Map">
+        SELECT
+            b.id,
+            ifnull(b.b_name, '') bName,
+            b.user_id userId,
+            b.max_amount maxAmount,
+            b.quota_type quotaType,
+            count(bm.businessId) isMember,
+            (CASE
+            WHEN cu.user_id = (SELECT user_id FROM c_user_role_attribute WHERE id = #{userId}) THEN 1
+            ELSE 0
+            END) isSelf
+        FROM
+            business b LEFT JOIN business_member bm ON b.id = bm.businessId and bm.userId = #{userId}
+        JOIN c_user_role_attribute cu ON b.user_id = cu.id
+        WHERE
+            b.state = 1
+        AND b.id = #{storeId}
+    </select>
+
+    <select id="getOrderSum" resultType="String" parameterType="Map">
+        SELECT
+        IFNULL(SUM(money), 0)
+        FROM
+        order_form
+        WHERE
+        state >= 0
+        AND state != 4
+        AND to_days(now()) = to_days(create_time)
+        AND store_id = #{storeId}
+    </select>
+
+    <insert id="insertOrder" parameterType="Map">
+        insert into order_form(
+          order_id,
+          user_id,
+          store_id,
+          money,
+          state,
+          create_time,
+          seller_id,
+          quota_type
+        )
+        values(
+          #{orderId},
+          #{userId},
+          #{storeId},
+          #{money},
+          0,
+          now(),
+          #{sellerId},
+          #{quotaType}
+        )
+    </insert>
+
+    <select id="getOrderTotal" resultType="com.customer.dto.OrderTotalDto" parameterType="Map">
+        SELECT
+            IFNULL(SUM(money), 0.00) totalMoney
+        FROM
+            order_form
+        WHERE
+        <if test="type==0">
+            state IN (0, 1, 2)
+        </if>
+        <if test="type==1">
+            state = 3
+        </if>
+        <if test="type==2">
+            state IN (-1, -2)
+        </if>
+        AND orderSource = 2
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getStartOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            id,
+            store_id storeId,
+            money,
+            state,
+            create_time createTime,
+            ROUND(CASE
+            WHEN rangli = 0.2 THEN money * 1
+            WHEN rangli = 0.12 THEN money * 1
+            WHEN rangli = 0.1 THEN money * 0.5
+            WHEN rangli = 0.05 THEN money * 0.25
+            ELSE 0
+            END, 2) jifen,
+            quota_type quotaType,
+            (CASE
+            WHEN offset_type = 1 THEN concat('抵代金券:', offset_num)
+            WHEN offset_type = 2 THEN concat('抵鼓励点:', offset_num)
+            WHEN offset_type = 3 THEN concat('抵奖励点:', offset_num)
+            ELSE ''
+            END) offsetDesc
+        FROM
+            order_form
+        WHERE
+            state in (0, 1, 2)
+        AND orderSource = 2
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getEndOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            a.id,
+            a.store_id storeId,
+            a.money,
+            a.state,
+            a.create_time createTime,
+            IFNULL(b.bdsz, '') jifen,
+            a.quota_type quotaType,
+            (CASE
+            WHEN offset_type = 1 THEN concat('抵代金券:', offset_num)
+            WHEN offset_type = 2 THEN concat('抵鼓励点:', offset_num)
+            WHEN offset_type = 3 THEN concat('抵奖励点:', offset_num)
+            ELSE ''
+            END) offsetDesc
+        FROM
+            order_form a
+        LEFT JOIN xfz_dzb b ON a.id = b.order_id
+        AND a.user_id = b.user_id
+        AND b.leixing = 1
+        WHERE
+            a.state = 3
+        AND a.orderSource = 2
+        AND a.user_id = #{userId}
+    </select>
+
+    <select id="getClosedOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            id,
+            store_id storeId,
+            money,
+            state,
+            close_time createTime,
+            quota_type quotaType,
+            (CASE
+            WHEN offset_type = 1 THEN concat('抵代金券:', offset_num)
+            WHEN offset_type = 2 THEN concat('抵鼓励点:', offset_num)
+            WHEN offset_type = 3 THEN concat('抵奖励点:', offset_num)
+            ELSE ''
+            END) offsetDesc
+        FROM
+            order_form
+        WHERE
+            state in (-1, -2)
+        AND orderSource = 2
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getNetWorkOrderTotal" resultType="com.customer.dto.OrderTotalDto" parameterType="Map">
+        SELECT
+            IFNULL(SUM(money), 0.00) totalMoney
+        FROM
+            order_form
+        WHERE
+        <if test="type==0">
+            state = 5
+        </if>
+        <if test="type==1">
+            state = 4
+        </if>
+        <if test="type==2">
+            state = 2
+        </if>
+        <if test="type==3">
+            state = 3
+        </if>
+        AND orderSource = 1
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getStartNetWorkOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            id,
+            store_id storeId,
+            money,
+            state,
+            create_time createTime,
+            quota_type quotaType,
+            (CASE
+            WHEN rangli = 0.2 THEN '100%'
+            WHEN rangli = 0.12 THEN '100%'
+            WHEN rangli = 0.1 THEN '50%'
+            WHEN rangli = 0.05 THEN '25%'
+            ELSE ''
+            END) jiangli
+        FROM
+            order_form
+        WHERE
+            state = 5
+        AND orderSource = 1
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getEndNetWorkOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            a.id,
+            a.store_id storeId,
+            a.money,
+            a.state,
+            a.create_time createTime,
+            IFNULL(b.bdsz, '') jifen,
+            a.quota_type quotaType,
+            (CASE
+            WHEN rangli = 0.2 THEN '100%'
+            WHEN rangli = 0.12 THEN '100%'
+            WHEN rangli = 0.1 THEN '50%'
+            WHEN rangli = 0.05 THEN '25%'
+            ELSE ''
+            END) jiangli
+        FROM
+            order_form a
+        LEFT JOIN xfz_dzb b ON a.id = b.order_id
+        AND a.user_id = b.user_id
+        AND b.leixing = 1
+        WHERE
+            a.state = 3
+        AND a.orderSource = 1
+        AND a.user_id = #{userId}
+    </select>
+
+    <select id="getClosedNetWorkOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            id,
+            store_id storeId,
+            money,
+            state,
+            create_time createTime,
+            quota_type quotaType,
+            '付款失败' stateDesc,
+            (CASE
+            WHEN rangli = 0.2 THEN '100%'
+            WHEN rangli = 0.12 THEN '100%'
+            WHEN rangli = 0.1 THEN '50%'
+            WHEN rangli = 0.05 THEN '25%'
+            ELSE ''
+            END) jiangli
+        FROM
+            order_form
+        WHERE
+            state = 4
+        AND orderSource = 1
+        AND user_id = #{userId}
+    </select>
+
+    <select id="getSuccessNetWorkOrder" resultType="com.customer.dto.COrderListDto" parameterType="Map">
+        SELECT
+            id,
+            store_id storeId,
+            money,
+            state,
+            create_time createTime,
+            quota_type quotaType,
+            (CASE
+            WHEN rangli = 0.2 THEN '100%'
+            WHEN rangli = 0.12 THEN '100%'
+            WHEN rangli = 0.1 THEN '50%'
+            WHEN rangli = 0.05 THEN '25%'
+            ELSE ''
+            END) jiangli
+        FROM
+            order_form
+        WHERE
+            state = 2
+        AND orderSource = 1
+        AND user_id = #{userId}
+    </select>
+
+    <insert id="saveFreeOrder" parameterType="Map">
+        insert into order_form(
+            order_id,
+            user_id,
+            store_id,
+            money,
+            state,
+            create_time,
+            rangli,
+            seller_id,
+            orderSource,
+            quota_type,
+            consumptionPic,
+            offset_type,
+            offset_num,
+            offset_rangli
+        )
+        values(
+            #{orderId},
+            #{userId},
+            #{storeId},
+            #{money},
+            0,
+            now(),
+            #{rangli},
+            #{sellerId},
+            2,
+            #{quotaType},
+            #{consumptionPic},
+            #{offsetType},
+            #{offsetNum},
+            #{offsetRangli}
+        )
+    </insert>
+
+    <select id="isBusinessMember" resultType="int" parameterType="Map">
+        select count(1) counts from business_member where businessId = #{storeId} and userId = #{userId}
+    </select>
+
+    <insert id="saveBusinessMember" parameterType="Map">
+        insert into business_member(
+            businessId,
+            userId,
+            joinTime
+        )
+        values(
+            #{storeId},
+            #{userId},
+            now()
+        )
+    </insert>
+
+    <select id="scanBusiness" resultType="com.customer.dto.ScanBusinessDto" parameterType="Map">
+        select ifnull(b_name, '') bName, ifnull(business_photo, '') businessPhoto from business where state = 1 and id = #{storeId}
+    </select>
+
+    <select id="getMyShandians" resultType="Map" parameterType="Map">
+        SELECT
+            IFNULL(cura.reuse_point, 0) reusePoint,
+            IFNULL(cura.shandian, 0) shandian,
+            IFNULL(u.shandian2, 0) shandian2
+        FROM
+            c_user_role_attribute cura,
+            user u
+        WHERE
+            cura.user_id = u.id
+        AND cura.id = #{userId}
+    </select>
+
+    <select id="getOffsetproportion" resultType="String">
+        select ifnull(proportion, 0) from offset_proportion limit 1
+    </select>
+
+    <insert id="saveXfzDzb" parameterType="Map">
+        insert into xfz_dzb(
+            leixing,
+            user_id,
+            bdsz,
+            jieyu,
+            bdsj,
+            source_type
+        )
+        values(
+            #{leixing},
+            #{userId},
+            #{bdsz},
+            #{jieyu},
+            now(),
+            1
+        )
+    </insert>
+
+    <update id="updateShandian" parameterType="Map">
+        update c_user_role_attribute set
+            shandian = #{jieyu},
+            last_update_time = now()
+        where id = #{userId}
+    </update>
+
+    <update id="updateReusePoint" parameterType="Map">
+        update c_user_role_attribute set
+            reuse_point = #{jieyu},
+            last_update_time = now()
+        where id = #{userId}
+    </update>
+
+    <update id="updateShandian2" parameterType="Map">
+        update user set
+            shandian2 = #{jieyu},
+            update_time = now()
+        where id = (select user_id from c_user_role_attribute where id = #{userId})
+    </update>
+
+    <insert id="savePassiveShandian" parameterType="Map">
+        insert into passive_shandian (
+            user_id,
+            bdsz,
+            jieyu,
+            bdsj,
+            source_type
+        )
+        values
+        (
+            (select user_id from c_user_role_attribute where id = #{userId}),
+            #{bdsz},
+            #{jieyu},
+            now(),
+            1
+        )
+    </insert>
+
+</mapper>

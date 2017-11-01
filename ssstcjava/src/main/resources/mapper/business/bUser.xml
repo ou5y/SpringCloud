@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BUserDAO">
+
+
+	<select id="selectByPhone" parameterType="BUser" resultType="BUser">
+		select ura.id, u.name, u.pass password, u.phone, u.transaction_psw transactionPsw, u.avatar,
+		ura.shandian, ura.integral jifen, ura.love shanxin, u.shandian2, ura.reuse_point reusePoint,
+		ura.love today_love,
+		ura.love_large,
+		ura.love_middle,
+		ura.love_small
+		from c_user_role_attribute ura LEFT JOIN user u on ura.user_id = u.id and ura.role_id = 2
+      	where u.phone = #{phone}
+	</select>
+
+	<select id="countByPhone" parameterType="Map" resultType="int">
+		select count(id) from user u where u.phone = #{phone}
+	</select>
+
+	<select id="queryByPhone" parameterType="String" resultType="BUser">
+		select u.id, u.name, u.pass password, u.phone, u.transaction_psw transactionPsw, u.avatar,
+		ura.shandian, ura.integral jifen, ura.love shanxin, u.shandian2, ura.reuse_point reusePoint
+		from c_user_role_attribute ura join user u on ura.user_id = u.id and ura.role_id = 2
+		where u.phone = #{phone}
+	</select>
+
+	<update id="updatePassByPhone" parameterType="BUser">
+		update user set pass=#{pass} where phone=#{phone}
+	</update>
+
+	<!-- 根据id修改商家登录密码 -->
+	<update id="updatePassById" parameterType="Map">
+		update user
+		set pass = #{pass}
+		where id = (select user_id from c_user_role_attribute where id=#{id})
+	</update>
+
+	<select id="selectById" parameterType="int" resultType="BUser">
+		select ura.id, u.name, u.pass password, u.phone, u.transaction_psw transactionPsw, IFNULL(u.avatar,'') avatar,
+		ura.shandian, ura.integral jifen, ura.love shanxin, u.shandian2, ura.reuse_point reusePoint,u.create_time createTime
+		from c_user_role_attribute ura join user u on ura.user_id = u.id and ura.role_id = 2
+      	where ura.id=#{_parameter}
+	</select>
+
+	<select id="hasTransPwd" parameterType="ParaMap" resultType="int">
+		select count(1) from user where id=(select user_id from c_user_role_attribute where id=#{id}) and transaction_psw is not null and transaction_psw != ''
+	</select>
+
+	<update id="updateTransPwd" parameterType="ParaMap">
+		update user
+		set transaction_psw = #{transactionPsw}
+		where id = (select user_id from c_user_role_attribute where id=#{id})
+	</update>
+
+	<select id="checkTransPwd" parameterType="ParaMap" resultType="int">
+		select count(1) from user where id=(select user_id from c_user_role_attribute where id=#{id}) and transaction_psw=#{oldTransPwd}
+	</select>
+
+	<!-- 更新用户善点 -->
+	<update id="updateShandian">
+		Update c_user_role_attribute set
+		shandian = #{currentShandian},
+		integral = #{currentJifen},
+		last_update_time = now()
+		where id = #{userId}
+	</update>
+
+	<!-- 更新身份证信息 -->
+	<update id="uploadIdentityCard" parameterType="BUser">
+		Update user set
+		identity_card_up = #{identityCardUp},
+		identity_card_down = #{identityCardDown},
+		update_time = now()
+		where id = (select user_id from c_user_role_attribute where id=#{id})
+	</update>
+
+	<!-- 查询登录用户的全部银行卡 -->
+	<select id="queryMyBankCard" parameterType="Map" resultType="BankCard">
+		select id,bank_card_no,bank_name,user_id,card_holder from bank_card where user_id=#{userId}
+	</select>
+
+	<!-- 查询登录用户的全部银行卡 -->
+	<select id="queryClearenceAaccount" parameterType="Map" resultType="Map">
+		select id,bank_card_no,bank_name,card_type from clearance_account where identity_id=#{userId}
+	</select>
+
+	<!-- 新增银行卡 -->
+	<insert id="addBankCard" parameterType="Map">
+		insert into bank_card(
+								bank_card_no,
+								bank_name,
+								card_name,
+								card_type,
+								user_id,
+								is_default,
+								card_holder,
+								identity_card,
+								bank_id,
+								bank_phone
+		)values (
+								#{bankCardNo},
+								#{bankName},
+								#{cardName},
+								#{cardType},
+								#{userId},
+								0,
+								#{name},
+								#{identifyCard},
+								#{bankId},
+								#{bankPhone}
+		)
+	</insert>
+
+	<!-- 接触银行卡绑定关系 -->
+	<delete id="deleteBankCard" parameterType="Map">
+		delete from bank_card where id=#{bankCardId}
+	</delete>
+
+	<!-- 查询大盘善心(比例） -->
+	<select id="queryLovePercent" resultType="Map">
+		select love_percentage percent from market_shopping where DATEDIFF(now(),create_time)=1 order by create_time desc limit 1
+	</select>
+
+	<!-- 推荐记录 -->
+	<select id="queryRecommend" parameterType="Map" resultType="hashmap" >
+		SELECT c.id,u.`name`,u.create_time createTime,IFNULL(u.avatar,'') avatar,u.phone
+		FROM `user` u,c_user_role_attribute c
+		where parent_id=(select user_id from c_user_role_attribute where id=#{parentId}) limit #{offset},#{pageSize}
+	</select>
+
+	<!-- 推荐记录条数 -->
+	<select id="countTotalRecommend" parameterType="Map" resultType="Integer">
+		select count(*) from user where parent_id=(select user_id from c_user_role_attribute where id=#{parentId})
+	</select>
+
+	<!-- 根据银行卡id查询银行卡信息 -->
+	<select id="findBankCardById" parameterType="Map" resultType="BankCard">
+		select id,bank_card_no,bank_name,user_id,card_holder from bank_card where id=#{id}
+	</select>
+
+	<!-- 查询系统消息 -->
+	<select id="querySystemMessage" parameterType="Map" resultType="SystemMessage">
+		select id,content,creat_time,is_read,message_type,title from system_message
+		where user_id in(#{userId},0) order by creat_time desc limit #{offset},#{pageSize}
+	</select>
+
+	<!-- 查询系统消息条数 -->
+	<select id="countSystemMessage" parameterType="Map" resultType="Integer">
+		select count(*) from system_message
+		where user_id in(#{userId},0)
+	</select>
+
+	<!-- 更新身份证信息 -->
+	<update id="readSystemMessage" parameterType="Map">
+		Update system_message set
+		is_read = 1
+		where id = #{messageId}
+	</update>
+
+	<!-- 添加用户建议反馈 -->
+	<insert id="addUserSuggest" parameterType="UserSuggest">
+		insert into user_suggest(content,user_id,creat_time)
+		values(#{content},#{userId},now())
+	</insert>
+
+	<!-- 根据银行卡id查询银行卡信息 -->
+	<select id="findBankCard" parameterType="Map" resultType="BankCard">
+		select id,bank_card_no,bank_name,user_id,card_holder from bank_card
+		<where>
+			<if test="bankCardNo!=null and bankCardNo!=''">
+				and bank_card_no=#{bankCardNo}
+			</if>
+			<if test="userId!=null and userId!=''">
+     			and user_id=#{userId}
+     		</if>
+		</where>
+	</select>
+
+	<!-- 查询更新版本信息 -->
+	<select id="queryVersionInfo" resultType="Map" parameterType="Map">
+		select id,version_code versionCode,version_name versionName,is_update isUpdate,
+		upgrade_info upgradeInfo,update_url updateUrl,creat_time creatTime
+		from version_manage where app_type=#{appType} order by creat_time desc limit 1
+	</select>
+
+	<!-- 查询店铺列表 -->
+	<select id="getStoreList" parameterType="int" resultType="com.azcx9d.business.dto.StoreDto">
+		select b.id,b.b_name name,b.quota_type,concat('限额：',b.max_amount) max_amount,IFNULL(b.rangli, 0) rangli,if(bsi.id is not null, 1, 0) hasNbpay from business b left join business_support_info bsi on b.id = bsi.b_id and bsi.state = 5 where b.user_id=#{userId} and b.state = 1 order by b.id desc
+	</select>
+	<select id="getBussinessList" parameterType="Map" resultType="Map">
+		select id,b_name bName from business where user_id=#{userId} and state = 1 order by create_time desc limit #{offset},#{pageSize}
+	</select>
+
+	<!-- 查询店铺列表条数 -->
+	<select id="countTotalBussiness" parameterType="Map" resultType="Integer">
+		select count(*) from business where user_id=#{userId} and state = 1
+	</select>
+
+	<!-- 更新用户被动善点 -->
+	<update id="updateShandian2">
+		Update user set
+		shandian2 = #{currentShandian},
+		update_time = now()
+		where id = (select user_id from c_user_role_attribute where id = #{userId})
+	</update>
+
+	<!-- 查询公告 -->
+	<select id="queryNotice" parameterType="Map" resultType="Notice">
+		select id,is_open,message,type from notice
+		<include refid="NOTICE_WHERE" />
+		order by creat_time desc limit 1
+	</select>
+
+	<sql id="NOTICE_WHERE">
+		<where>
+			<if test="appType!=null and appType!='' or appType==0">
+				and app_type=#{appType}
+			</if>
+		</where>
+	</sql>
+
+	<!-- 查询分账银行卡列表 -->
+	<select id="queryClearenceAccount" parameterType="Map" resultType="Map">
+		select id,bank_account_no bankCardNo,bank_name bankName,bank_account_name cardHoler from business_support_info where b_id=#{businessId}
+	</select>
+
+	<!-- 解绑分账银行卡 -->
+	<delete id="deleteClearanceAccount" parameterType="Map">
+		delete from clearance_account where id=#{id}
+	</delete>
+
+	<!-- 添加结算账户银行信息 -->
+	<insert id="addClearanceAccount" parameterType="Map">
+		INSERT INTO `clearance_account` (
+											`bank_card_no`,
+											`bank_name`,
+											`business_id`,
+											`card_name`,
+											`card_type`,
+											`bank_id`,
+											card_holder,
+											identity_id,
+											branch_name
+		) VALUES (
+											#{bankCardNo},
+											#{bankName},
+											#{businessId},
+											#{cardName},
+											#{cardType},
+											#{bankId},
+											#{cardHolder},
+											#{userId},
+											#{branchName}
+		)
+	</insert>
+
+	<!-- 统计分账银行卡数量 -->
+	<select id="queryClearanceAccountCount" parameterType="Map" resultType="int">
+		select count(id) from clearance_account where identity_id=#{userId}
+	</select>
+
+	<!-- 添加用户 -->
+	<insert id="addUser" useGeneratedKeys="true" keyProperty="id" parameterType="Map">
+		INSERT INTO user (phone,name,pass,parent_id,directly_id,create_time) VALUES (#{phone},#{userName},#{password},#{parentId},#{directlyId},now())
+	</insert>
+
+	<!-- 添加用户角色 -->
+	<insert id="addUserAttribute" parameterType="Map">
+		INSERT INTO `c_user_role_attribute` (
+												`user_id`,
+												`role_id`
+		) VALUES (
+												#{id},
+												'1'
+		)
+	</insert>
+
+	<select id="queryPwd" parameterType="Map" resultType="Map">
+		select u.pass,u.transaction_psw transPwd from `user` u,c_user_role_attribute c
+		where u.id=c.user_id and c.id=#{id}
+	</select>
+
+	<!-- 查询用户详情 -->
+	<select id="queryUserDetail" resultType="Map" parameterType="Map">
+		select u.phone,u.`name`,u.create_time createTime,c.id,u.avatar,u.transaction_psw transPwd
+		from `user` u,c_user_role_attribute c
+		where u.id=c.user_id and c.role_id=2 and c.id=#{uid}
+	</select>
+
+	<select id="findUserDetailById" parameterType="int" resultType="BUser">
+		select ura.id, u.name, u.phone, u.transaction_psw transactionPsw, u.avatar,
+			ura.shandian, ura.integral jifen, ura.love shanxin, u.shandian2, ura.reuse_point reusePoint,
+							   ura.love today_love,
+			ura.love_large,
+			ura.love_middle,
+			ura.love_small
+		from c_user_role_attribute ura LEFT JOIN user u on ura.user_id = u.id and ura.role_id = 2
+		where ura.id=#{id}
+	</select>
+
+	<!-- 查询用户真实姓名 -->
+	<select id="queryUserXingming" parameterType="Map" resultType="String">
+		select xingming from `user` u,c_user_role_attribute c
+		where u.id=c.user_id and c.id=#{userId}
+	</select>
+
+	<!-- 更新用户姓名 -->
+	<update id="updateUserXingming" parameterType="Map">
+		update `user` u,c_user_role_attribute c
+		set u.xingming=#{name}
+		where u.id=c.user_id and c.id=#{userId}
+	</update>
+
+</mapper>
+
+

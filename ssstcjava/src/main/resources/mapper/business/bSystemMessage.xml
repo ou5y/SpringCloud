@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.business.dao.BSystemMessageDAO">
+
+
+	<select id="countTotal" parameterType="map" resultType="int">
+		select count(1) from system_message
+		where user_id in(#{userId},0) and app_type=2
+	</select>
+
+	<select id="selectMessageList" parameterType="map" resultType="Map">
+		select id,content,creat_time createTime,title,message_type messageType from system_message
+		where user_id in(#{userId},0) and app_type=2 order by creat_time desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!-- 查询用户中心公告 -->
+	<select id="queryUserCenterNotice" resultType="com.azcx9d.business.dto.my.UserCenterNotice" parameterType="Map">
+		select un.id,un.title,un.content,un.url,un.create_time,un.target
+        from user_center_notice un,c_user_role_attribute c
+        where c.id=#{userId} and c.read_flag=0 and un.app_type=#{appType} and un.is_show=1
+	</select>
+
+	<!-- 查询用户角色 -->
+	<select id="queryRoleList" parameterType="Map" resultType="com.azcx9d.business.dto.RoleListDto">
+		select level_id,level_name from c_platform_status where identity_id=#{userId} and level_id in
+		<foreach collection="list" item="levelId" open="(" separator="," close=")">
+			#{levelId}
+		</foreach>
+	</select>
+
+	<!-- 更新用户阅读标识 -->
+	<update id="updateReadFlag" parameterType="Map">
+		update c_user_role_attribute set read_flag=1 where id=#{userId}
+	</update>
+
+</mapper>
+
+

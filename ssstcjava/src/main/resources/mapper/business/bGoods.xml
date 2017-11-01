@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.business.dao.BGoodsDao">
+
+    <insert id="addGoods" parameterType="Map">
+        insert into c_goods(
+          business_id,
+          business_name,
+          first_pic,
+          loop_pics,
+          name,
+          category_id,
+          price,
+          shopping_price,
+          params,
+          show_pics,
+          detail,
+          article_number,
+          inventory_num,
+          sales_num,
+          rangli,
+          express_cost,
+          state)
+        values(
+          #{businessId},
+          ifnull((select b_name from business where id = #{businessId}), ''),
+          #{firstPic},
+          #{loopPics},
+          #{name},
+          #{categoryId},
+          #{price},
+          #{shoppingPrice},
+          #{params},
+          #{showPics},
+          #{detail},
+          #{articleNumber},
+          #{inventoryNum},
+          #{salesNum},
+          #{rangli},
+          #{expressCost},
+          #{state})
+    </insert>
+
+    <update id="updateGoods" parameterType="Map">
+        update c_goods set
+          business_id = #{businessId},
+          business_name = ifnull((select b_name from business where id = #{businessId}), ''),
+          first_pic = #{firstPic},
+          loop_pics = #{loopPics},
+          name = #{name},
+          category_id = #{categoryId},
+          price = #{price},
+          shopping_price = #{shoppingPrice},
+          params = #{params},
+          show_pics = #{showPics},
+          detail = #{detail},
+          article_number = #{articleNumber},
+          inventory_num = #{inventoryNum},
+          rangli = #{rangli},
+          express_cost = #{expressCost},
+          last_update_time = now()
+        where id = #{goodsId}
+    </update>
+
+    <select id="getGoods" parameterType="Map" resultType="com.azcx9d.business.dto.GoodsDto">
+        select
+          c.id,
+          first_pic firstPic,
+          loop_pics loopPics,
+          c.name,
+          category_id categoryId,
+          c1.parent_id categoryParentId,
+		  ifnull(c1.name, '') categoryDesc,
+          price,
+          shopping_price shoppingPrice,
+          params params,
+          show_pics showPics,
+          detail,
+          article_number articleNumber,
+          inventory_num inventoryNum,
+          rangli,
+          express_cost expressCost
+        from c_goods c
+        left join (select b.id, concat(a.name, '/', b.name) name, b.parent_id from c_gs_category a, c_gs_category b where a.id = b.parent_id) c1 on c.category_id = c1.id
+        where c.id = #{goodsId}
+    </select>
+
+    <select id="countGoodsList" parameterType="Map" resultType="Map">
+        select count(id) total
+        from c_goods
+        where state = #{state}
+        <if test="categoryId != '' and categoryId != null">
+            and (category_id = #{categoryId} or category_id in (select id from c_gs_category where parent_id = #{categoryId}))
+        </if>
+        <if test="content != '' and content != null or content == 0">
+            and name like concat('%', #{content}, '%')
+        </if>
+        and business_id = #{businessId}
+    </select>
+
+    <select id="getGoodsList" parameterType="Map" resultType="com.azcx9d.business.dto.GoodsListDto">
+        select
+            id,
+            name,
+            first_pic firstPic,
+            price,
+            shopping_price shoppingPrice,
+            sales_num salesNum,
+            inventory_num inventoryNum,
+            state,
+            (case state
+            when '0' then '已下架'
+            when '1' then '在售中'
+            else '' end) stateDesc
+        from c_goods
+        where state = #{state}
+        <if test="categoryId != '' and categoryId != null">
+            and (category_id = #{categoryId} or category_id in (select id from c_gs_category where parent_id = #{categoryId}))
+        </if>
+        <if test="content != '' and content != null or content == 0">
+            and name like concat('%', #{content}, '%')
+        </if>
+        and business_id = #{businessId}
+        order by sort desc, create_time desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <update id="updateBatchGoods" parameterType="Map">
+        update c_goods set
+        state = #{state},
+        last_update_time = now()
+        where id in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">#{item}</foreach>
+    </update>
+
+    <select id="getGoodsCategoryList" parameterType="Map" resultType="com.azcx9d.business.dto.GoodsCategoryDto">
+        select
+          id,
+          name,
+          parent_id parentId
+        from c_gs_category
+    </select>
+
+    <select id="getMaxSort" parameterType="Map" resultType="int">
+        select ifnull(max(sort), 0) + 1 from c_goods where business_id = #{businessId}
+    </select>
+
+    <update id="setTopGoods" parameterType="Map">
+        update c_goods set
+            sort = #{sort},
+            last_update_time = now()
+        where id = #{goodsId}
+    </update>
+
+    <select id="getSearchCategoryList" parameterType="Map" resultType="com.azcx9d.business.dto.GoodsCategoryDto">
+        SELECT
+            id,
+            name,
+            parent_id parentId
+        FROM
+            c_gs_category
+        WHERE
+            id IN (
+                SELECT DISTINCT
+                    cc.parent_id id
+                FROM
+                    c_goods cg,
+                    c_gs_category cc
+                WHERE
+                    cg.category_id = cc.id
+                AND cg.state >= 0
+                AND cg.business_id = #{businessId}
+                UNION
+                SELECT DISTINCT
+                    category_id id
+                FROM
+                    c_goods
+                WHERE
+                    state >=0
+                AND business_id = #{businessId}
+            )
+        ORDER BY id
+    </select>
+
+</mapper>

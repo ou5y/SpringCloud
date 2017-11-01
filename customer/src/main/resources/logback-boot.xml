@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 文件输出格式 -->
+    <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+    <!-- test文件路径 -->
+    <!--定义日志文件的存储地址-->
+    <property name="LOG_HOME" value="${CATALINA_BASE:-.}/logs" />
+
+    <!-- 开发环境 -->
+    <springProfile name="dev">
+        <!-- 按照每天生成日志文件 -->
+        <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/customer.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名 -->
+                <FileNamePattern>${LOG_HOME}/customer.%d{yyyy-MM-dd}.log</FileNamePattern>
+                <!--日志文件保留天数 -->
+                <MaxHistory>30</MaxHistory>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %logger{50} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <!--<pattern>${PATTERN}</pattern>-->
+                <pattern>[%thread] %highlight(%-5level) %cyan(%logger{15}) - %highlight(%msg) %n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="dao" level="debug"/>
+
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
+    <!-- 测试环境 -->
+    <springProfile name="test">
+        <!-- 按照每天生成日志文件 -->
+        <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/customer.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名 -->
+                <FileNamePattern>${LOG_HOME}/customer.%d{yyyy-MM-dd}.log</FileNamePattern>
+                <!--日志文件保留天数 -->
+                <MaxHistory>30</MaxHistory>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %logger{50} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <!-- 每天产生一个文件 -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <!--<pattern>${PATTERN}</pattern>-->
+                <pattern>[%thread] %highlight(%-5level) %cyan(%logger{15}) - %highlight(%msg) %n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="dao" level="DEBUG"/>
+
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+
+        <!-- 按照每天生成日志文件 -->
+        <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_HOME}/customer.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!--日志文件输出的文件名 -->
+                <FileNamePattern>${LOG_HOME}/customer.%d{yyyy-MM-dd}.log</FileNamePattern>
+                <!--日志文件保留天数 -->
+                <MaxHistory>30</MaxHistory>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %logger{50} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <!-- 每天产生一个文件 -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <!--<pattern>${PATTERN}</pattern>-->
+                <pattern>[%thread] %highlight(%-5level) %cyan(%logger{15}) - %highlight(%msg) %n</pattern>
+            </encoder>
+        </appender>
+
+        <logger name="dao" level="ERROR"/>
+
+        <root level="ERROR">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="file" />
+        </root>
+    </springProfile>
+    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
+    <!--<logger name="org.springframework.web" level="DEBUG"/>-->
+</configuration>

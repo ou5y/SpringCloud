@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BPersonDao">
+
+	<select id="countMyIntegral" parameterType="Map" resultType="Map">
+		select count(1) totalRow, ifnull(sum(x.bdsz), 0) total
+		from xfz_dzb x, order_form ofm
+        where x.order_id = ofm.id
+        and x.leixing = 1
+        and x.user_id = #{userId}
+	</select>
+
+	<select id="getMyIntegral" parameterType="Map" resultType="com.azcx9d.business.dto.MyPointDto">
+		SELECT CONCAT('+', x.bdsz) value, x.bdsj dateTime, ofm.money
+		from xfz_dzb x, order_form ofm
+		where x.order_id = ofm.id
+		and x.leixing = 1
+		and x.user_id = #{userId}
+		order by x.bdsj desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="countMyShandian" parameterType="Map" resultType="Map">
+		select count(1) totalRow, ifnull(sum(x.bdsz), 0) total
+		from xfz_dzb x
+		where x.leixing = 0
+		and x.bdsz > 0
+		and x.user_id = #{userId}
+	</select>
+
+	<select id="getMyShandian" parameterType="Map" resultType="com.azcx9d.business.dto.MyPointDto">
+		SELECT CONCAT('+', x.bdsz) value, x.bdsj dateTime, x.bdsz money,quota_type
+		from xfz_dzb x
+		where x.leixing = 0
+		and x.bdsz > 0
+		and x.user_id = #{userId}
+		order by x.bdsj desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="countMyRecommendShandian" resultType="Map" parameterType="Map">
+		select count(1) totalRow, ifnull(sum(bdsz),0) total
+		from passive_shandian
+		where grantType = 0
+		and user_id = (select user_id from c_user_role_attribute where id = #{userId})
+	</select>
+
+	<select id="getMyRecommendShandian" parameterType="Map" resultType="com.azcx9d.business.dto.MyPointDto">
+		select bdsj dateTime, CONCAT('+', bdsz) value, '推荐奖励' type
+		from passive_shandian
+		where grantType = 0
+		and user_id = (select user_id from c_user_role_attribute where id = #{userId})
+		order by bdsj desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+</mapper>
+
+

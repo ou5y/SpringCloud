@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CCollectDao">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CCollect">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="type" jdbcType="BIT" property="type" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+
+  <!-- 收藏总数 -->
+  <select id="countCollect" parameterType="Map" resultType="int">
+    select count(*) total from c_collect c
+    <include refid="WHERE_COLLECT_SQL" />
+  </select>
+
+  <!-- 我的收藏 -->
+  <select id="queryMyCollect" parameterType="Map" resultType="com.customer.dto.CollectDto">
+    select id,`name`,price,img_url imgUrl,gb_id gbId from c_collect c
+    <include refid="WHERE_COLLECT_SQL"/>
+  </select>
+
+  <sql id="WHERE_COLLECT_SQL">
+    <where>
+      <if test="type!=null">
+        and c.`type`=#{type}
+      </if>
+      <if test="name!=null and name!=''">
+        and c.`name` like CONCAT('%',#{name},'%')
+      </if>
+    </where>
+  </sql>
+
+  <!-- 添加收藏 -->
+  <insert id="addCollect" parameterType="Map">
+    INSERT INTO `c_collect` (
+                                `name`,
+                                `type`,
+                                `price`,
+                                `img_url`,
+                                `gb_id`,
+                                `user_id`
+    ) VALUES (
+                                #{name},
+                                #{type},
+                                #{price},
+                                #{imgUrl},
+                                #{gbId},
+                                #{userId}
+    )
+  </insert>
+
+  <!-- 根据id删除收藏 -->
+  <delete id="deleteCollect" parameterType="Map">
+    delete from c_collect where id=#{id}
+  </delete>
+
+</mapper>

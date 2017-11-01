@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.index.CGoodsMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.index.CGoods">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="spu_id" jdbcType="INTEGER" property="spuId" />
+    <result column="business_id" jdbcType="INTEGER" property="businessId" />
+    <result column="business_name" jdbcType="VARCHAR" property="businessName" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="brand_id" jdbcType="INTEGER" property="brandId" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="shopping_price" jdbcType="DECIMAL" property="shoppingPrice" />
+    <result column="hit_num" jdbcType="INTEGER" property="hitNum" />
+    <result column="sales_num" jdbcType="INTEGER" property="salesNum" />
+    <result column="collection_num" jdbcType="INTEGER" property="collectionNum" />
+    <result column="inventory_num" jdbcType="INTEGER" property="inventoryNum" />
+    <result column="first_pic" jdbcType="VARCHAR" property="firstPic" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="is_rec" jdbcType="INTEGER" property="isRec" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="is_hot" jdbcType="INTEGER" property="isHot" />
+    <result column="is_new" jdbcType="INTEGER" property="isNew" />
+    <result column="comment_id" jdbcType="INTEGER" property="commentId" />
+    <result column="loop_pics" jdbcType="VARCHAR" property="loopPics" />
+    <result column="show_pics" jdbcType="VARCHAR" property="showPics" />
+    <result column="article_number" jdbcType="VARCHAR" property="articleNumber" />
+    <result column="rangli" jdbcType="DECIMAL" property="rangli" />
+    <result column="express_cost" jdbcType="DECIMAL" property="expressCost" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.customer.entity.index.CGoodsWithBLOBs">
+    <result column="detail" jdbcType="LONGVARCHAR" property="detail" />
+    <result column="synopsis" jdbcType="LONGVARCHAR" property="synopsis" />
+    <result column="params" jdbcType="LONGVARCHAR" property="params" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, spu_id, business_id, business_name, category_id, brand_id, price, shopping_price, 
+    hit_num, sales_num, collection_num, inventory_num, first_pic, state, is_rec, create_time, 
+    last_update_time, is_hot, is_new, comment_id, loop_pics, show_pics, article_number, 
+    rangli, express_cost, sort
+  </sql>
+  <sql id="Blob_Column_List">
+    detail, synopsis, params
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.customer.entity.index.CGoodsCriteria" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from c_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.customer.entity.index.CGoodsCriteria" resultType="com.customer.dto.index.Goods">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from c_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="com.customer.entity.index.CGoodsKey" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from c_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.customer.entity.index.CGoodsKey">
+    delete from c_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.customer.entity.index.CGoodsCriteria">
+    delete from c_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.index.CGoodsWithBLOBs">
+    insert into c_goods (id, name, spu_id, 
+      business_id, business_name, category_id, 
+      brand_id, price, shopping_price, 
+      hit_num, sales_num, collection_num, 
+      inventory_num, first_pic, state, 
+      is_rec, create_time, last_update_time, 
+      is_hot, is_new, comment_id, 
+      loop_pics, show_pics, article_number, 
+      rangli, express_cost, sort, 
+      detail, synopsis, params
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{spuId,jdbcType=INTEGER}, 
+      #{businessId,jdbcType=INTEGER}, #{businessName,jdbcType=VARCHAR}, #{categoryId,jdbcType=INTEGER}, 
+      #{brandId,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, #{shoppingPrice,jdbcType=DECIMAL}, 
+      #{hitNum,jdbcType=INTEGER}, #{salesNum,jdbcType=INTEGER}, #{collectionNum,jdbcType=INTEGER}, 
+      #{inventoryNum,jdbcType=INTEGER}, #{firstPic,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{isRec,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{lastUpdateTime,jdbcType=TIMESTAMP}, 
+      #{isHot,jdbcType=INTEGER}, #{isNew,jdbcType=INTEGER}, #{commentId,jdbcType=INTEGER}, 
+      #{loopPics,jdbcType=VARCHAR}, #{showPics,jdbcType=VARCHAR}, #{articleNumber,jdbcType=VARCHAR}, 
+      #{rangli,jdbcType=DECIMAL}, #{expressCost,jdbcType=DECIMAL}, #{sort,jdbcType=INTEGER}, 
+      #{detail,jdbcType=LONGVARCHAR}, #{synopsis,jdbcType=LONGVARCHAR}, #{params,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.customer.entity.index.CGoodsWithBLOBs">
+    insert into c_goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="spuId != null">
+        spu_id,
+      </if>
+      <if test="businessId != null">
+        business_id,
+      </if>
+      <if test="businessName != null">
+        business_name,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="shoppingPrice != null">
+        shopping_price,
+      </if>
+      <if test="hitNum != null">
+        hit_num,
+      </if>
+      <if test="salesNum != null">
+        sales_num,
+      </if>
+      <if test="collectionNum != null">
+        collection_num,
+      </if>
+      <if test="inventoryNum != null">
+        inventory_num,
+      </if>
+      <if test="firstPic != null">
+        first_pic,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="isRec != null">
+        is_rec,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time,
+      </if>
+      <if test="isHot != null">
+        is_hot,
+      </if>
+      <if test="isNew != null">
+        is_new,
+      </if>
+      <if test="commentId != null">
+        comment_id,
+      </if>
+      <if test="loopPics != null">
+        loop_pics,
+      </if>
+      <if test="showPics != null">
+        show_pics,
+      </if>
+      <if test="articleNumber != null">
+        article_number,
+      </if>
+      <if test="rangli != null">
+        rangli,
+      </if>
+      <if test="expressCost != null">
+        express_cost,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="detail != null">
+        detail,
+      </if>
+      <if test="synopsis != null">
+        synopsis,
+      </if>
+      <if test="params != null">
+        params,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="spuId != null">
+        #{spuId,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null">
+        #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="businessName != null">
+        #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="brandId != null">
+        #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="shoppingPrice != null">
+        #{shoppingPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="hitNum != null">
+        #{hitNum,jdbcType=INTEGER},
+      </if>
+      <if test="salesNum != null">
+        #{salesNum,jdbcType=INTEGER},
+      </if>
+      <if test="collectionNum != null">
+        #{collectionNum,jdbcType=INTEGER},
+      </if>
+      <if test="inventoryNum != null">
+        #{inventoryNum,jdbcType=INTEGER},
+      </if>
+      <if test="firstPic != null">
+        #{firstPic,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isRec != null">
+        #{isRec,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null">
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isHot != null">
+        #{isHot,jdbcType=INTEGER},
+      </if>
+      <if test="isNew != null">
+        #{isNew,jdbcType=INTEGER},
+      </if>
+      <if test="commentId != null">
+        #{commentId,jdbcType=INTEGER},
+      </if>
+      <if test="loopPics != null">
+        #{loopPics,jdbcType=VARCHAR},
+      </if>
+      <if test="showPics != null">
+        #{showPics,jdbcType=VARCHAR},
+      </if>
+      <if test="articleNumber != null">
+        #{articleNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="rangli != null">
+        #{rangli,jdbcType=DECIMAL},
+      </if>
+      <if test="expressCost != null">
+        #{expressCost,jdbcType=DECIMAL},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="detail != null">
+        #{detail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="synopsis != null">
+        #{synopsis,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="params != null">
+        #{params,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.customer.entity.index.CGoodsCriteria" resultType="java.lang.Long">
+    select count(*) from c_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update c_goods
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.spuId != null">
+        spu_id = #{record.spuId,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessId != null">
+        business_id = #{record.businessId,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessName != null">
+        business_name = #{record.businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.categoryId != null">
+        category_id = #{record.categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="record.brandId != null">
+        brand_id = #{record.brandId,jdbcType=INTEGER},
+      </if>
+      <if test="record.price != null">
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.shoppingPrice != null">
+        shopping_price = #{record.shoppingPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.hitNum != null">
+        hit_num = #{record.hitNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.salesNum != null">
+        sales_num = #{record.salesNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.collectionNum != null">
+        collection_num = #{record.collectionNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.inventoryNum != null">
+        inventory_num = #{record.inventoryNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.firstPic != null">
+        first_pic = #{record.firstPic,jdbcType=VARCHAR},
+      </if>
+      <if test="record.state != null">
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.isRec != null">
+        is_rec = #{record.isRec,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastUpdateTime != null">
+        last_update_time = #{record.lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isHot != null">
+        is_hot = #{record.isHot,jdbcType=INTEGER},
+      </if>
+      <if test="record.isNew != null">
+        is_new = #{record.isNew,jdbcType=INTEGER},
+      </if>
+      <if test="record.commentId != null">
+        comment_id = #{record.commentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.loopPics != null">
+        loop_pics = #{record.loopPics,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showPics != null">
+        show_pics = #{record.showPics,jdbcType=VARCHAR},
+      </if>
+      <if test="record.articleNumber != null">
+        article_number = #{record.articleNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rangli != null">
+        rangli = #{record.rangli,jdbcType=DECIMAL},
+      </if>
+      <if test="record.expressCost != null">
+        express_cost = #{record.expressCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=INTEGER},
+      </if>
+      <if test="record.detail != null">
+        detail = #{record.detail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.synopsis != null">
+        synopsis = #{record.synopsis,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.params != null">
+        params = #{record.params,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update c_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      spu_id = #{record.spuId,jdbcType=INTEGER},
+      business_id = #{record.businessId,jdbcType=INTEGER},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      category_id = #{record.categoryId,jdbcType=INTEGER},
+      brand_id = #{record.brandId,jdbcType=INTEGER},
+      price = #{record.price,jdbcType=DECIMAL},
+      shopping_price = #{record.shoppingPrice,jdbcType=DECIMAL},
+      hit_num = #{record.hitNum,jdbcType=INTEGER},
+      sales_num = #{record.salesNum,jdbcType=INTEGER},
+      collection_num = #{record.collectionNum,jdbcType=INTEGER},
+      inventory_num = #{record.inventoryNum,jdbcType=INTEGER},
+      first_pic = #{record.firstPic,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      is_rec = #{record.isRec,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{record.lastUpdateTime,jdbcType=TIMESTAMP},
+      is_hot = #{record.isHot,jdbcType=INTEGER},
+      is_new = #{record.isNew,jdbcType=INTEGER},
+      comment_id = #{record.commentId,jdbcType=INTEGER},
+      loop_pics = #{record.loopPics,jdbcType=VARCHAR},
+      show_pics = #{record.showPics,jdbcType=VARCHAR},
+      article_number = #{record.articleNumber,jdbcType=VARCHAR},
+      rangli = #{record.rangli,jdbcType=DECIMAL},
+      express_cost = #{record.expressCost,jdbcType=DECIMAL},
+      sort = #{record.sort,jdbcType=INTEGER},
+      detail = #{record.detail,jdbcType=LONGVARCHAR},
+      synopsis = #{record.synopsis,jdbcType=LONGVARCHAR},
+      params = #{record.params,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update c_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      spu_id = #{record.spuId,jdbcType=INTEGER},
+      business_id = #{record.businessId,jdbcType=INTEGER},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      category_id = #{record.categoryId,jdbcType=INTEGER},
+      brand_id = #{record.brandId,jdbcType=INTEGER},
+      price = #{record.price,jdbcType=DECIMAL},
+      shopping_price = #{record.shoppingPrice,jdbcType=DECIMAL},
+      hit_num = #{record.hitNum,jdbcType=INTEGER},
+      sales_num = #{record.salesNum,jdbcType=INTEGER},
+      collection_num = #{record.collectionNum,jdbcType=INTEGER},
+      inventory_num = #{record.inventoryNum,jdbcType=INTEGER},
+      first_pic = #{record.firstPic,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      is_rec = #{record.isRec,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{record.lastUpdateTime,jdbcType=TIMESTAMP},
+      is_hot = #{record.isHot,jdbcType=INTEGER},
+      is_new = #{record.isNew,jdbcType=INTEGER},
+      comment_id = #{record.commentId,jdbcType=INTEGER},
+      loop_pics = #{record.loopPics,jdbcType=VARCHAR},
+      show_pics = #{record.showPics,jdbcType=VARCHAR},
+      article_number = #{record.articleNumber,jdbcType=VARCHAR},
+      rangli = #{record.rangli,jdbcType=DECIMAL},
+      express_cost = #{record.expressCost,jdbcType=DECIMAL},
+      sort = #{record.sort,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.customer.entity.index.CGoodsWithBLOBs">
+    update c_goods
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="spuId != null">
+        spu_id = #{spuId,jdbcType=INTEGER},
+      </if>
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=INTEGER},
+      </if>
+      <if test="businessName != null">
+        business_name = #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="brandId != null">
+        brand_id = #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="shoppingPrice != null">
+        shopping_price = #{shoppingPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="hitNum != null">
+        hit_num = #{hitNum,jdbcType=INTEGER},
+      </if>
+      <if test="salesNum != null">
+        sales_num = #{salesNum,jdbcType=INTEGER},
+      </if>
+      <if test="collectionNum != null">
+        collection_num = #{collectionNum,jdbcType=INTEGER},
+      </if>
+      <if test="inventoryNum != null">
+        inventory_num = #{inventoryNum,jdbcType=INTEGER},
+      </if>
+      <if test="firstPic != null">
+        first_pic = #{firstPic,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isRec != null">
+        is_rec = #{isRec,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isHot != null">
+        is_hot = #{isHot,jdbcType=INTEGER},
+      </if>
+      <if test="isNew != null">
+        is_new = #{isNew,jdbcType=INTEGER},
+      </if>
+      <if test="commentId != null">
+        comment_id = #{commentId,jdbcType=INTEGER},
+      </if>
+      <if test="loopPics != null">
+        loop_pics = #{loopPics,jdbcType=VARCHAR},
+      </if>
+      <if test="showPics != null">
+        show_pics = #{showPics,jdbcType=VARCHAR},
+      </if>
+      <if test="articleNumber != null">
+        article_number = #{articleNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="rangli != null">
+        rangli = #{rangli,jdbcType=DECIMAL},
+      </if>
+      <if test="expressCost != null">
+        express_cost = #{expressCost,jdbcType=DECIMAL},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="detail != null">
+        detail = #{detail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="synopsis != null">
+        synopsis = #{synopsis,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="params != null">
+        params = #{params,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.customer.entity.index.CGoodsWithBLOBs">
+    update c_goods
+    set name = #{name,jdbcType=VARCHAR},
+      spu_id = #{spuId,jdbcType=INTEGER},
+      business_id = #{businessId,jdbcType=INTEGER},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      brand_id = #{brandId,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      shopping_price = #{shoppingPrice,jdbcType=DECIMAL},
+      hit_num = #{hitNum,jdbcType=INTEGER},
+      sales_num = #{salesNum,jdbcType=INTEGER},
+      collection_num = #{collectionNum,jdbcType=INTEGER},
+      inventory_num = #{inventoryNum,jdbcType=INTEGER},
+      first_pic = #{firstPic,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      is_rec = #{isRec,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      is_hot = #{isHot,jdbcType=INTEGER},
+      is_new = #{isNew,jdbcType=INTEGER},
+      comment_id = #{commentId,jdbcType=INTEGER},
+      loop_pics = #{loopPics,jdbcType=VARCHAR},
+      show_pics = #{showPics,jdbcType=VARCHAR},
+      article_number = #{articleNumber,jdbcType=VARCHAR},
+      rangli = #{rangli,jdbcType=DECIMAL},
+      express_cost = #{expressCost,jdbcType=DECIMAL},
+      sort = #{sort,jdbcType=INTEGER},
+      detail = #{detail,jdbcType=LONGVARCHAR},
+      synopsis = #{synopsis,jdbcType=LONGVARCHAR},
+      params = #{params,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.index.CGoods">
+    update c_goods
+    set name = #{name,jdbcType=VARCHAR},
+      spu_id = #{spuId,jdbcType=INTEGER},
+      business_id = #{businessId,jdbcType=INTEGER},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      brand_id = #{brandId,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      shopping_price = #{shoppingPrice,jdbcType=DECIMAL},
+      hit_num = #{hitNum,jdbcType=INTEGER},
+      sales_num = #{salesNum,jdbcType=INTEGER},
+      collection_num = #{collectionNum,jdbcType=INTEGER},
+      inventory_num = #{inventoryNum,jdbcType=INTEGER},
+      first_pic = #{firstPic,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      is_rec = #{isRec,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      is_hot = #{isHot,jdbcType=INTEGER},
+      is_new = #{isNew,jdbcType=INTEGER},
+      comment_id = #{commentId,jdbcType=INTEGER},
+      loop_pics = #{loopPics,jdbcType=VARCHAR},
+      show_pics = #{showPics,jdbcType=VARCHAR},
+      article_number = #{articleNumber,jdbcType=VARCHAR},
+      rangli = #{rangli,jdbcType=DECIMAL},
+      express_cost = #{expressCost,jdbcType=DECIMAL},
+      sort = #{sort,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="findGoodsList" resultType="java.util.HashMap">
+    SELECT
+      id,first_pic firstPic,name,price,sales_num salesNum,shopping_price shoppingPrice
+    FROM c_goods
+    WHERE state = 1
+    ORDER BY RAND()
+    LIMIT 20
+  </select>
+
+  <select id="findGoodsHotList" resultType="com.customer.dto.index.HotShowModel">
+    SELECT
+      id,first_pic firstPic,name,price,shopping_price shoppingPrice
+    FROM c_goods
+    WHERE state = 1
+    ORDER BY RAND()
+    LIMIT 5
+  </select>
+
+  <select id="findHomePageGoodsHotList" resultType="com.customer.dto.index.HotShowModel">
+    SELECT
+      id,first_pic firstPic,name,price,shopping_price shoppingPrice
+    FROM c_goods
+    WHERE state = 1
+    AND is_hot != 0
+    ORDER BY is_hot
+    LIMIT 4
+  </select>
+
+  <select id="randomGoodsByPage" parameterType="Map" resultType="com.customer.dto.index.Goods">
+    SELECT
+      id,first_pic firstPic,name,price,sales_num salesNum,shopping_price shoppingPrice
+    FROM c_goods
+    WHERE state = 1
+  </select>
+
+  <select id="getAroundGoodsList" parameterType="Map" resultType="com.customer.dto.AroundGoodsDto">
+    SELECT cg.id,cg.name,cg.first_pic firstPic,cg.price,cg.shopping_price shoppingPrice,
+    IFNULL(b.business_address, '') businessAddress,IFNULL(b.b_name, '') bName
+    from c_goods cg, business b
+    where cg.business_id = b.id
+    and cg.state = 1
+    and b.state = 1
+    <if test="name != null and name != ''">
+      and (cg.name like concat('%', #{name}, '%') or b.b_name like concat('%', #{name}, '%'))
+    </if>
+    <if test="tradeId != null and tradeId != ''">
+      and b.operate_type = #{tradeId}
+    </if>
+    <if test="areaId != null and areaId != ''">
+      and b.area_id = #{areaId}
+    </if>
+  </select>
+
+</mapper>

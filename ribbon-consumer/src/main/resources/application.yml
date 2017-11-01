@@ -1,0 +1,91 @@
+server:
+  port: 9000
+  # 这样可以在本地测试的时候，启动与注册多个服务实例
+  # port: ${random.int[9000,10000]}
+
+spring:
+  application:
+    name: ribbon-consumer
+
+eureka:
+  # eureka.instance一般都是org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean中的属性
+  instance:
+    # 是否优先使用IP地址作为主机名的标识（缺省false）
+    prefer-ip-address: true
+    # 定义服务续约任务的调用时间间隔，默认30秒
+    lease-renewal-interval-in-seconds: 30
+    # 定义服务失效的时间，默认90秒
+    lease-expiration-duration-in-seconds: 90
+    # 实例名
+    # 缺省为主机名称
+    # 这样可以在本地测试的时候，启动与注册多个服务实例
+    # instance-id: ribbon-consumer
+    # instance-id: ${spring.application.name}:${random.int}
+    # 这个${server.port}和${random.int}效果一样，因为${server.port}是读取一个新的随机数，而不是引用${server.port}的值，它的值就是一个函数
+    instance-id: ${spring.application.name}:${server.port}
+    # 非安全的通信端口号（缺省80）
+    non-secure-port: 80
+    # 安全的通信端口号（缺省443）
+    secure-port: 443
+    # 是否启动非安全的通信端口号（缺省true）
+    non-secure-port-enabled: true
+    # 是否启动安全的通信端口号
+    # secure-port-enabled: false
+    # 服务名，默认spring.application.name的配置值，如果没有就是unknown
+    # appname: unknown
+    # 主机名，不配置的时候根据操作系统的主机名获取
+    # hostname: localhost
+    # 应用主页URL
+    # home-page-url: http://${eureka.instance.hostname}
+    # 状态页主页URL，使用相对路径配置，使用http://就成了绝对路径（缺省spring-boot-actuator模块的/info端点）
+    # status-page-url: http://${eureka.instance.hostname}/info
+    # 监控检查URL，使用相对路径配置，使用http://就成了绝对路径（缺省spring-boot-actuator模块的/health端点）
+    # health-check-url: http://${eureka.instance.hostname}/health
+
+  # 都可以从org.springframework.cloud.netflix.eureka.EurekaClientConfigBean的属性找到
+  client:
+    # 设置是否从注册中心获取注册信息（缺省true）
+    # 因为要获取服务，获取服务是服务消费者的基础，所以true
+    fetch-registry: true
+    # 是否要将自身的实例信息注册到Eureka服务端（缺省true）
+    register-with-eureka: true
+    serviceUrl:
+      # defaultZone: http://localhost:1111/eureka/
+      # 缺省  http://localhost:8761/eureka/
+      defaultZone: http://peer1:1111/eureka
+    # 启动Eureka客户端（缺省true）
+    enabled: true
+    # 从Eureka服务端获取注册信息（清单）的间隔时间，单位秒（缺省30）
+    registry-fetch-interval-seconds: 30
+    # 更新实例信息的变化到Eureka服务端的间隔时间，单位秒（缺省30）
+    instance-info-replication-interval-seconds: 30
+    # 初始化实例信息到Eureka服务端的间隔时间，，单位秒（缺省40）
+    initial-instance-info-replication-interval-seconds: 40
+    # 轮询Eureka服务端地址更改的间隔时间，单位秒（缺省300）
+    # 当我们与Spring Cloud Config配合，动态刷新Eureka的serviceURL地址时候需要关注该参数
+    eureka-service-url-poll-interval-seconds: 300
+    # 读取Eureka Server信息的超时时间，单位秒（缺省8）
+    eureka-server-read-timeout-seconds: 8
+    # 连接Eureka Server的超时时间，单位秒（缺省5）
+    eureka-server-connect-timeout-seconds: 5
+    # 从Eureka客户端到所有Eureka服务端的连接总数（缺省200）
+    eureka-server-total-connections: 200
+    # 从Eureka客户端到每个Eureka服务端主机的连接总数 （缺省50）
+    eureka-server-total-connections-per-host: 50
+    # Eureka服务端连接的空闲关闭时间，单位秒（缺省30）
+    eureka-connection-idle-timeout-seconds: 30
+    # 心跳连接池的初始化线程数（缺省2）
+    heartbeat-executor-thread-pool-size: 2
+    # 心跳超时重试延迟时间的最大乘数值（缺省10）
+    heartbeat-executor-exponential-back-off-bound: 10
+    # 缓存刷新线程池的初始化线程数（缺省2）
+    cache-refresh-executor-thread-pool-size: 2
+    # 缓存刷新超时重试延迟时间的最大乘数值（缺省10）
+    cache-refresh-executor-exponential-back-off-bound: 10
+    # 使用NDS来获取Eureka服务端的serviceUrl（缺省false）
+    use-dns-for-fetching-service-urls: false
+    # 是否偏好使用处于相同Zone的Eureka服务端（缺省true）
+    prefer-same-zone-eureka: true
+    # 获取实例时是否过滤，仅保留UP状态的实例（缺省true）
+    filter-only-up-instances: true
+

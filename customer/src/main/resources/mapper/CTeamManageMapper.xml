@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.CTeamManageDao">
+
+    <select id="getRoleList" parameterType="Map" resultType="com.customer.dto.TeamManageItemDto">
+        SELECT
+            u.id uId,
+            cps.level_id levelId,
+            cps.level_name levelName
+        FROM
+            `user` u,
+            c_user_role_attribute cur,
+            c_platform_status cps
+        WHERE
+            u.id = cur.user_id
+        AND cur.id = cps.identity_id
+        AND cur.role_id = 1
+        AND cps.is_pass = 'Y'
+        AND u.id != #{uId}
+        AND u.parent_id IN <foreach item="item" index="index" collection="uIds" open="(" separator="," close=")">#{item}</foreach>
+    </select>
+
+    <select id="getUserList" parameterType="Map" resultType="com.customer.dto.TeamManageUserDto">
+        SELECT
+        u.id userId,
+        u.phone,
+        IFNULL(u.xingming, '') name,
+        IFNULL(u.avatar, '') avatar,
+        IFNULL(ps.totalIncome, 0) totalIncome,
+        IFNULL(u1.phone, '') recmmendPhone,
+        (CASE WHEN u.parent_id = #{uId} THEN 1
+        ELSE 0 END) isChild
+        FROM
+        `user` u
+        LEFT JOIN `user` u1 ON u.parent_id = u1.id
+        LEFT JOIN (
+        SELECT
+        user_id,
+        IFNULL(SUM(bdsz), 0) totalIncome
+        FROM
+        passive_shandian
+        WHERE
+        bdsz > 0
+        AND (grantType = 1 OR grantType = 4)
+        AND user_id IN <foreach item="item" index="index" collection="uIds" open="(" separator="," close=")">#{item}</foreach>
+        GROUP BY
+        user_id
+        ) ps ON u.id = ps.user_id
+        WHERE 1 = 1
+        <if test="content != null and content != ''">
+            AND (u.xingming like concat('%', #{content}, '%') OR u.phone like concat('%', #{content}, '%'))
+        </if>
+        AND u.id IN <foreach item="item" index="index" collection="uIds" open="(" separator="," close=")">#{item}</foreach>
+    </select>
+
+    <select id="getDetailList" parameterType="Map" resultType="com.customer.dto.TeamManageDetailDto">
+        SELECT
+            ps.bdsz,
+            ps.bdsj,
+            IFNULL(b.b_name, '') bName
+        FROM
+            passive_shandian ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        WHERE
+            ps.bdsz > 0
+        AND (ps.grantType = 1 OR ps.grantType = 4)
+        <if test="startDate != null and startDate != ''">
+            AND ps.bdsj &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND ps.bdsj &lt; ADDDATE(#{endDate}, 1)
+        </if>
+        AND ps.user_id = #{queryId}
+    </select>
+
+    <select id="getBusinessList" parameterType="Map" resultType="com.customer.dto.TeamManageBusinessDto">
+        SELECT
+        IFNULL(b.b_name, '') bName,
+        IFNULL(b.legalperson, '') legalperson,
+        IFNULL(b.legalperson_num, '') legalpersonNum,
+        b.upload_date uploadDate
+        FROM
+        business b
+        WHERE
+        b.state = 1
+        <if test="startDate != null and startDate != ''">
+            AND b.upload_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND b.upload_date &lt; ADDDATE(#{endDate}, 1)
+        </if>
+        AND b.upload_user = (
+        SELECT
+        id
+        FROM
+        c_user_role_attribute
+        WHERE
+        role_id = 1
+        AND user_id = #{queryId}
+        )
+    </select>
+
+</mapper>
+

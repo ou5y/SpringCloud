@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+
+  	<propertie type="file">
+		<!--头像存储Head portrait-->
+		<parameters name="1">
+			<parameter name="phycial">/content/customer/image/headportrait/</parameter>
+			<parameter name="url">/customer/image/headportrait/</parameter>
+		</parameters>
+
+		<!-- 店铺证件资料 -->
+		<parameters name="2">
+			<parameter name="phycial">/content/customer/image/business/</parameter>
+			<parameter name="url">/customer/image/business/</parameter>
+		</parameters>
+
+		<!-- banner -->
+		<parameters name="3">
+			<parameter name="phycial">/content/customer/image/banner/</parameter>
+			<parameter name="url">/customer/image/banner/</parameter>
+		</parameters>
+
+		<parameters name="4">
+			<parameter name="phycial">/content/customer/image/aroundbbanner/</parameter>
+			<parameter name="url">/customer/image/aroundbbanner/</parameter>
+		</parameters>
+
+		<!-- 商品图片 -->
+		<parameters name="0">
+			<parameter name="phycial">/content/business/image/goods/</parameter>
+			<parameter name="url">/business/image/goods/</parameter>
+		</parameters>
+	</propertie>
+
+</properties>

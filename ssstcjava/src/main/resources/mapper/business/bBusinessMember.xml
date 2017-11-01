@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BBusinessMemberDAO">
+
+	<select id="countTotal" parameterType="map" resultType="int">
+		SELECT
+			count(0) total
+		FROM
+			c_user_role_attribute c,
+			business_member bm,
+			user u
+		WHERE
+			c.id = bm.userid
+		AND c.user_id = u.id
+		AND bm.businessid = #{businessId}
+	</select>
+
+	<select id="selectMyMembersByUserId" parameterType="map" resultType="com.azcx9d.business.dto.BusinessMemberDto">
+		SELECT
+			IFNULL(u.name, '') name,
+			u.phone,
+			bm.joinTime
+		FROM
+			c_user_role_attribute c,
+			business_member bm,
+			user u
+		WHERE
+			c.id = bm.userid
+		AND c.user_id = u.id
+		AND bm.businessid = #{businessId}
+		ORDER BY bm.joinTime desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+</mapper>
+
+

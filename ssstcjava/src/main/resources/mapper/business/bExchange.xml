@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.business.dao.BExchangeDao">
+
+	<select id="getIsExchange" parameterType="Map" resultType="com.azcx9d.business.dto.IsExchangeDto">
+		select
+		ifnull((select love_percentage from market_customer where datediff(now(), create_time) = 1 order by create_time desc limit 1), '0.00') todayLove,
+		ur.shandian,
+		u.shandian2 recommendShandian,
+		ur.reuse_point reusePoint,
+		u.is_exchange isExchange
+		from c_user_role_attribute ur, user u
+		where ur.user_id = u.id
+		and ur.id = #{userId}
+	</select>
+
+	<select id="getTotalExchange" parameterType="Map" resultType="com.azcx9d.business.dto.TotalExchangeDto">
+		select ifnull(sum(c_shandian), '0.00') totalExchange from (select c_shandian from convertibility_record where (type = 0 and user_id = #{userId})
+		or (type = 1 and user_id in (SELECT id from c_user_role_attribute where user_id = (SELECT user_id from c_user_role_attribute where id = #{userId})))) a
+	</select>
+
+	<select id="countExchangeList" parameterType="Map" resultType="int">
+		select count(id) total
+		from convertibility_record
+		where type = #{type}
+		<choose>
+			<when test="type == 1">
+				and user_id in (SELECT id from c_user_role_attribute where user_id = (SELECT user_id from c_user_role_attribute where id = #{userId}))
+			</when>
+			<otherwise>
+				and user_id = #{userId}
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getExchangeList" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangeRecordDto">
+		select id, c_shandian cShandian, state, arrival_mode arrivalMode, create_date createDate
+		from convertibility_record
+		where type = #{type}
+		<choose>
+			<when test="type == 1">
+				and user_id in (SELECT id from c_user_role_attribute where user_id = (SELECT user_id from c_user_role_attribute where id = #{userId}))
+			</when>
+			<otherwise>
+				and user_id = #{userId}
+			</otherwise>
+		</choose>
+		order by id desc
+        limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="getExchangeDetail" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangeDetailDto">
+		SELECT
+		cr.id,
+		ifnull(cr.card_holder, '') cardHolder,
+		ifnull(cr.bank_card_no, '') bankCardNo,
+		ifnull(cr.bank_name, '') bankName,
+		cr.c_shandian cShandian,
+		cr.poundage,
+		cr.sjdk sjdk,
+		cr.create_date createDate,
+		cr.state,
+		cr.arrival_mode arrivalMode
+		FROM
+		convertibility_record cr
+		WHERE
+		cr.id = #{exchangeId}
+	</select>
+
+	<select id="getMyShandian" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangeShandianDto">
+		SELECT
+		ur.shandian,
+		u.shandian2 recommendShandian
+		FROM
+		c_user_role_attribute ur, user u
+		WHERE
+		ur.user_id = u.id
+		AND ur.id = #{userId}
+	</select>
+
+	<select id="getMyBankCard" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangeBankcardDto">
+		SELECT
+		id,
+		ifnull(bank_card_no, '') bankCardNo,
+		ifnull(bank_name, '') bankName,
+		ifnull(card_holder, '') cardHolder
+		FROM
+		bank_card
+		WHERE
+		user_id = #{userId}
+		ORDER BY id desc
+	</select>
+
+	<select id="getExchangedShandian" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangedShandianDto">
+		SELECT
+		ur.shandian,
+		ur.integral,
+		u.shandian2 recommendShandian
+		FROM
+		c_user_role_attribute ur, user u
+		WHERE
+		ur.user_id = u.id
+		AND ur.id = #{userId}
+	</select>
+
+	<select id="getBankDetail" parameterType="Map" resultType="com.azcx9d.business.dto.ExchangeBankcardDto">
+		SELECT
+		id,
+		bank_card_no bankCardNo,
+		bank_name bankName,
+		card_holder cardHolder
+		FROM
+		bank_card
+		WHERE
+		id = #{bankId}
+	</select>
+
+	<insert id="saveExchange" parameterType="Map">
+		insert into convertibility_record (
+		user_id,
+		bank_id,
+		c_shandian,
+		poundage,
+		sjdk,
+		state,
+		create_date,
+		arrival_mode,
+		jieyu,
+		bank_card_no,
+		bank_name,
+		card_holder,
+		type
+		)
+		values(
+		#{userId},
+		#{bankId},
+		#{shandian},
+		#{poundage},
+		#{sjdk},
+		#{state},
+		now(),
+		#{arrivalMode},
+		#{currentShandian},
+		#{bankCardNo},
+		#{bankName},
+		#{cardHolder},
+		#{type}
+		)
+	</insert>
+
+	<update id="updateShandian" parameterType="Map">
+		update c_user_role_attribute set
+            shandian = shandian - #{shandian},
+            integral = #{currentIntegral},
+            last_update_time = now()
+        where shandian - #{shandian} >= 0
+        and id = #{userId}
+	</update>
+
+	<insert id="saveShandianBill" parameterType="Map">
+		insert into xfz_dzb (
+		leixing,
+		user_id,
+		bdsz,
+		jieyu,
+		bdsj
+		)
+		values
+		(
+		#{leixing},
+		#{userId},
+		#{shandian},
+		#{currentShandian},
+		now()
+		)
+	</insert>
+
+	<insert id="saveIntegralBill" parameterType="Map">
+		insert into xfz_dzb (
+		leixing,
+		user_id,
+		bdsz,
+		jieyu,
+		bdsj
+		)
+		values
+		(
+		#{leixing},
+		#{userId},
+		#{integral},
+		#{currentIntegral},
+		now()
+		)
+	</insert>
+
+	<update id="updateRecommendShandian" parameterType="Map">
+		update user set
+            shandian2 = shandian2 - #{shandian},
+            update_time = now()
+        where shandian2 - #{shandian} >= 0
+        and id = (select user_id from c_user_role_attribute where id = #{userId})
+	</update>
+
+	<insert id="saveRecommendShandianBill" parameterType="Map">
+		insert into passive_shandian (
+		user_id,
+		bdsz,
+		jieyu,
+		bdsj
+		)
+		values
+		(
+		(select user_id from c_user_role_attribute where id = #{userId}),
+		#{shandian},
+		#{currentShandian},
+		now()
+		)
+	</insert>
+
+	<!-- 计算今日已兑换主动善点 -->
+	<select id="countTodayExchange" resultType="int" parameterType="Map">
+		select IFNULL(sum(c_shandian),0) total from convertibility_record
+		where user_id=#{userId} and 0=DATEDIFF(create_date,now()) and type=#{type}
+	</select>
+
+	<!-- 计算今日已兑换被动善点 -->
+	<select id="countTodayExchangePassive" resultType="int" parameterType="Map">
+		select IFNULL(sum(c_shandian),0) total from convertibility_record
+		where user_id in (select id from c_user_role_attribute where user_id=(select user_id from c_user_role_attribute where id=#{userId}))
+		and 0=DATEDIFF(create_date,now()) and type=#{type}
+	</select>
+
+	<select id="countTodayExchangeTotal" resultType="int" parameterType="Map">
+		select IFNULL(sum(c_shandian),0) total from convertibility_record
+		where user_id in (select id from c_user_role_attribute where user_id=(select user_id from c_user_role_attribute where id=#{userId}))
+		and 0=DATEDIFF(create_date,now())
+	</select>
+
+</mapper>
+
+

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.azcx9d.business.dao.BRecommendDao">
+
+	<!-- 计算推荐记录总条数 -->
+	<select id="countRecommendList" resultType="int" parameterType="Map">
+		select count(*) from (SELECT
+		IFNULL(u.`xingming`,'') `name`,u.create_time createTime,
+		IFNULL(u.avatar,'') avatar,u.phone,cu.id userId
+		FROM
+		`user` u,
+		c_user_role_attribute cu
+		WHERE
+		u.id = cu.user_id
+		AND cu.role_id = 1
+		AND u.parent_id = (
+		SELECT user_id FROM c_user_role_attribute WHERE id =#{userId}
+		)) t
+		<include refid="WHERE_RECOMMEND_LIST"/>
+	</select>
+
+	<!-- 推荐列表 -->
+	<select id="queryRecommendList" parameterType="Map"  resultType="Map">
+		select * from (SELECT
+		IFNULL(u.`xingming`,'') `name`,u.create_time createTime,
+		IFNULL(u.avatar,'') avatar,u.phone,cu.id userId
+		FROM
+		`user` u,
+		c_user_role_attribute cu
+		WHERE
+		u.id = cu.user_id
+		AND cu.role_id = 1
+		AND u.parent_id = (
+		SELECT user_id FROM c_user_role_attribute WHERE id =#{userId}
+		)) t
+		<include refid="WHERE_RECOMMEND_LIST"/>
+		order by userId desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<sql id="WHERE_RECOMMEND_LIST">
+		<where>
+			<if test="level!=null and level==0">
+				and not EXISTS(SELECT identity_id from c_platform_status where identity_id=t.userId)
+			</if>
+			<if test="level!=null and level!=0">
+				and EXISTS(SELECT identity_id from c_platform_status where identity_id=t.userId and level_id=#{level})
+			</if>
+			<if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
+				and createTime>#{startDate} and createTime&lt;#{endDate}
+			</if>
+		</where>
+	</sql>
+
+	<select id="countPointDetail" parameterType="Map" resultType="int">
+		select count(*) from (
+		select CONVERT(3,char) leixing,CONVERT(bdsz,char) bdsz,
+		bdsj,CONVERT(IFNULL(grantType,''),char) grantType
+		from passive_shandian
+		<where>
+			bdsz>0 and user_id=(select user_id from c_user_role_attribute where id=#{userId}) and from_id=#{fromId}
+			<if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
+				and bdsj>#{startDate} and bdsj&lt;#{endDate}
+			</if>
+		</where>
+		)t
+	</select>
+
+	<!-- 积分明细 -->
+	<select id="queryPointDetail" parameterType="Map" resultType="Map">
+		select CONVERT(3,char) leixing,CONVERT(bdsz,char) bdsz,
+		bdsj,CONVERT(IFNULL(grantType,''),char) grantType
+		from passive_shandian
+		<where>
+			bdsz>0 and user_id=(select user_id from c_user_role_attribute where id=#{userId}) and from_id=#{fromId}
+			<if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
+				and bdsj>#{startDate} and bdsj&lt;#{endDate}
+			</if>
+		</where>
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!-- 查询角色列表 -->
+	<select id="queryRoleList" resultType="Map" parameterType="Map">
+		select IFNULL(ps.level_id,0) levelId,IFNULL(ps.level_name,'普通会员') levelName
+		from (select cu.id userId from `user` u,c_user_role_attribute cu
+		where u.id=cu.user_id and u.parent_id=(
+		select user_id from c_user_role_attribute where id=#{userId}
+		)
+		) u
+		left join c_platform_status ps on u.userId=ps.identity_id
+		group by ps.level_id
+	</select>
+
+</mapper>
+
+
