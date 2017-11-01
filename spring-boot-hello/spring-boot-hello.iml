@@ -171,6 +171,10 @@
     </orderEntry>
     <orderEntry type="library" name="Maven: com.github.pagehelper:pagehelper:4.1.6" level="project" />
     <orderEntry type="library" name="Maven: com.github.jsqlparser:jsqlparser:0.9.5" level="project" />
+    <orderEntry type="library" name="Maven: com.dyuproject.protostuff:protostuff-core:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.dyuproject.protostuff:protostuff-api:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.dyuproject.protostuff:protostuff-runtime:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.dyuproject.protostuff:protostuff-collectionschema:1.1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-test:1.5.7.RELEASE" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test:1.5.7.RELEASE" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test-autoconfigure:1.5.7.RELEASE" level="project" />

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.my.AccountSecurityDao">
+
+    <!-- 查询登录用户的全部银行卡 -->
+    <select id="queryMyBankCard" parameterType="Map" resultType="Map">
+        select id,bank_card_no bankCardNo,ifnull(bank_name,'') bankName from bank_card where user_id=#{userId}
+    </select>
+
+    <!-- 新增银行卡 -->
+    <insert id="addBankCard" parameterType="Map">
+        insert into bank_card(
+                                bank_card_no,
+                                bank_name,
+                                card_name,
+                                card_type,
+                                user_id,
+                                is_default,
+                                card_holder,
+                                user_type,
+                                identity_card,
+                                bank_id,
+                                bank_phone
+        )
+        values (
+                                #{bankCardNo},
+                                #{bankName},
+                                #{cardName},
+                                #{cardType},
+                                #{userId},
+                                0,
+                                #{name},
+                                #{userType},
+                                #{identifyCard},
+                                #{bankId},
+                                #{bankPhone}
+        )
+    </insert>
+
+    <!-- 接触银行卡绑定关系 -->
+    <delete id="deleteBankCard" parameterType="Map">
+        delete from bank_card where bank_card_no=#{bankCardNo} and user_id=#{userId}
+    </delete>
+
+    <!-- 根据银行卡id查询银行卡信息 -->
+    <select id="findBankCardById" parameterType="Map" resultType="com.customer.entity.BankCard">
+        select id,bank_card_no,bank_name,user_id,card_holder from bank_card where id=#{id}
+    </select>
+
+    <!-- 根据银行卡id查询银行卡信息 -->
+    <select id="findBankCard" parameterType="Map" resultType="com.customer.entity.BankCard">
+        select id,bank_card_no,bank_name,user_id,card_holder from bank_card
+        <where>
+            <if test="bankCardNo!=null and bankCardNo!=''">
+                and bank_card_no=#{bankCardNo}
+            </if>
+            <if test="userType!=null and userType!=''">
+                and user_type=#{userType}
+            </if>
+            <if test="userId!=null and userId!=''">
+                and user_id=#{userId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 更新交易密码  -->
+    <update id="updateTransPwd" parameterType="Map">
+        update `user` set transaction_psw=#{transactionPwd} where id=(select user_id from c_user_role_attribute where id=#{id})
+    </update>
+
+    <!-- 查询用户密码 -->
+    <select id="queryPassword" parameterType="Map" resultType="Map">
+        select pass `password` from `user` where id=(select user_id from c_user_role_attribute where id=#{id})
+    </select>
+
+    <!-- 更新登录密码  -->
+    <update id="updateLoginPwd" parameterType="Map">
+        update `user` set pass=#{password}
+        <where>
+            <if test="id !=null and id !=''">
+                and id=(select user_id from c_user_role_attribute where id=#{id})
+            </if>
+            <if test="phone !=null and phone !=''">
+                and phone=#{phone}
+            </if>
+            <if test="userType!=null and userType!=''">
+                and user_type=#{userType}
+            </if>
+        </where>
+    </update>
+
+    <!-- 查询用户密码、交易密码 -->
+    <select id="queryPwd" parameterType="Map" resultType="Map">
+        select u.pass,u.transaction_psw transPwd from `user` u,c_user_role_attribute c
+        where u.id=c.user_id and c.id=#{id} and c.role_id=1
+    </select>
+
+    <select id="queryUserXingming" parameterType="Map" resultType="String">
+        select xingming from `user` u where u.id=#{uid};
+    </select>
+
+    <update id="updateUserXingming" parameterType="Map">
+        update `user` set xingming=#{name} where id=#{uid};
+    </update>
+
+</mapper>

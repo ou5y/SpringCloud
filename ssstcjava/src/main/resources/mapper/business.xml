@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.agency.dao.BusinessDao">
+	
+	<!-- 添加商家 -->
+	<insert id="addBusiness" parameterType="Business">
+		insert into business(b_name,
+							legalperson,
+							legalperson_num,
+							identity_card,
+							business_photo,
+							business_license,
+							hole_idcard_photo,
+							business_word,
+							promoter_word,
+							operate_type,
+							business_address,
+							upload_user,
+							upload_date,
+							state,
+							province_code,
+							city_code,
+							area_id,
+							user_id) 
+		values(
+							#{bName},
+							#{legalPerson},
+							#{legalPersonNum},
+							#{identityCard},
+							#{businessPhoto},
+							#{businessLicense},
+							#{holeIdCardPhoto},
+							#{businessWord},
+							#{promoterWord},
+							#{operateType},
+							#{businessAddress},
+							#{uploadUser},
+							now(),
+							0,
+							#{provinceCode},
+							#{cityCode},
+							#{areaId},
+							#{userId})
+	</insert> 
+	
+	<!--获取商家经营类型-->
+	<select id="getBusinessType" resultType="hashmap" parameterType="java.lang.String">
+			select id,`name` from trade
+    </select>
+    
+    <!--获取商家集合-->
+	<select id="getBusinessList" resultType="Business" parameterType="Map">
+		select id,b_name,legalperson,legalperson_num,
+		identity_card,business_photo,business_license,
+		hole_idcard_photo,business_word,promoter_word,
+		operate_type,business_address,state,upload_date upload_date from business
+		<include refid="WHERE_BUSINESS_SQL" />
+		order by upload_date desc
+    </select>
+    
+     <!-- 更新商家状态 -->
+    <update id="updateBusinessState" >  
+	    update business set state = #{0}  where id=#{1}
+	</update>  
+	
+	<!-- 根据商家id查询商家详情 -->
+	<select id="queryDetail" resultType="Business" parameterType="Map">
+		SELECT
+			business.id,
+			business.b_name,
+			trade.id AS operate_type,
+			trade.`name` AS operate_name,
+			business.legalperson,
+			business.legalperson_num,
+			business.identity_card,
+			business.upload_user,
+			users.`name` AS upload_user_name,
+			business.business_photo,
+			business.business_license,
+			business.business_address,
+			business.state,
+			business.upload_date,
+			business.hole_idcard_photo,
+			business.store_photos,
+			business.promoter_word,
+			business.business_word,
+			business.latitude,
+			business.longitude,
+			business.max_amount,
+			business.province_code,
+			business.city_code,
+			business.area_id,
+			u.phone,
+			business.user_id
+		FROM
+			business business
+		LEFT JOIN trade trade ON business.operate_type = trade.id
+		LEFT JOIN `user` users ON users.id = business.upload_user
+		LEFT JOIN `user` u ON business.user_id=u.id
+		WHERE business.id =#{id}
+	</select>
+	
+	<!-- 查询省市区 -->
+	<select id="queryAreaName" parameterType="Map" resultType="String">
+		select fullName from region where code in (#{provinceCode},#{cityCode},#{areaId})
+	</select>
+	
+	<!-- 条件筛选 -->
+	<sql id="WHERE_BUSINESS_SQL">
+		<where>
+			<if test="state != null and state!='' and state !='-1'">
+				and state = #{state}
+			</if>
+			<if test="uploadUser != null and uploadUser != '' ">
+				and upload_user = #{uploadUser}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 统计总数 -->
+	<select id="countTotal" parameterType="Map" resultType="Integer">
+		select count(*) total from business
+		<include refid="WHERE_BUSINESS_SQL" />
+	</select>
+	
+	<!--获取商家集合-->
+	<select id="getBusinessByPage" resultType="Business" parameterType="Map">
+		select id,b_name,legalperson,legalperson_num,
+			identity_card,business_photo,business_license,
+			hole_idcard_photo,business_word,promoter_word,
+			operate_type,business_address,state,upload_date upload_date from business
+		<include refid="WHERE_BUSINESS_SQL" />
+		order by upload_date desc
+		limit #{offset},#{pageSize}
+    </select>
+    
+    <!-- 修改商家信息 -->
+    <update id="updateBusiness" parameterType="Business">
+    	update business set
+    		b_name = #{bName},
+    		operate_type = #{operateType},
+    		legalperson = #{legalPerson},
+    		legalperson_num = #{legalPersonNum},
+    		identity_card = #{identityCard},
+    		upload_user = #{uploadUser},
+    		business_photo = #{businessPhoto},
+    		business_license = #{businessLicense},
+    		business_address = #{businessAddress},
+    		state = #{state},
+    		upload_date = now(),
+    		hole_idcard_photo = #{holeIdCardPhoto},
+    		store_photos = #{storePhotos},
+    		promoter_word = #{promoterWord},
+    		business_word = #{businessWord},
+    		latitude = #{latitude},
+    		longitude = #{longitude},
+    		user_id = #{userId},
+    		area_id = #{areaId},
+    		province_code = #{provinceCode},
+    		city_code = #{cityCode},
+    		user_id = #{userId}
+    	where id = #{id}
+    </update>
+	
+</mapper>
+
+

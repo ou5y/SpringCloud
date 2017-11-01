@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BOrderFormDAO">
+
+	<select id="countTotal" parameterType="map" resultType="int">
+		select count(1) from order_form o where o.orderSource = 2 and o.state=#{state} and o.store_id=#{businessId}
+	</select>
+	<select id="selectByStoreUserId" parameterType="map" resultType="com.azcx9d.business.dto.FreeOrderDto">
+		select o.id,o.order_id orderId,o.create_time createTime,o.money,(CASE WHEN o.offset_type = 1 THEN o.offset_rangli ELSE o.rangli END) rangli,ifnull(u.phone, '') phone,o.voucherPic,o.consumptionPic, o.store_id storeId
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id=ura.id
+		left join user u on ura.user_id=u.id
+		where o.orderSource = 2 and o.state=#{state} and o.store_id=#{businessId}
+			order by o.id desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="countAuditTotal" parameterType="map" resultType="int">
+		select count(1) from order_form o where o.orderSource = 2 and (o.state=1 or o.state=2) and o.store_id=#{businessId}
+	</select>
+	<select id="selectAuditByStoreId" parameterType="map" resultType="com.azcx9d.business.dto.FreeOrderDto">
+		select o.id,o.order_id orderId,o.create_time createTime,o.money,(CASE WHEN o.offset_type = 1 THEN o.offset_rangli ELSE o.rangli END) rangli,ifnull(u.phone, '') phone,o.voucherPic,o.consumptionPic, o.store_id storeId
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id=ura.id
+		left join user u on ura.user_id=u.id
+		where o.orderSource = 2 and (o.state=1 or o.state=2) and o.store_id=#{businessId}
+		order by o.id desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!--用于查询已完结列表-->
+	<select id="countTotalFinish" parameterType="map" resultType="int">
+		select count(1) from order_form o where o.orderSource = 2 and o.state=3 and o.store_id=#{businessId}
+	</select>
+	<select id="selectByStoreUserIdFinish" parameterType="map" resultType="com.azcx9d.business.dto.FreeOrderDto">
+		select o.id,o.order_id orderId,o.create_time createTime,o.money,(CASE WHEN o.offset_type = 1 THEN o.offset_rangli ELSE o.rangli END) rangli,ifnull(u.phone, '') phone,o.voucherPic,o.consumptionPic, o.store_id storeId, o.state, o.caiwu_time caiwuTime
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id=ura.id
+		left join user u on ura.user_id=u.id
+		where o.orderSource = 2 and o.state=3 and o.store_id=#{businessId}
+			order by o.id desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!--用于查询待让利列表-->
+	<select id="selectCountOrderAndSumMoney" parameterType="map" resultType="map">
+		select count(1) orderNumber,ifnull(sum(money),0) totalMoney from order_form o where o.orderSource = 2 and o.state=#{state} and o.store_id=#{businessId}
+	</select>
+
+	<!--用于查询处理中列表-->
+	<select id="selectSumRangliAndSumMoney" parameterType="map" resultType="map">
+		select ifnull(sum(money*rangli),0) totalRangli,ifnull(sum(money),0) totalMoney from order_form o
+		where o.orderSource = 2 and (o.state=1 or o.state=2) and o.store_id=#{businessId}
+	</select>
+	<!--用于查询已完结列表-->
+	<select id="selectSumRangliAndSumMoneyFinish" parameterType="map" resultType="map">
+		select ifnull(sum(money*rangli),0) totalRangli,ifnull(sum(money),0) totalMoney from order_form o
+		where o.orderSource = 2 and o.state=3 and o.store_id=#{businessId}
+	</select>
+
+	<!--商家批量修改订单状态-->
+	<update id="updateOrderStateByIds" parameterType="map">
+		update order_form set state=1,<!--rangli=#{rangli},-->seller_time=#{sellerTime},ranli_money=#{rangli}*(select z.money from (select money from order_form where id=#{item}) z) where
+		id in
+		<foreach item="item" index="index" collection="idsArr" open="(" separator="," close=")">#{item}</foreach>
+	</update>
+	<!--商家批量修改订单状态，第二版-->
+	<update id="updateOrderStateById" parameterType="map">
+		update order_form set state=1,<!--rangli=#{rangli},-->seller_time=#{sellerTime},ranli_money=#{rangli}*(select z.money from (select money from order_form where id=#{orderId}) z) where
+		id = #{orderId}
+	</update>
+
+	<!--当日收益查询-->
+	<select id="selectMyIncomeByUserId" parameterType="map" resultType="com.azcx9d.business.dto.DayIncomeDto">
+		select u.phone,ifnull(u.name, '') name,o2.create_time createTime,o2.state,o2.rangli,o2.money,o2.orderSource from (
+			select o.create_time,o.state,o.user_id,o.rangli,o.money,o.orderSource from order_form o where state>=0 and store_id=#{businessId}
+				and date_format(o.create_time,'%Y-%m-%d')=#{queryDate}
+			) o2
+			left join c_user_role_attribute ura on o2.user_id=ura.id
+			left join user u on ura.user_id=u.id
+			order by createTime desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!--统计某一天收益的金额和订单数-->
+	<select id="selectCountOrderAndTotalIncome" parameterType="map" resultType="map">
+		select count(0) orderNumber,ifnull(sum(o.money),0) totalIncome from order_form o where state>=0 and store_id=#{businessId}
+			and date_format(o.create_time,'%Y-%m-%d')=#{queryDate}
+	</select>
+
+	<!--统计历史订单金额，按照天分组-->
+	<select id="selectTotalIncomeGroupByDays" parameterType="map" resultType="map">
+		select count(0) dayNumber,ifnull(sum(o.money),0) totalIncome,date_format(o.create_time,'%Y-%m-%d') days from order_form o
+			where state>=0 and store_id=#{businessId}
+				group by days
+					order by days desc
+	</select>
+
+	<select id="selectIncomeByDays" parameterType="map" resultType="com.azcx9d.business.dto.HistoryIncome">
+		select count(0) dayNumber,ifnull(sum(o.money),0) totalIncome,date_format(o.create_time,'%Y-%m-%d') days from order_form o
+			where state>=0 and store_id=#{businessId}
+				group by days
+					order by days desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="selectTotalMoneyAndTotalCountGroupByDays" parameterType="map" resultType="map">
+		select count(0) dayNumber,sum(totalIncome) totalMoney from
+		(
+			select count(0) dayNumber,ifnull(sum(o.money),0) totalIncome,date_format(o.create_time,'%Y-%m-%d') days from order_form o
+				where state>=0 and store_id=#{businessId}
+					group by days
+		) o
+			order by days desc
+	</select>
+
+
+	<update id="cancelOrder" parameterType="map">
+		update order_form set state=#{state},close_time=now()
+		where state = 0 and id = #{id}
+	</update>
+
+	<select id="countHandlingOrder" parameterType="map" resultType="int">
+		select count(id) from order_form where orderSource = 2 and to_days(now())=to_days(seller_time) and store_id=#{businessId}
+	</select>
+
+	<update id="updateConsumptionPic" parameterType="map">
+		update order_form set consumptionPic=#{consumptionPic} where
+		id = #{id}
+	</update>
+
+	<select id="selectCloseOrderAndSumMoney" parameterType="map" resultType="map">
+		select count(1) orderNumber,ifnull(sum(money),0) totalMoney from order_form o where o.store_id=#{businessId} and (o.state=-1 or o.state=-2)
+	</select>
+
+	<select id="countCloseTotal" parameterType="map" resultType="int">
+		select count(1) from order_form o where  (o.state=-1 or o.state=-2) and o.orderSource = 2 and o.store_id=#{businessId}
+	</select>
+	<select id="selectCloseList" parameterType="map" resultType="com.azcx9d.business.dto.FreeOrderDto">
+		select o.id,o.order_id orderId,o.money,ifnull(u.phone, '') phone,o.create_time createTime,o.seller_time sellerTime,o.close_time closeTime,o.state state,o.consumptionPic consumptionPic, o.store_id storeId, (CASE WHEN o.offset_type = 1 THEN o.offset_rangli ELSE o.rangli END) rangli
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id=ura.id
+		left join user u on ura.user_id=u.id
+		where (o.state=-1 or o.state=-2)
+		and o.orderSource = 2
+		and o.store_id=#{businessId}
+		order by o.close_time desc
+		limit #{offset},#{pageSize}
+	</select>
+
+
+	<select id="countFailedOrder" parameterType="Map" resultType="Map">
+		select count(1) orderNumber, ifnull(sum(o.money), 0) totalMoney from order_form o where o.orderSource = 1 and o.state = 4 and o.store_id = #{businessId}
+	</select>
+
+	<select id="getFailedOrder" parameterType="Map" resultType="com.azcx9d.business.dto.NetWorkOrderDto">
+		select o.id, o.money, ifnull(u.phone, '') phone, o.create_time createTime, o.rangli, round(o.money*o.rangli, 2) rangliMoney, '付款失败' stateDesc
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id = ura.id
+		left join user u on ura.user_id = u.id
+		where o.orderSource = 1
+		and o.state = 4
+		and o.store_id = #{businessId}
+		order by o.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+
+	<select id="countEndedOrder" parameterType="Map" resultType="Map">
+		select count(1) orderNumber, ifnull(sum(o.money), 0) totalMoney from order_form o where o.orderSource = 1 and o.state = 3 and o.store_id = #{businessId}
+	</select>
+
+	<select id="getEndedOrder" parameterType="Map" resultType="com.azcx9d.business.dto.NetWorkOrderDto">
+		select o.id, o.money, ifnull(u.phone, '') phone, o.create_time createTime, o.rangli, round(o.money*o.rangli, 2) rangliMoney
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id = ura.id
+		left join user u on ura.user_id = u.id
+		where o.orderSource = 1
+		and o.state = 3
+		and o.store_id = #{businessId}
+		order by o.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="countClosedOrder" parameterType="Map" resultType="Map">
+		select count(1) orderNumber, ifnull(sum(o.money), 0) totalMoney from order_form o where o.orderSource = 1 and o.state &lt; 0 and o.store_id = #{businessId}
+	</select>
+
+	<select id="getClosedOrder" parameterType="Map" resultType="com.azcx9d.business.dto.NetWorkOrderDto">
+		select o.id, o.money, ifnull(u.phone, '') phone, o.close_time createTime, o.rangli, o.state
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id = ura.id
+		left join user u on ura.user_id = u.id
+		where o.orderSource = 1
+		and o.state &lt; 0
+		and o.store_id = #{businessId}
+		order by o.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="countSuccessOrder" parameterType="Map" resultType="Map">
+		select count(1) orderNumber, ifnull(sum(o.money), 0) totalMoney from order_form o where o.orderSource = 1 and o.state = 2 and o.store_id = #{businessId}
+	</select>
+
+	<select id="getSuccessOrder" parameterType="Map" resultType="com.azcx9d.business.dto.NetWorkOrderDto">
+		select o.id, o.money, ifnull(u.phone, '') phone, o.create_time createTime, o.rangli, o.state, round(o.money*o.rangli, 2) rangliMoney
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id = ura.id
+		left join user u on ura.user_id = u.id
+		where o.orderSource = 1
+		and o.state = 2
+		and o.store_id = #{businessId}
+		order by o.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+	<select id="countStayOrder" parameterType="Map" resultType="Map">
+		select count(1) orderNumber, ifnull(sum(o.money), 0) totalMoney from order_form o where o.orderSource = 1 and o.state = 5 and o.store_id = #{businessId}
+	</select>
+
+	<select id="getStayOrder" parameterType="Map" resultType="com.azcx9d.business.dto.NetWorkOrderDto">
+		select o.id, o.money, ifnull(u.phone, '') phone, o.create_time createTime, o.rangli, o.state, round(o.money*o.rangli, 2) rangliMoney
+		from order_form o
+		left join c_user_role_attribute ura on o.user_id = ura.id
+		left join user u on ura.user_id = u.id
+		where o.orderSource = 1
+		and o.state = 5
+		and o.store_id = #{businessId}
+		order by o.id desc
+		limit #{offset}, #{pageSize}
+	</select>
+
+
+
+	<!--system模块功能-->
+	<!--财务审核：财务批量审核订单订单-->
+	<update id="updateOrderStateInIds" parameterType="map">
+		update order_form set state=2,caiwu_time=#{caiwuTime},caiwu_id=#{caiwuId} where
+		id in
+		<foreach item="item" index="index" collection="idsArr" open="(" separator="," close=")">#{item}</foreach>
+	</update>
+
+	<!--查询财务待审核列表-->
+	<select id="selectOrderByState" parameterType="map" resultType="map">
+		select o.id,o.store_id businessId,o.money*o.rangli rangliMoney,u.name businessName,b.identity_card idCard from order_form o
+			left join business b on o.store_id=b.id
+				left join user u on b.user_id=u.id
+		where o.state=#{state}
+			order by o.id desc
+		limit #{offset},#{pageSize}
+	</select>
+	<select id="countTotalByState" parameterType="map" resultType="int">
+		select count(0) from order_form where state=#{state}
+	</select>
+
+
+	<select id="countTotalByBusinessIdAndState" parameterType="map" resultType="int">
+		select count(0) from (select count(0) from order_form
+		where state=1
+		<if test="queryDate!=null">
+			and seller_time&lt;#{queryDate}
+		</if>
+			group by store_id,rangli) o
+	</select>
+	<select id="selectOrderByBusinessIdAndState" parameterType="map" resultType="map">
+		select truncate(sum(o.money*o.rangli),2) totalRangli,ifnull(u.name,'') name,ifnull(u.identity_card,'') identityCard,ifnull(b.legalperson,'') legalperson,ifnull(b.legalperson_num,'') legalpersonPhone,o.rangli,o.store_id storeId,date_format(o.seller_time,'%Y-%m-%d') oneDay from order_form o
+			left join business b on o.store_id=b.id
+				left join user u on b.user_id=u.id
+ 		where o.state=1
+ 		<if test="queryDate!=null">
+			and o.seller_time &lt; #{queryDate}
+		</if>
+			group by o.store_id,o.rangli
+			order by oneDay,o.store_id
+		limit #{offset},#{pageSize}
+	</select>
+
+
+	<select id="countTotalByBusinessIdAndState2" parameterType="map" resultType="int">
+		select count(0) from (select count(0) from order_form
+		where state=1
+		<if test="queryDate!=null">
+			and seller_time&lt;#{queryDate}
+		</if>
+		<if test="businessId!=null and businessId!=''">
+			and store_id=#{businessId}
+		</if>
+			group by store_id) o
+	</select>
+	<select id="selectOrderByBusinessIdAndState2" parameterType="map" resultType="map">
+		select truncate(sum(o.money*o.rangli),2) totalRangli,ifnull(u.name,'') name,ifnull(u.identity_card,'') identityCard,ifnull(b.legalperson,'') legalperson,ifnull(b.legalperson_num,'') legalpersonPhone,o.store_id storeId from order_form o
+			left join business b on o.store_id=b.id
+				left join user u on b.user_id=u.id
+ 		where o.state=1
+ 		<if test="queryDate!=null">
+			and o.seller_time &lt; #{queryDate}
+		</if>
+		<if test="businessId!=null and businessId!=''">
+			and o.store_id=#{businessId}
+		</if>
+			group by o.store_id
+			order by o.store_id
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="countTotalByBIdAndTime" parameterType="map" resultType="int">
+		select count(0) from order_form o where o.store_id=#{businessId} and o.state=1
+		and seller_time &lt; #{queryDate}
+	</select>
+	<select id="selectByBIdAndTime" parameterType="map" resultType="map">
+		select o.id,o.store_id businessId,truncate(o.money*o.rangli,2) rangliMoney,o.rangli,date_format(o.seller_time,'%Y-%m-%d %H:%i:%s') sellerTime from order_form o where o.store_id=#{businessId} and o.state=1
+		and o.seller_time &lt; #{queryDate}
+		order by o.seller_time asc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<!--财务根据订单id审核订单，可批量接收一个订单数组-->
+<!--	<update id="auditOrderStateByIds" parameterType="map">
+		update order_form set state=2,audit_time=#{audit_time} where
+		id in
+		<foreach item="item" index="index" collection="idsArr" open="(" separator="," close=")">#{item}</foreach>
+	</update>-->
+
+	<!--根据商家id和让利比例 修改订单状态，用当前时间作为财务审核时间-->
+	<update id="auditByBusinessIdAndRangli" parameterType="map">
+		update order_form set state=2,caiwu_time=#{caiwuTime},caiwu_id=#{caiwuId}
+			where state=1 and store_id=#{businessId} and rangli=#{rangli}
+			<if test="queryDate!=null and queryDate!=''">
+				and seller_time &lt; #{queryDate}
+			</if>
+			<if test="queryDay!=null and queryDay!=''">
+				and date_format(seller_time,'%Y-%m-%d')=#{queryDay}
+			</if>
+	</update>
+
+	<!--查询所有待审核列表，导出excel-->
+	<select id="selectAllByQueryDay" parameterType="map" resultType="map">
+		select truncate(sum(o.money*o.rangli),2) totalRangli,ifnull(b.name,'') name,ifnull(b.identity_card,'') identityCard,ifnull(b.legalperson,'') legalperson,ifnull(b.legalperson_num,'') legalpersonPhone,o.rangli,o.store_id storeId,date_format(o.seller_time,'%Y-%m-%d') oneDay from order_form o
+		left join business b on o.store_id=b.id
+		where o.state=1
+		<if test="queryDay!=null and queryDay!=''">
+			and date_format(o.seller_time,'%Y-%m-%d')=#{queryDay}
+		</if>
+			group by o.store_id,o.rangli
+			order by oneDay,o.store_id
+	</select>
+
+	<!--用于查询财务审核记录列表-->
+	<select id="selectAuditRecordCountAndTotalRangli" parameterType="map" resultType="map">
+		select count(z.storeId) totalStore,truncate(sum(z.storeRangli),2) totalMoney from (
+				select o.store_id storeId,sum(o.rangli*o.money) storeRangli,date_format(o.caiwu_time,'%Y-%m-%d') auditTime from order_form o
+				where (o.state=2 or o.state=3)
+				and o.caiwu_time >= #{startDate} and #{endDate}>o.caiwu_time
+		group by storeId,auditTime
+		) z
+	</select>
+	<select id="selectAuditRecordsList" parameterType="map" resultType="map">
+		select o.store_id storeId,count(o.store_id) totalOrder,truncate(sum(o.rangli*o.money),2) storeRangli,su.realName auditUsername,date_format(o.caiwu_time,'%Y-%m-%d') auditTime from order_form o
+			left join sys_user su on o.caiwu_id=su.id
+		where (o.state=2 or o.state=3)
+			and o.caiwu_time >= #{startDate} and #{endDate}>o.caiwu_time
+			group by storeId,auditTime
+			order by auditTime desc
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="selectExportAudit" parameterType="map" resultType="map">
+		select o.store_id storeId,count(o.store_id) totalOrder,truncate(sum(o.rangli*o.money),2) storeRangli,su.id auditUserId,date_format(o.caiwu_time,'%Y-%m-%d') auditTime from order_form o
+			left join sys_user su on o.caiwu_id=su.id
+		where (o.state=2 or o.state=3)
+			and o.caiwu_time >= #{startDate} and #{endDate}>o.caiwu_time
+			group by storeId,auditTime
+			order by auditTime desc
+	</select>
+
+	<select id="auditOrderByOrderIdsArr" parameterType="map">
+		update order_form set caiwu_time=#{caiwuTime},caiwu_id=#{caiwuId},state=2
+			where id in (
+				select z.id from
+				(
+					select id from order_form where date_format(caiwu_time,'%Y-%m-%d')=
+				) z
+			)
+	</select>
+
+	<!-- 根据订单号查找订单 -->
+	<select id="findByOrderNo" parameterType="String" resultType="com.azcx9d.business.entity.BOrderForm">
+		select * from order_form where id=#{0}
+	</select>
+
+	<!-- 更新订单状态 -->
+	<update id="updateOrerPayState" parameterType="Map">
+		update order_form SET
+			<if test="state!=null">
+				money=#{totalFee},
+			</if>
+			state=#{state},
+			caiwu_time=now(),
+			seller_time=now()
+		where id=#{orderId}
+	</update>
+
+	<!-- 更新订单状态（只更新state值） -->
+	<update id="updateOrderState" parameterType="Map">
+		update order_form SET state=#{state} where id=#{orderId}
+	</update>
+
+	<!-- 保存第三方支付信息 -->
+	<insert id="addPayInfo" parameterType="Map">
+		INSERT INTO `c_pay_info` (
+									`user_id`,
+									`order_no`,
+									`pay_platform`,
+									`platform_number`,
+									`platform_status`,
+									`create_time`,
+									`seller_id`,
+									`total_fee`,
+									`order_fee`
+		) VALUES (
+									#{userId},
+									#{outTradeNo},
+									#{payPlatform},
+									#{tradeNo},
+									#{tradeStatus},
+									now(),
+									#{sellerId},
+									#{totalFee},
+									#{orderFee}
+		)
+	</insert>
+
+	<!-- 更新第三方支付信息 -->
+	<update id="updateNbpayInfo" parameterType="Map">
+		update `c_pay_info` set
+									`user_id`=#{userId},
+									`order_no`=#{outTradeNo},
+									`pay_platform`=#{payPlatform},
+									`platform_number`=#{tradeNo},
+									`platform_status`=#{tradeStatus},
+									`update_time`=now(),
+									`seller_id`=#{sellerId},
+									`total_fee`=#{totalFee},
+									`order_fee`=#{orderFee}
+		where order_no=#{orderId}
+	</update>
+
+	<select id="getPay" parameterType="map" resultType="com.azcx9d.business.dto.GetPayDto">
+		SELECT a.id orderId,a.money,b.b_name bName FROM order_form a,business b where a.store_id = b.id and a.id = #{orderId}
+	</select>
+
+	<select id="getOffsetType" parameterType="map" resultType="map">
+		select
+			o.user_id userId,
+			ifnull(o.offset_type, 0) offsetType,
+			ifnull(o.offset_num, 0) offsetNum,
+			IFNULL(cura.reuse_point, 0) reusePoint,
+            IFNULL(cura.shandian, 0) shandian,
+            IFNULL(u.shandian2, 0) shandian2
+		from order_form o,
+            c_user_role_attribute cura,
+            user u
+        WHERE
+            cura.user_id = u.id
+        AND cura.id = o.user_id
+		AND o.state = 0
+		and o.id = #{id}
+	</select>
+
+	<insert id="saveXfzDzb" parameterType="Map">
+		insert into xfz_dzb(
+		leixing,
+		user_id,
+		bdsz,
+		jieyu,
+		bdsj,
+		source_type
+		)
+		values(
+		#{leixing},
+		#{userId},
+		#{bdsz},
+		#{jieyu},
+		now(),
+		1
+		)
+	</insert>
+
+	<update id="updateShandian" parameterType="Map">
+		update c_user_role_attribute set
+		shandian = #{jieyu},
+		last_update_time = now()
+		where id = #{userId}
+	</update>
+
+	<update id="updateReusePoint" parameterType="Map">
+		update c_user_role_attribute set
+		reuse_point = #{jieyu},
+		last_update_time = now()
+		where id = #{userId}
+	</update>
+
+	<update id="updateShandian2" parameterType="Map">
+		update user set
+		shandian2 = #{jieyu},
+		update_time = now()
+		where id = (select user_id from c_user_role_attribute where id = #{userId})
+	</update>
+
+	<insert id="savePassiveShandian" parameterType="Map">
+		insert into passive_shandian (
+		user_id,
+		bdsz,
+		jieyu,
+		bdsj,
+		source_type
+		)
+		values
+		(
+		(select user_id from c_user_role_attribute where id = #{userId}),
+		#{bdsz},
+		#{jieyu},
+		now(),
+		1
+		)
+	</insert>
+
+	<!-- 根据map更新订单信息 -->
+	<update id="updateOrder" parameterType="Map">
+		<if test="orderId!=null">
+			update order_form
+			<set>
+				id = #{orderId},
+				<if test="state!=null">
+					state=#{state},
+				</if>
+				<if test="payType!=null">
+					pay_type=#{payType},
+				</if>
+				<if test="closeTime!=null">
+					close_time=now(),
+				</if>
+				<if test="caiwuTime!=null">
+					caiwu_time=now(),
+				</if>
+				<if test="sellerTime!=null">
+					seller_time=now(),
+				</if>
+				<if test="rangliMoney!=null">
+					ranli_money=#{rangliMoney},
+				</if>
+			</set>
+			where id=#{orderId}
+		</if>
+	</update>
+
+</mapper>
+
+

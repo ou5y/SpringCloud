@@ -2,7 +2,9 @@
   <dictionary name="Administrator">
     <words>
       <w>appname</w>
+      <w>eictable</w>
       <w>hystrix</w>
+      <w>jedis</w>
     </words>
   </dictionary>
 </component>

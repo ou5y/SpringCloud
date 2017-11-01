@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.agency.dao.AgencyLoginDao">
+    <select id="selectUser" parameterType="Agency" resultType="Agency">
+        select u.id,u.pass password,u.phone,u.level level,u.bank_card,
+        	ifnull(u.transaction_psw,'') transaction_psw,u.shandian,
+        	u.identity_card,IFNULL(u.avatar,'') avatar,u.jifen,u.shanxin,u.create_time,
+			IFNULL((select lev.param_name  from agency_level lev where lev.param_value=u.`level`),'')levelName,
+			u.shandian2,u.shanxin2,u.jifen2
+		from user u
+        where u.pass=#{password} and u.phone = #{phone} and u.user_type=2
+     </select>
+     <select id ="selectByIdentify" resultType="int">
+     	select count(u.id) from user u where u.phone = #{phone} and u.user_type=2
+     </select>
+     <select id="selectUserById" resultType="Agency">
+     	select id,level,phone,create_time,`name`,bank_card,shandian,shandian2  from user where id =#{value}
+     </select>
+     
+     <select id="selectQRCode" resultType="com.azcx9d.common.entity.QRCode" parameterType="Agency">
+     	select w.user_id,w.ticket,w.sqsj from wx_qr_code w,user u where u.id=${id} and u.id=w.user_id
+     </select>
+     
+</mapper>

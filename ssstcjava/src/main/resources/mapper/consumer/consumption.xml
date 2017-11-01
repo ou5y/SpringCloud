@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.azcx9d.consumer.dao.ConsumptionDao">
+
+    <select id="checkStoreById" resultType="com.azcx9d.consumer.entity.BusinessEntity">
+        select b.id,b.b_name bName,b.user_id userId,b.max_amount maxAmount from business b where b.id=#{storeId} and b.state=1
+    </select>
+
+    <insert id="insertOrder" parameterType="com.azcx9d.consumer.entity.OrderEntity">
+        insert into order_form(
+          order_id,
+          user_id,
+          store_id,
+          money,
+          state,
+          create_time,
+          seller_id
+        )
+        values(
+          #{orderId},
+          #{userId},
+          #{storeId},
+          #{money},
+          0,
+          now(),
+          #{sellerId}
+        )
+    </insert>
+
+    <select id="getOrderList" resultType="com.azcx9d.consumer.entity.OrderEntity">
+        select o.id, o.order_id orderId, o.user_id userId, o.store_id storeId, o.money, o.state, o.create_time createTime, o.jifen_user jifenUser from order_form o where o.user_id = #{userId} order by o.create_time desc
+    </select>
+
+    <select id="CountGetOrderByState" parameterType="Map" resultType="Integer">
+        select count(*) total from order_form where user_id = #{userId}
+        <if test="state==0">
+            AND state = 0
+        </if>
+        <if test="state==1">
+            AND state in (1,2)
+        </if>
+        <if test="state==2">
+            AND state = 3
+        </if>
+    </select>
+
+    <select id="getOrderByState" resultType="com.azcx9d.consumer.entity.OrderEntity" parameterType="Map">
+        SELECT
+            o.id,
+            o.order_id orderId,
+            o.user_id userId,
+            o.store_id storeId,
+            o.money,
+            o.state,
+            o.create_time createTime,
+            o.rangli,
+            ROUND(
+                CASE
+                WHEN o.state = 1 THEN
+                    (
+                        CASE
+                        WHEN o.rangli = 0.2 THEN
+                            o.money
+                        WHEN o.rangli = 0.1 THEN
+                            o.money * 0.75
+                        WHEN o.rangli = 0.05 THEN
+                            o.money * 0.5
+                        ELSE
+                            0
+                        END
+                    )
+                WHEN o.state = 2 THEN
+                    o.jifen_user
+                WHEN o.state = 3 THEN
+                    o.jifen_user
+                ELSE
+                    0
+                END,
+                2
+            ) jifenUser
+        FROM
+            order_form o
+        WHERE
+            o.user_id = #{userId}
+        <if test="state==0">
+            AND o.state = 0
+        </if>
+        <if test="state==1">
+            AND o.state in (1,2)
+        </if>
+        <if test="state==2">
+            AND o.state = 3
+        </if>
+        ORDER BY
+            o.create_time DESC
+        limit #{offset},#{pageSize}
+    </select>
+
+    <select id="getOrderSum" resultType="Double">
+        SELECT
+            IFNULL(SUM(money), 0)
+        FROM
+            order_form
+        WHERE
+            state >= 0
+        AND to_days(now()) = to_days(create_time)
+        AND store_id = #{storeId}
+    </select>
+
+    <select id="CountClosedOrder" parameterType="Map" resultType="Integer">
+        select count(id) total from order_form where state &lt; 0 AND user_id = #{userId}
+    </select>
+
+    <select id="getClosedOrder" resultType="com.azcx9d.consumer.entity.OrderEntity">
+        select o.id,o.order_id orderId,o.user_id userId,o.store_id storeId, o.money, o.state, o.close_time closeTime
+        from order_form o
+        where state &lt; 0 AND o.user_id = #{userId} order by o.close_time desc
+        limit #{offset},#{pageSize}
+    </select>
+
+</mapper>
+

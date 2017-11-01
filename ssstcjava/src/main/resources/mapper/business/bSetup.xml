@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BSetupDao">
+
+	<update id="updateAvatar" parameterType="Map">
+		update user set
+			update_time = now(),
+			avatar = #{avatar}
+        where id = (select user_id from c_user_role_attribute where id = #{userId})
+	</update>
+
+	<update id="updateUserName" parameterType="Map">
+		update user set
+			update_time = now(),
+			name = #{userName}
+		where id = (select user_id from c_user_role_attribute where id = #{userId})
+	</update>
+
+	<insert id="saveUserSuggest" parameterType="Map">
+		insert into user_suggest(
+			content,
+			user_id,
+			creat_time
+		) values(
+			#{content},
+			#{userId},
+			now()
+		)
+	</insert>
+
+	<select id="getCommonProblem" parameterType="Map" resultType="com.azcx9d.business.dto.CommonProblemDto">
+		select id, name, url, type, create_time createTime
+		from c_common_problem
+		where app_type = 2
+		order by type, create_time desc
+	</select>
+
+</mapper>
+
+

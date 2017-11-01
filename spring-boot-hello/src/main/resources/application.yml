@@ -1,6 +1,18 @@
 spring:
   application:
     name: hello-service
+  profiles:
+    active: dev
+  jpa:
+    show-sql: true
+  http:
+    multipart:
+      max-file-size: 10mb
+      max-request-size: 10mb
+      enabled: true
+    encoding:
+      charset: utf-8
+
 eureka:
   instance:
     prefer-ip-address: true

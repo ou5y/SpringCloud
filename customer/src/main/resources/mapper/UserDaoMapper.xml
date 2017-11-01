@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.UserDao">
+    <resultMap id="userMap" type="com.customer.entity.User">
+        <id property="id" column="ID" />
+        <result property="name" column="NAME" />
+        <result property="password" column="PASSWORD" />
+        <result property="username" column="USERNAME" />
+        <result property="parentId" column="parent_id"/>
+        <result property="directlyId" column="directly_id"/>
+    </resultMap>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null and id != ''">
+                and ID = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and NAME = #{name}
+            </if>
+            <if test="password != null and password != ''">
+                and PASSWORD = #{password}
+            </if>
+            <if test="username != null and username != ''">
+                and USERNAME = #{username}
+            </if>
+            <if test="divisionId != null and divisionId != ''">
+                and DIVISION_ID = #{divisionId}
+            </if>
+            <if test="email != null and email != ''">
+                and EMAIL = #{email}
+            </if>
+            <if test="gender != null and gender != ''">
+                and GENDER = #{gender}
+            </if>
+            <if test="mobilephone != null and mobilephone != ''">
+                and MOBILEPHONE = #{mobilephone}
+            </if>
+            <if test="telephone != null and telephone != ''">
+                and TELEPHONE = #{telephone}
+            </if>
+            <if test="userType != null and userType != ''">
+                and USER_TYPE = #{userType}
+            </if>
+            <if test="disabled != null and disabled != ''">
+                and DISABLED = #{disabled}
+            </if>
+            <if test="theme != null and theme != ''">
+                and THEME = #{theme}
+            </if>
+            <if test="keywords != null and keywords != ''">
+                and (name like CONCAT('%', #{keywords},'%') OR username
+                like CONCAT('%', #{keywords},'%')
+                OR telephone like CONCAT('%', #{keywords},'%') OR email like
+                CONCAT('%', #{keywords},'%') )
+            </if>
+
+        </where>
+    </sql>
+
+    <select id="findAll"  resultType="com.customer.entity.User">
+        select id,name,pass,phone from user
+    </select>
+
+    <select id="findByPhone" resultType="com.customer.entity.User" parameterType="String">
+        SELECT id,phone,parent_id,directly_id,pass password from user where phone =#{phone}
+    </select>
+
+    <select id="findByUserIdWithRoleId" resultType="com.customer.entity.CUserRoleAttribute" >
+        SELECT
+            ura.id
+        FROM
+            c_user_role_attribute ura
+            LEFT JOIN
+            user u ON ura.user_id = u.id
+        WHERE
+            ura.role_id = 1
+        AND ura.user_id=#{userId}
+    </select>
+
+    <select id="findUserByUserIdAndPass" resultType="com.customer.dto.UserDto" parameterType="java.util.HashMap">
+        SELECT
+            ura.id,
+            ura.user_id,
+            u.name user_name,
+            u.phone,
+            u.avatar,
+            ura.integral,
+            ura.shandian,
+            <!--ura.love,-->
+            u.shandian2 recommendEarnings,
+            ura.love todayLove,
+            ura.love_small,
+            ura.love_middle,
+            ura.love_large
+        FROM
+            c_user_role_attribute ura
+            LEFT JOIN
+            user u ON ura.user_id = u.id
+        WHERE
+            ura.role_id = 1
+            AND ura.user_id=#{userId}
+            and u.pass=#{password}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+                        parameterType="com.customer.entity.User">
+        INSERT INTO user (phone,name,pass,parent_id,directly_id,create_time) VALUES (#{phone},#{userName},#{password},#{parentId},#{directlyId},now())
+    </insert>
+
+    <select id="findById" resultType="com.customer.dto.UserDto" parameterType="Integer">
+        SELECT
+            ura.id,
+            ura.user_id,
+            u.name user_name,
+            u.phone,
+            u.avatar,
+            ura.integral,
+            ura.shandian,
+            ura.love todayLove,
+            ura.love_small,
+            ura.love_middle,
+            ura.love_large,
+            u.shandian2 recommendEarnings
+        FROM
+            c_user_role_attribute ura
+            LEFT JOIN
+            user u ON ura.user_id = u.id
+        WHERE
+             ura.id=#{id}
+    </select>
+
+    <select id="findTotalIncome" resultType="java.lang.Integer" parameterType="java.util.HashMap">
+        SELECT  ifnull(sum(bdsz),0) total from xfz_dzb where bdsz>0 and user_id=#{id} and leixing=#{type}
+    </select>
+
+    <!--推荐奖励-->
+    <select id="findTotalRecommodIncome" resultType="java.lang.Integer" parameterType="java.util.HashMap">
+        SELECT  ifnull(sum(bdsz),0) total
+        from passive_shandian  where user_id=(select user_id from c_user_role_attribute where id=#{id} and role_id=1) and grantType = 0
+    </select>
+
+    <select id="findIntegralRecodeAll" resultType="com.customer.dto.CMyIntegralRecordDto" parameterType="java.util.HashMap">
+        SELECT CONCAT('+', x.bdsz) value,x.bdsj dateTime ,ofm.money from xfz_dzb x ,order_form ofm
+        where x.order_id=ofm.id and x.user_id=#{id} and x.leixing=#{type}
+    </select>
+
+
+    <select id="findLovePointRecode" resultType="com.customer.dto.CMyShandianRecode" parameterType="java.util.HashMap">
+        SELECT CONCAT('+', x.bdsz) shandian, x.bdsj dateTime, '0' money, '' bName,quota_type quotaType from xfz_dzb x
+        where x.leixing=#{type} and x.bdsz>0 and x.user_id=#{id}
+    </select>
+
+    <select id="findUserRole" resultType="com.customer.dto.RoleListDto" parameterType="int">
+        SELECT level_id ,level_name  from  c_platform_status where identity_id=#{id} AND is_pass ='Y' order by level_id
+    </select>
+
+    <select id="findRecommendPointRecord" resultType="com.customer.dto.MyRecommendPointRecordDto" parameterType="java.util.HashMap">
+        select ps.bdsj dateTime,CONCAT('+', ps.bdsz) value,'推荐奖励' type from passive_shandian ps  where ps.user_id =(select user_id from c_user_role_attribute where id=#{id} and role_id=1) and ps.grantType=0
+    </select>
+
+    <!-- 查询全部区域 -->
+    <select id="queryAllAreas" resultType="Map" parameterType="Map">
+        select t.*,IFNULL(trade.`name`,'') tradeName from (
+            select u.area_id areaId,region.fullName,u.trade_id tradeId
+            from user_agency u,region region
+            where u.area_id=region.`code` and u.user_id=#{fromId}
+        ) t left join trade trade on t.tradeId=trade.id
+    </select>
+
+    <!-- 代理业务 -->
+    <select id="queryAgencyStatistics" resultType="Map" parameterType="Map">
+        SELECT
+        (select IFNULL(SUM(ps.bdsz),0) total from passive_shandian ps where ps.grantType=#{grantType} and bdsz>0 and ps.from_type=#{fromType}
+        <if test="userId!=null">
+            and ps.user_id=#{userId}
+        </if>
+        <!--<if test="fromId!=null">-->
+            <!--and ps.from_id=#{fromId}-->
+        <!--</if>-->
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND date_format(ps.bdsj, '%Y-%m-%d') &gt;= #{startDate} and date_format(ps.bdsj, '%Y-%m-%d') &lt; #{endDate}
+        </if>
+        <if test="areaLevel==0">
+            and ps.area_id in(
+            select code from region where parentcode in(
+            select code from region where parentcode=#{areaId}
+            )
+            )
+            ) total,
+            ( SELECT count(CODE) FROM region WHERE parentCode = ua.area_id ) num
+        </if>
+        <if test="areaLevel==1">
+            and ps.area_id in(
+            select code from region where parentcode=#{areaId}
+            )
+            ) total,
+            ( SELECT count(CODE) FROM region WHERE parentCode = ua.area_id ) num
+        </if>
+        <if test="areaLevel==2">
+            and ps.area_id =#{areaId} ) total,
+            0 num
+        </if>
+
+        FROM user_agency ua
+        WHERE ua.user_id = #{fromId} and ua.area_id=#{parentCode} and ua.trade_id=#{tradeId}
+    </select>
+
+    <!-- 区域折线图 -->
+    <select id="queryAgencyLineChart" parameterType="Map" resultType="com.customer.dto.AgencyProfit">
+        select IFNULL(SUM(bdsz),0) bdsz,DATE_FORMAT(bdsj, '%Y-%m-%d') bdsj from passive_shandian
+        <where>
+            <if test="1==1">
+                and bdsz>0 and grantType=#{grantType} and from_type=#{fromType}
+            </if>
+            <if test="userId!=null">
+                and user_id=#{userId}
+            </if>
+            <!--<if test="fromId!=null">-->
+                <!--and from_id=#{fromId}-->
+            <!--</if>-->
+            <if test="areaLevel==0">
+                and area_id in(
+                    select code from region where parentcode in(
+                      select code from region where parentcode=#{areaId}
+                    )
+                )
+            </if>
+            <if test="areaLevel==1">
+                and area_id in(
+                select code from region where parentcode=#{areaId}
+                )
+            </if>
+            <if test="areaLevel==2">
+                and area_id =#{areaId}
+            </if>
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                AND date_format(bdsj, '%Y-%m-%d') &gt;= #{startDate} and date_format(bdsj, '%Y-%m-%d') &lt; #{endDate}
+            </if>
+        </where>
+        group by DATE_FORMAT(bdsj,'%Y-%m-%d')
+    </select>
+
+    <select id="queryAreaInfo" parameterType="Map" resultType="Map">
+        select t.*,IFNULL(trade.`name`,'') tradeName from (
+            select u.area_id areaId,region.fullName,u.trade_id tradeId
+            from user_agency u,region region
+            where u.area_id=region.`code` and u.user_id=#{fromId} and u.trade_id=#{tradeId} and u.area_id=#{areaId}
+        ) t left join trade trade on t.tradeId=trade.id
+    </select>
+
+    <select id="queryByProvinceCode" resultType="int" parameterType="Map">
+        select code from region where parentCode in(select code from region where parentCode=#{areaId})
+    </select>
+
+    <select id="queryByCityCode" resultType="int" parameterType="Map">
+        select code from region where parentCode =#{areaId}
+    </select>
+
+    <!-- 省代理业务 -->
+    <select id="queryAgencyProvince" resultType="Map" parameterType="Map">
+        SELECT region.`code` areaId,region.fullName areaName,t.total,
+        ( SELECT count(CODE) FROM region WHERE parentCode = t.parentCode ) count ,
+        <if test="tradeId>0">
+            (select `name` from trade where id=#{tradeId}) tradeName,#{tradeId} tradeId
+        </if>
+        <if test="tradeId==0">
+            '' tradeName,0 tradeId
+        </if>
+        from (select region.parentCode,sum(t.total) total from (SELECT
+                    ps.area_id,region.fullName,IFNULL(SUM(ps.bdsz),0) total
+                FROM
+                    passive_shandian ps,region region
+                WHERE ps.area_id=region.`code` and
+                    ps.grantType = #{grantType}
+                AND bdsz > 0
+                AND ps.from_type =#{fromType}
+                AND ps.user_id =#{userId}
+                <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                    AND date_format(ps.bdsj, '%Y-%m-%d') &gt;= #{startDate} and date_format(ps.bdsj, '%Y-%m-%d') &lt; #{endDate}
+                </if>
+                <!-- AND ps.from_id =#{fromId} -->
+                and ps.area_id in(
+                    select code from region where parentcode in(
+                    select code from region where parentcode=#{areaId}
+                    )
+                    )
+        group by ps.area_id) t,region region
+        where t.area_id=region.code
+        group by parentCode) t ,region
+        where t.parentCode=region.`code`
+    </select>
+
+    <!-- 市代理业务 -->
+    <select id="queryAgencyCity" resultType="Map" parameterType="Map">
+        SELECT ps.area_id areaId,region.fullName areaName,IFNULL(SUM(ps.bdsz),0) total,0 count,
+        <if test="tradeId>0">
+            (select `name` from trade where id=#{tradeId}) tradeName,#{tradeId} tradeId
+        </if>
+        <if test="tradeId==0">
+            '' tradeName,0 tradeId
+        </if>
+        FROM passive_shandian ps,region region
+        WHERE ps.area_id=region.`code` and
+        ps.grantType = #{grantType}
+        AND ps.bdsz > 0
+        AND ps.from_type =#{fromType}
+        AND ps.user_id =#{userId}
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND date_format(ps.bdsj, '%Y-%m-%d') &gt;= #{startDate} and date_format(ps.bdsj, '%Y-%m-%d') &lt; #{endDate}
+        </if>
+    <!-- AND ps.from_id =#{fromId} -->
+    AND ps.area_id IN (
+      SELECT `code` FROM  region WHERE parentcode =#{areaId}
+    )
+    group by ps.area_id
+</select>
+
+<select id="querySingleArea" parameterType="Map" resultType="Map">
+    select (select fullName from region where `code`=#{areaId}) areaName,
+    <if test="tradeId>0">
+        (select `name` from trade where id=#{tradeId}) tradeName,#{tradeId} tradeId
+    </if>
+    <if test="tradeId==0">
+        '' tradeName,0 tradeId
+    </if>
+    from user_agency where user_id=#{fromId} and area_id=#{parentCode} and trade_id=#{tradeId}
+</select>
+
+<!-- 查询交易密码 -->
+    <select id="queryTransPwd" parameterType="Map" resultType="Map">
+        select u.transaction_psw transPwd from `user` u,c_user_role_attribute c
+        where u.id=c.user_id and u.phone=#{phone} and c.role_id=1
+    </select>
+
+    <!-- 区域明细 -->
+    <select id="queryAreaDetail" parameterType="Map" resultType="com.customer.dto.AreaDetailDto">
+        select b.b_name bName,bdsj,bdsz from passive_shandian p,business b
+        where p.b_id=b.id and p.area_id=#{areaId}
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND date_format(p.bdsj, '%Y-%m-%d') &gt;= #{startDate} and date_format(p.bdsj, '%Y-%m-%d') &lt; #{endDate}
+        </if>
+        and p.user_id=#{userId} and p.bdsz>0 and p.grantType= #{grantType} and p.from_type=#{fromType}
+    </select>
+
+    <select id="findByOpenid" resultType="com.customer.entity.User" parameterType="String">
+        SELECT id,phone,parent_id,directly_id,pass password from user where openid =#{openid} limit 1
+    </select>
+
+    <update id="updateUserOpenid" parameterType="Map">
+        update user
+        set openid = #{openid}
+        where id = #{userId}
+    </update>
+
+    <insert id="weixinInsert" useGeneratedKeys="true" keyProperty="id" parameterType="com.customer.entity.UserWeixin">
+        INSERT INTO user (phone,openid,name,pass,parent_id,directly_id,create_time,avatar) VALUES (#{phone},#{openid},#{userName},#{password},#{parentId},#{directlyId},now(),#{avatar})
+    </insert>
+
+    <!-- 查询推荐注册赠送积分 -->
+    <select id="queryRegisterReward" parameterType="Map" resultType="Map">
+        select type,number from register_reward
+    </select>
+
+</mapper>

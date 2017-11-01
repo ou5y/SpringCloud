@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.user.dao.RegionDao">
+	
+	<!-- 根据code查询区域 -->
+	<select id="findByCode" parameterType="int" resultType="Region">
+		select `code`,parentCode,type,`name`,fullName,price,state from region 
+		where `code`= #{code}
+	</select>
+	
+	<!-- 根据userId查询全部代理区域 -->
+	<select id="findAreaByUserId" parameterType="Long" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId 
+		from user_agency where user_id=#{userId}
+	</select>
+	
+	<!-- 根据id查询行业名称 -->
+	<select id="findTradeName" parameterType="int" resultType="String">
+		select `name` from trade where id=#{tradeId}
+	</select>
+	
+</mapper>

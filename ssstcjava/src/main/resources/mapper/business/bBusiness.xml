@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.business.dao.BBusinessDAO">
+
+	<!--<select id="selectAll" resultType="BBusiness">
+		select * from business where id=75
+	</select>-->
+
+	<select id="selectByBusinessId" resultType="com.azcx9d.business.dto.BusinessManageDto" parameterType="int">
+		select
+			b.id,
+			ifnull(b.business_photo, '') businessPhoto,
+			ifnull(b.show_pics, '') showPics,
+			ifnull(b.b_name, '') bName,
+			ifnull(b.operate_type, '') operateType,
+			ifnull(b.open_time, '') openTime,
+			ifnull(b.close_time, '') closeTime,
+			ifnull(b.intro, '') intro,
+			ifnull(b.phone, '') phone,
+			ifnull(b.business_address, '') businessAddress,
+			ifnull(t.name, '') operateTypeName,
+			ifnull(b.latitude1, '') latitude1,
+			ifnull(b.longitude1, '') longitude1
+		from business b
+		left join trade t on b.operate_type=t.id
+		where b.id=#{businessId}
+	</select>
+
+	<update id="updateByBusinessId" parameterType="ParaMap">
+		update business set
+			business_photo=#{businessPhoto},
+			show_pics=#{showPics},
+			open_time=#{openTime},
+			close_time=#{closeTime},
+			intro=#{intro},
+			phone=#{phone},
+			longitude1=#{longitude1},
+			latitude1=#{latitude1},
+			business_address = #{businessAddress}
+		where id=#{id}
+	</update>
+
+</mapper>
+
+

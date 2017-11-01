@@ -1,0 +1,13 @@
+spring:
+#  多环境配置  
+  profiles:
+    active: prod
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    show-sql:  true
+  http:
+    multipart:
+      max-file-size: 20971520
+      max-request-size: 20971520
+      enabled: true

@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="war" name="ssstcjava:war">
-    <output-path>D:/Soft/sss/ssstcjava/target</output-path>
+    <output-path>$PROJECT_DIR$/ssstcjava/target</output-path>
     <root id="archive" name="ssstc.war">
       <element id="artifact" artifact-name="ssstcjava:war exploded" />
     </root>

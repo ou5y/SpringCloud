@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.agency.dao.ExchangeDao">
+	
+	<!-- 查询兑换记录列表 -->
+	<select id="queryExchangeList" parameterType="Map" resultType="Map">
+		select id,c_shandian exchangeShandian,state,create_date creatDate,`type`
+		from convertibility_record
+		<include refid="WHERE_EXCHANGE_SQL" />
+		order by create_date desc
+		limit #{offset},#{pageSize}
+	</select>
+	
+	<sql id="WHERE_EXCHANGE_SQL">
+		<where>
+			<if test="userId!=null and userId!=''">
+				and user_id=#{userId}
+			</if>
+			<if test="state!=null">
+				and state=#{state}
+			</if>
+			<if test="startDate!=null and startDate!=''">
+				and create_date>=#{startDate}
+			</if>
+			<if test="endDate!=null and endDate!=''">
+				and create_date&lt;#{endDate} 
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 统计对账表明细总数 -->
+	<select id="countExchange" parameterType="Map" resultType="Integer">
+		select count(*) total from convertibility_record
+		<include refid="WHERE_EXCHANGE_SQL" />
+	</select>
+	
+	<!-- 提现记录 -->
+	<select id="queryBalance" parameterType="Map" resultType="Map">
+		select id,bdsz,jieyu,bdsj from xfz_dzb 
+		<include refid="WHERE_DETAIL_SQL" />
+		order by bdsj desc
+		limit #{offset},#{pageSize}
+	</select>
+	
+	<!-- 统计对账表明细总数 -->
+	<select id="countBalance" parameterType="Map" resultType="Integer">
+		select count(*) total from xfz_dzb
+		<include refid="WHERE_DETAIL_SQL" />
+	</select>
+	
+	<!-- xfz_dzb明细 -->
+	<sql id="WHERE_DETAIL_SQL">
+		<where>
+			<if test="userId!=null and userId!=''">
+				and user_id=#{userId}
+			</if>
+			<if test="leixing!=null">
+				and leixing=#{leixing}
+			</if>
+			<if test="startDate!=null and startDate!=''">
+				and bdsj>=#{startDate}
+			</if>
+			<if test="endDate!=null and endDate!=''">
+				and bdsj&lt;#{endDate} 
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 查询兑换记录详情 -->
+	<select id="queryDetail" parameterType="Map" resultType="Exchange">
+		select cr.id,u.`name`,cr.bank_card_no bankCardNo,
+			cr.c_shandian exchangeShandian,cr.poundage,cr.sjdk realMoney,cr.create_date creatDate,
+			cr.arrival_mode arrivalMode,cr.jieyu balance,cr.qrsj confirmDate,cr.state,
+			cr.bank_name bankName,cr.card_holder cardHolder
+		from convertibility_record cr,`user` u
+		where cr.user_id=u.id and cr.id=#{id}
+	</select>
+	
+	<!-- 统计总兑换善点 -->
+	<select id="countTotalConversion" parameterType="Map" resultType="Double">
+		select IFNULL(sum(c_shandian),0) total from convertibility_record 
+		where user_id=#{userId}
+	</select>
+	
+	<!-- 查询用户善点 -->
+    <select id="queryMyShandian" parameterType="Map" resultType="Map">
+    	select shandian,shandian2,is_exchange isExchange,shanxin,shanxin2,jifen,jifen2  from `user` where id=#{userId}
+    </select>
+	
+	<!-- 查询大盘善心(比例） -->
+    <select id="queryLovePercent" parameterType="Map" resultType="Map">
+    	select love_percentage percent from market_customer where DATEDIFF(now(),create_time)=0
+    </select>
+    
+    <!-- 查询用户善点、银行卡号
+    <select id="queryUserInfo" parameterType="Map" resultType="Map">
+    	select u.shandian,bank.bank_card_no bankCardNo,bank.bank_name bankName
+    	from `user` u,bank_card bank where u.id=bank.user_id and u.id=#{userId}
+    </select> -->
+    
+    <!-- 添加兑换记录 -->
+    <insert id="saveExchange" parameterType="Map">
+    	insert into convertibility_record (
+						    	user_id,
+						    	bank_id,
+						    	c_shandian,
+						    	poundage,
+						    	sjdk,
+						    	state,
+						    	create_date,
+						    	arrival_mode,
+						    	jieyu,
+						    	bank_card_no,
+						    	bank_name,
+						    	card_holder,
+						    	`type`
+    						)
+		values				(
+							#{userId},
+							#{bankId},
+							#{exchangeShandian},
+							#{poundage},
+							#{realMoney},
+							#{state},
+							now(),
+							#{arrivalMode},
+							#{currentShandian},
+							#{bankCardNo},
+							#{bankName},
+							#{cardHolder},
+							#{type}
+							)
+    	
+    </insert>
+    
+    <!-- 保存消费者对账表 -->
+    <insert id="saveCustomBill" parameterType="Map">
+    	insert into xfz_dzb (
+					    	leixing,
+					    	user_id,
+					    	bdsz,
+					    	jieyu,
+					    	bdsj
+    					)
+		values
+						(
+							#{leixing},
+							#{userId},
+							#{exchangeShandian},
+							#{currentShandian},
+							now()
+						)
+    </insert>
+	
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+
+  	<!--<propertie type="picture">
+		<parameters name="business">
+			<parameter name="phycial">/content/business/image/</parameter>
+			<parameter name="url">/business/image/</parameter>
+		</parameters>
+	</propertie>-->
+
+	<propertie type="file">
+		<!--头像 Head portrait-->
+		<parameters name="1">
+			<parameter name="phycial">/content/business/image/headportrait/</parameter>
+			<parameter name="url">/business/image/headportrait/</parameter>
+		</parameters>
+
+		<!-- 店铺图片 -->
+		<parameters name="2">
+			<parameter name="phycial">/content/business/image/business/</parameter>
+			<parameter name="url">/business/image/business/</parameter>
+		</parameters>
+
+		<!-- 商品图片 -->
+		<parameters name="3">
+			<parameter name="phycial">/content/business/image/goods/</parameter>
+			<parameter name="url">/business/image/goods/</parameter>
+		</parameters>
+
+		<!-- 消费凭证图片 -->
+		<parameters name="4">
+			<parameter name="phycial">/content/business/image/consumptionpic/</parameter>
+			<parameter name="url">/business/image/consumptionpic/</parameter>
+		</parameters>
+
+	</propertie>
+
+</properties>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.user.dao.ProfitCenterDao">
+
+    <select id="orderFormDetail" resultType="com.azcx9d.common.entity.OrderForm" parameterType="long">
+			SELECT of.id,of.store_id,of.user_id,of.money,of.seller_id,of.rangli 
+			FROM order_form of where of.id = #{id}
+		</select>
+
+    <select id="queryBusinessDetail" resultType="com.azcx9d.agency.entity.Business" parameterType="int">
+			SELECT b.id,b.area_id,b.user_id,b.operate_type,b.upload_user,b.province_code,b.city_code 
+			FROM business b where b.id=#{id}
+		</select>
+
+    <select id="queryVeryDayConsumeMoney" parameterType="long" resultType="double">
+			SELECT sum(of.money) from order_form of where of.state=2
+                                                    and of.user_id=#{userId}
+                                                    and date_format(of.create_time,'%Y-%m-%d')=date_format(curdate()-1,'%Y-%m-%d')
+
+		</select>
+
+	<update id="updateUserLovePoints" parameterType="User">
+		update user u set u.shandian=u.shandian+#{shandian},u.update_time=now() where id =#{id}
+	</update>
+
+
+	<select id="getVeryDayMarketTotalMoney"  resultType="double" parameterType="int">
+		SELECT IFNULL(sum(of.money),0)  from order_form of where of.state=2
+                                              and datediff(of.create_time,curdate())=-1
+
+		<if test="giveUpProfitPercentage==1">
+			and of.rangli=0.05
+		</if>
+
+		<if test="giveUpProfitPercentage==2">
+			and of.rangli=0.1
+		</if>
+
+		<if test="giveUpProfitPercentage==3">
+			and of.rangli=0.2
+		</if>
+	</select>
+
+	<select id="queryMarket" resultType="MarketEntity">
+		select a.* from market_customer a WHERE datediff(a.create_time,curdate())=-1
+	</select>
+
+	<select id="queryCustomerList" resultType="User">
+		select u.id,u.name,u.shandian,u.shanxin,u.jifen,u.phone   from user u where u.shanxin>=0.00 and u.user_type=0
+	</select>
+
+	<insert id="insertLovePointRecord" parameterType="map">
+			insert into xfz_dzb(leixing,user_id,bdsz,jieyu,bdsj)values(#{type},#{userId},#{lovePoints},#{jieyu},now())
+	</insert>
+
+	<insert id="insertMarketCustomer" parameterType="map" >
+		insert into market_customer(expenditure, old_love, new_love, love_percentage, create_time, love_point,surplus_integal,integal)
+                    VALUES (#{expenditure},#{oldLove},#{newLove},#{lovePercentage},adddate(now(),-1),#{totalLovePoint},#{surplusIntegal},#{totalIntegal})
+	</insert>
+
+
+	<insert id="insertMarketBusiness" parameterType="map" >
+		insert into market_shopping(expenditure, old_love, new_love, love_percentage, create_time, love_point,surplus_integal,integal)
+		VALUES (#{expenditure},#{oldLove},#{newLove},#{lovePercentage},adddate(now(),-1),#{totalLovePoint},#{surplusIntegal},#{totalIntegal})
+	</insert>
+
+	<select id="queryMarketBusiness" resultType="MarketEntity">
+		select a.* from market_shopping a WHERE datediff(a.create_time,curdate())=-1
+	</select>
+
+
+	<select id="queryBusinessList" resultType="User">
+		select u.id,u.name,u.shandian,u.shanxin,u.jifen,u.phone  from user u where u.shanxin>=0.00 and u.user_type=1
+	</select>
+
+	<update id="doAdjust" parameterType="Business">
+		update business b set b.max_amount = #{maxAmount} where b.id= #{id}
+	</update>
+
+	<select id="queryStatisticsList" resultType="com.azcx9d.scheduled.dto.OderFormDto">
+		SELECT
+			of.store_id business_id, SUM(of.money),b.max_amount
+		FROM
+			order_form of left join business b on of.store_id=b.id
+		WHERE
+			YEARWEEK(DATE_FORMAT(of.create_time, '%Y-%m-%d')) = YEARWEEK(NOW())-1
+		GROUP BY of.store_id
+	</select>
+
+	<select id="queryUploadUserInfo" resultType="Agency">
+		SELECT
+			u.id
+		FROM
+			user u
+			LEFT JOIN
+			user_agency ua ON ua.user_id = u.id
+		WHERE
+			id = #{userId}
+			<if test="areaId !=0">
+				AND ua.area_id = #{areaId}
+			</if>
+			<if test="tradeId !=0">
+				AND ua.trade_id = #{tradeId}
+			</if>
+	</select>
+	
+	<!-- 根据用户id查询用户信息 -->
+	<select id="queryByUserId" parameterType="Map" resultType="Agency">
+		select id,phone,user_type,`level`,shandian,jifen,shanxin from user where id=#{userId}
+	</select>
+	
+	<!-- 查询省行业代理商信息 -->
+	<select id="queryProviceTrade" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{provinceId} and trade_id=#{tradeId}
+	</select>
+	
+	<!-- 查询市行业代理商信息 -->
+	<select id="queryCityTrade" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{cityId} and trade_id=#{tradeId}
+	</select>
+	
+	<!-- 查询区行业代理商信息 -->
+	<select id="queryAreaTrade" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{areaId} and trade_id=#{tradeId}
+	</select>
+	
+	<!-- 查询省代理商信息 -->
+	<select id="queryProviceAgent" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{provinceId} and trade_id=0
+	</select>
+	
+	<!-- 查询市代理商信息 -->
+	<select id="queryCityAgent" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{cityId} and trade_id=0
+	</select>
+	
+	<!-- 查询区代理商信息 -->
+	<select id="queryAreaAgent" parameterType="Map" resultType="Map">
+		select id,user_id userId,area_id areaId,trade_id tradeId,`level`,percent 
+		from user_agency where area_id=#{areaId} and trade_id=0
+	</select>
+	
+	<!-- 更新善点 -->
+	<update id="updateShandian" parameterType="Map">
+		update `user` set shandian=#{newShandian} where id=#{userId}
+	</update>
+
+	<!-- 更新善点 -->
+	<update id="updateShandian2" parameterType="Map">
+		update `user` set shandian2=#{newShandian} where id=#{userId}
+	</update>
+	
+	<!-- 更新善心、积分 -->
+	<update id="updateShanxin" parameterType="Map">
+		update `user` set 
+			shanxin = #{newShanxin},
+			jifen = #{newJifen} 
+		where id=#{userId}
+	</update>
+	
+	<!-- 保存消费者对账表 -->
+    <insert id="saveCustomBill" parameterType="Map">
+    	insert into xfz_dzb (
+					    	leixing,
+					    	user_id,
+					    	bdsz,
+					    	jieyu,
+					    	bdsj
+    					)
+		values
+						(
+							#{leixing},
+							#{userId},
+							#{bdsz},
+							#{jieyu},
+							now()
+						)
+    </insert>
+
+</mapper>
+
+

@@ -22,6 +22,7 @@
         <module name="SBDemo" />
         <module name="spring-boot-hello" />
         <module name="ssstc" />
+        <module name="ssstcjava" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -32,7 +33,7 @@
       <module name="ribbon-consumer" target="1.8" />
       <module name="SBDemo" target="1.8" />
       <module name="spring-boot-hello" target="1.8" />
-      <module name="ssstc" target="1.8" />
+      <module name="ssstc" target="1.5" />
       <module name="ssstcjava" target="1.8" />
     </bytecodeTargetLevel>
   </component>

@@ -11,10 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Random;
 
 
-/**
- * Created by baipan
- * Date: 2017/9/19
- */
 @RestController
 public class HelloController {
 

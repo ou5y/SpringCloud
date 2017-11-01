@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.azcx9d.consumer.dao.CSettingsDao">
+
+    <select id="areaListByparentId" resultType="map" parameterType="map">
+        select code id,fullName name from region where parentCode=${parentCode}
+    </select>
+
+    <insert id="addAddress" parameterType="com.azcx9d.consumer.entity.CAddress">
+        insert into user_address(
+            user_id,
+            name,
+            phone,
+            province,
+            province_desc,
+            city,
+            city_desc,
+            area,
+            area_desc,
+            full_address,
+            create_time,
+            default_address
+        )
+        values(
+            #{userId},
+            #{name},
+            #{phone},
+            #{province},
+            #{provinceDesc},
+            #{city},
+            #{cityDesc},
+            #{area},
+            #{areaDesc},
+            #{fullAddress},
+            now(),
+            0
+        )
+    </insert>
+
+    <select id="allAreaList" resultType="map">
+        select code id,fullName name from region where type=#{type}
+    </select>
+
+    <select id="addressList" resultType="com.azcx9d.consumer.entity.CAddress">
+        select
+            id,
+            user_id userId,
+            name,
+            phone,
+            province,
+            province_desc provinceDesc,
+            city,
+            city_desc cityDesc,
+            area,
+            area_desc areaDesc,
+            full_address fullAddress,
+            create_time createTime,
+            default_address defaultAddress
+        from user_address
+        where user_id=#{userId}
+        order by create_time desc
+    </select>
+
+    <select id="addressDetail" resultType="com.azcx9d.consumer.entity.CAddress">
+        select
+            id,
+            user_id userId,
+            name,
+            phone,
+            province,
+            province_desc provinceDesc,
+            city,
+            city_desc cityDesc,
+            area,
+            area_desc areaDesc,
+            full_address fullAddress,
+            create_time createTime,
+            default_address defaultAddress
+        from user_address
+        where id=#{id}
+    </select>
+
+    <update id="updateAddress" parameterType="com.azcx9d.consumer.entity.CAddress">
+        update user_address
+        set name=#{name},
+            phone=#{phone},
+            province=#{province},
+            province_desc=#{provinceDesc},
+            city=#{city},
+            city_desc=#{cityDesc},
+            area=#{area},
+            area_desc=#{areaDesc},
+            full_address=#{fullAddress},
+            update_time=now()
+        where id=#{id}
+    </update>
+
+    <delete id="deleteAddress">
+        delete from user_address
+        where id=#{id}
+    </delete>
+
+    <update id="removeDefaultAddressByUserId">
+        update user_address
+        set default_address = 0
+        where user_id = #{userId}
+        and default_address = 1
+    </update>
+
+    <update id="removeDefaultAddressById">
+        update user_address
+        set default_address = 0
+        where id = #{id}
+    </update>
+
+    <update id="setDefaultAddress">
+        update user_address
+        set default_address = 1
+        where id = #{id}
+    </update>
+
+    <select id="hasTransPwd" parameterType="map" resultType="int">
+        select count(1) from user where id=#{id} and transaction_psw is not null and transaction_psw != ''
+    </select>
+
+    <update id="updateTransPwd" parameterType="map">
+        update user
+        set transaction_psw = #{transactionPsw}
+        where id = #{id}
+    </update>
+
+    <select id="checkTransPwd" parameterType="map" resultType="int">
+        select count(1) from user where id=#{id} and transaction_psw=#{oldTransPwd}
+    </select>
+
+    <update id="updateLoginPwd" parameterType="map">
+        update user
+        set pass = #{password}
+        where id = #{id}
+    </update>
+
+    <select id="checkLoginPwd" parameterType="map" resultType="int">
+        select count(1) from user where id=#{id} and pass=#{oldPassword}
+    </select>
+
+    <update id="saveIdentityCardUp" parameterType="Consumer">
+        update user
+        set identity_card_up = #{identityCardUp}
+        where id = #{id}
+    </update>
+
+    <update id="saveIdentityCardDown" parameterType="Consumer">
+        update user
+        set identity_card_down = #{identityCardDown}
+        where id = #{id}
+    </update>
+</mapper>
+

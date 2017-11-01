@@ -1,0 +1,50 @@
+spring:
+  datasource:
+    url: jdbc:mysql://121.196.206.212:3306/ssstc?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: ssstc
+    password: qwer1234
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+#druid参考官方配置
+    initial-size: 1
+    max-active: 20
+    min-idle: 5
+    max-wait: 60000
+#配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    time-between-eviction-runs-millis: 60000
+#配置一个连接在池中最小生存的时间，单位是毫秒
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 'x'
+    test-while-idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    max-open-prepared-statements: 20
+#配置监控统计拦截的filters
+    filters: stat
+  redis:
+    host: 39.108.4.198
+    port: 6380
+    # expire
+    expire: 2592000
+    # timeout
+    timeout: 3000
+    # password
+    password: 123456
+    # use dbIndex
+    dbIndex: 0
+
+    maxIdle: 300
+    testOnBorrow: true
+    maxTotal: 300
+    maxWaitMillis: 3000
+
+
+#日志
+logging:
+  config: classpath:logback-boot.xml
+
+endpoints:
+  shutdown:
+    enabled: true
+    sensitive: false

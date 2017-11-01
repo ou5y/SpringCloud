@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.azcx9d.agency.dao.AgentJoinDao">
+
+	<select id="areaList" resultType="Area" parameterType="Map">
+		<!-- SELECT r.code id,r.parentCode parentId,r.name areaName,r.price agentPrice,r.state FROM region r where r.parentCode=${parentId} -->
+		select `code`,parentCode,type,`name`,fullName,price,state from region where parentCode=${parentCode}
+	</select>
+	
+	<select id="selectAreaByName" parameterType="java.lang.String" resultType="Area">
+		SELECT `code`,parentCode,type,`name`,fullName,price,state FROM region  where `name` like '%${value}%'
+	</select>
+	
+	<!-- 我要代理 -->
+	<insert id="insertAgentArea" parameterType="Map">
+		INSERT INTO agent_area(
+					user_id,
+					area_id,
+					agent_date
+		)VALUES(
+					#{userId},
+					#{areaId},
+					now()
+		)
+	</insert>
+	
+	<!-- 更新代理关系 -->
+	<update id="updateAgent" parameterType="Map">
+		update `user` set `level`=1,area_id=#{areaId}
+		where id=#{userId}
+	</update>
+	
+</mapper>
+
