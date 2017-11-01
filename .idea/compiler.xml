@@ -22,7 +22,6 @@
         <module name="SBDemo" />
         <module name="spring-boot-hello" />
         <module name="ssstc" />
-        <module name="ssstcjava" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -19,6 +19,11 @@ public class User implements Serializable {
         this.sex = sex;
     }
 
+    public User(Integer id) {
+        this.id = id;
+    }
+
+
     public Integer getId() {
         return id;
     }

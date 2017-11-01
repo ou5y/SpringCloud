@@ -36,7 +36,7 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "String"),
     })
     @RequestMapping(value = "user/{id}", method = RequestMethod.POST)
-    public JSONObject user(@PathVariable(value = "id", required = false) String id) {
+    public Object user(@PathVariable(value = "id", required = false) String id) {
         JSONObject jsonObject = new JSONObject();
         if (StringUtils.isEmpty(id)) {
             jsonObject.put("error", "id参数为空");
@@ -46,7 +46,7 @@ public class UserController {
                 if (user == null) {
                     jsonObject.put("error", "未找到ID=" + id + "的User信息");
                 } else {
-                    jsonObject.put("user", user);
+                    return user;
                 }
             } catch (Exception e) {
                 e.printStackTrace();

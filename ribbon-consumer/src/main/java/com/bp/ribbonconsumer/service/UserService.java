@@ -29,24 +29,27 @@ public class UserService {
      */
     @HystrixCommand(fallbackMethod = "helloFallback",
             commandProperties = {
-                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
-    public User getUserById(Integer id){
+    public User getUserBySync(Integer id){
         //同步方式请求数据
-        return restTemplate.getForObject("http://hello-service/user/{1}", User.class, id);
+        System.out.println(id);
+        User user = new User(id);
+        return restTemplate.postForObject("http://hello-service/user", user, User.class);
     }
 
 
     @HystrixCommand(fallbackMethod = "helloFallback",
             commandProperties = {
-                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
             })
-    public Future<User> getUserByIdAsync(final Integer id){
+    public Future<User> getUserByAsync(final Integer id){
         //异步的方式请求数据
         return new AsyncResult<User>() {
             @Override
             public User invoke() {
-                return restTemplate.getForObject("http://hello-service/user/{1}", User.class, id);
+                User user = new User(id);
+                return restTemplate.postForObject("http://hello-service/user", user, User.class);
             }
         };
     }
@@ -54,7 +57,7 @@ public class UserService {
 
     @HystrixCommand(fallbackMethod = "helloFallback",
             commandProperties = {
-                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
             },
             //默认方式，表示使用observe()执行方式
             //返回一个Hot Observable，在observe()调用的时候立即执行
@@ -65,29 +68,53 @@ public class UserService {
             //当所有订阅者都订阅它后才会执行
             //observableExecutionMode = ObservableExecutionMode.LAZY
     )
-    public Observable<User> getUserByObservableId(final Integer id){
+    public Observable<User> getUserByObservable(final Integer id){
         Observable<User> user = Observable.create(new Observable.OnSubscribe<User>(){
-
             @Override
             public void call(Subscriber<? super User> observable) {
                 try {
                     if (!observable.isUnsubscribed()){
-                        User u = restTemplate.getForObject("http://hello-service/user/{1}", User.class, id);
-                        observable.onNext(u);
+                        User temp = new User(id);
+                        temp = restTemplate.postForObject("http://hello-service/user", temp, User.class);
+                        observable.onNext(temp);
                         observable.onCompleted();
                     }
                 }catch (Exception e){
                     observable.onError(e);
                 }
             }
-
         });
-
         return user;
     }
 
-    public String helloFallback(Integer id){
-        return String.format("request error：\t%s", id);
+
+    @HystrixCommand(fallbackMethod = "helloFallback",
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "3000")
+            },
+            observableExecutionMode = ObservableExecutionMode.LAZY
+    )
+    public Observable<User> getUserByToObservable(final Integer id){
+        Observable<User> user = Observable.create(new Observable.OnSubscribe<User>(){
+            @Override
+            public void call(Subscriber<? super User> observable) {
+                try {
+                    if (!observable.isUnsubscribed()){
+                        User temp = new User(id);
+                        temp = restTemplate.postForObject("http://hello-service/user", temp, User.class);
+                        observable.onNext(temp);
+                        observable.onCompleted();
+                    }
+                }catch (Exception e){
+                    observable.onError(e);
+                }
+            }
+        });
+        return user;
+    }
+
+    public User helloFallback(Integer id){
+        return new User();
     }
 
 }

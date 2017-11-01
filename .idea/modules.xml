@@ -6,7 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/eureka-server/eureka-server.iml" filepath="$PROJECT_DIR$/eureka-server/eureka-server.iml" />
       <module fileurl="file://$PROJECT_DIR$/ribbon-consumer/ribbon-consumer.iml" filepath="$PROJECT_DIR$/ribbon-consumer/ribbon-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/spring-boot-hello/spring-boot-hello.iml" filepath="$PROJECT_DIR$/spring-boot-hello/spring-boot-hello.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ssstcjava/ssstcjava.iml" filepath="$PROJECT_DIR$/ssstcjava/ssstcjava.iml" />
     </modules>
   </component>
 </project>
