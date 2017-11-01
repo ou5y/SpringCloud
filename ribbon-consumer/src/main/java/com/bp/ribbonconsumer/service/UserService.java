@@ -35,9 +35,24 @@ public class UserService {
             })
     public User getUserBySync(Integer id){
         //同步方式请求数据
-        System.out.println(id);
+        System.out.println("进来了："+id);
         User user = new User(id);
-        return restTemplate.postForObject("http://hello-service/user", user, User.class);
+        return restTemplate.postForObject("http://hello-service/getUser", user, User.class);
+    }
+
+    @HystrixCommand(fallbackMethod = "userBack",
+            groupKey = "user",
+            commandKey = "getUserBySyncs",
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "20000")
+            })
+    public User getUserBySyncs(Integer id){
+        //同步方式请求数据
+        System.out.println("进来了s："+id);
+        User user = new User(id);
+        user = restTemplate.getForObject("http://hello-service/getUsers/{1}", User.class, id.toString());
+        System.out.println("User返回的结果是："+user);
+        return user;
     }
 
 
@@ -53,7 +68,7 @@ public class UserService {
             @Override
             public User invoke() {
                 User user = new User(id);
-                return restTemplate.postForObject("http://hello-service/user", user, User.class);
+                return restTemplate.postForObject("http://hello-service/getUser", user, User.class);
             }
         };
     }
@@ -81,7 +96,7 @@ public class UserService {
                 try {
                     if (!observable.isUnsubscribed()){
                         User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/user", temp, User.class);
+                        temp = restTemplate.postForObject("http://hello-service/getUser", temp, User.class);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }
@@ -109,7 +124,7 @@ public class UserService {
                 try {
                     if (!observable.isUnsubscribed()){
                         User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/user", temp, User.class);
+                        temp = restTemplate.postForObject("http://hello-service/getUser", temp, User.class);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }

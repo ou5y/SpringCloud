@@ -30,6 +30,13 @@ public class UserController {
         return user==null||user.getId()==null ? "..." : JSON.toJSONString(user);
     }
 
+    @ApiOperation(value = "获取用户信息s", notes = "通过@HystrixCommand注解同步请求服务s")
+    @RequestMapping(value = "/user-syncs", method = RequestMethod.POST)
+    public String getUserBySyncs(@ApiParam(value = "用户ID", required = true) @RequestParam Integer id){
+        User user = userService.getUserBySyncs(id);
+        return user==null||user.getId()==null ? "..." : JSON.toJSONString(user);
+    }
+
 
     @ApiOperation(value = "获取用户信息", notes = "通过@HystrixCommand注解异步请求服务")
     @RequestMapping(value = "/user-async", method = {RequestMethod.POST})

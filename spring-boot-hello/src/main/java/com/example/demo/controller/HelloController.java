@@ -20,7 +20,7 @@ public class HelloController {
     @Autowired
     private DiscoveryClient client;
 
-    @RequestMapping("hello/{n}")
+    @RequestMapping("/hello/{n}")
     public String hello(@PathVariable(value = "n", required = false) String n){
 
         ServiceInstance instance = client.getLocalServiceInstance();

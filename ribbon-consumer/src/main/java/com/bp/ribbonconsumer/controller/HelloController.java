@@ -6,6 +6,7 @@ import com.bp.ribbonconsumer.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,7 +25,7 @@ public class HelloController {
      * Created by baipan
      * Date: 2017/10/27
      */
-    @RequestMapping(value = "/hello-ribbon-consumer/{n}")
+    @RequestMapping(value = "/hello-ribbon-consumer/{n}", method = RequestMethod.POST)
     public String helloConsumer(@PathVariable(value = "n", required = false) String n){
         return helloService.helloService(n);
 
@@ -81,9 +82,4 @@ public class HelloController {
     }
 
 
-    @RequestMapping(value = "/sss22222/{n}")
-    public String helloConsumer(@PathVariable(value = "n", required = false) Integer id) {
-        User user = helloService.getUserBySync22(id);
-        return JSON.toJSONString(user);
-    }
 }
