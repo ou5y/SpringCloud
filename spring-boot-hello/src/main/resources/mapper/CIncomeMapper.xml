@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.CIncomeDao">
+
+    <select id="getTotalIncome" parameterType="Map" resultType="com.customer.dto.CTypeIncomeDto">
+        SELECT
+            grantType,
+            IFNULL(ROUND(SUM(bdsz), 2), '0') totalIncome
+        FROM
+            (SELECT
+                bdsz,
+                user_id,
+                (
+                    CASE
+                    WHEN grantType = 4
+                    AND from_id = 0 THEN
+                        1
+                    ELSE
+                        grantType
+                    END
+                ) grantType
+            FROM
+                passive_shandian
+            WHERE
+                grantType IS NOT NULL
+            AND bdsz > 0
+            AND user_id = #{uId}) a
+        GROUP BY
+            grantType
+    </select>
+
+    <select id="getRecommendIncomeTotal" parameterType="Map" resultType="com.customer.dto.CRecommendIncomeListDto">
+        SELECT
+          IFNULL(ROUND(SUM(ps.bdsz), 2), '0') total
+        FROM
+        passive_shandian ps
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+        WHERE
+        ps.grantType = 0
+        AND ps.bdsz > 0
+        <if test="type == 1">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        AND ps.user_id = #{uId}
+    </select>
+
+    <select id="getRecommendIncomeList" parameterType="Map" resultType="com.customer.dto.CRecommendIncomeDto">
+        SELECT
+            ps.bdsz,
+            ps.bdsj,
+            IFNULL(b.b_name, '') bName,
+            IFNULL(u.phone, '') xingming,
+            cur.id userId
+        FROM
+            passive_shandian ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+        WHERE
+            ps.grantType = 0
+        AND ps.bdsz > 0
+        <if test="type == 1">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        <if test="bName != null and bName != ''">
+            AND b.b_name LIKE CONCAT('%', #{bName}, '%')
+        </if>
+        <if test="queryDate != null and queryDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = #{queryDate}
+        </if>
+        AND ps.user_id = #{uId}
+    </select>
+
+    <select id="getRecommendIncomeUser" parameterType="Map" resultType="com.customer.dto.CRecommendIncomeUserDto">
+        SELECT
+        ps.bdsz,
+        ps.bdsj,
+        IFNULL(b.b_name, '') bName
+        FROM
+        passive_shandian ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        WHERE
+        ps.grantType = 0
+        AND ps.bdsz > 0
+        <if test="startDate != null and startDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        AND ps.from_id = #{fromId}
+        AND ps.user_id = #{uId}
+    </select>
+
+    <select id="getBusinessIncomeTotal" parameterType="Map" resultType="com.customer.dto.CBusinessIncomeListDto">
+        SELECT
+        IFNULL(ROUND(SUM(ps.bdsz), 2), '0') total
+        FROM
+        (SELECT
+        bdsz,
+        (
+        CASE
+        WHEN (grantType = 1 OR grantType = 4)
+        AND from_id = 0 THEN
+        #{userId}
+        ELSE
+        from_id
+        END
+        ) from_id
+        FROM
+        passive_shandian
+        WHERE
+        bdsz > 0
+        AND (grantType = 1 OR (grantType = 4 and from_id = 0))
+        <if test="type == 1">
+            AND DATE_FORMAT(bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        AND user_id = #{uId}) ps
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+    </select>
+
+    <select id="getBusinessIncomeList" parameterType="Map" resultType="com.customer.dto.CBusinessIncomeDto">
+        SELECT
+        ps.bdsz,
+        ps.bdsj,
+        IFNULL(b.b_name, '') bName,
+        IFNULL(u.phone, '') xingming,
+        cur.id userId
+        FROM
+        (SELECT
+        id,
+        bdsz,
+        bdsj,
+        b_id,
+        (
+        CASE
+        WHEN (grantType = 1 OR grantType = 4)
+        AND from_id = 0 THEN
+        #{userId}
+        ELSE
+        from_id
+        END
+        ) from_id
+        FROM
+        passive_shandian
+        WHERE
+        bdsz > 0
+        AND (grantType = 1 OR (grantType = 4 and from_id = 0))
+        <if test="type == 1">
+            AND DATE_FORMAT(bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        <if test="queryDate != null and queryDate != ''">
+            AND DATE_FORMAT(bdsj, '%Y-%m-%d') = #{queryDate}
+        </if>
+        AND user_id = #{uId}) ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+        WHERE 1=1
+        <if test="bName != null and bName != ''">
+            AND b.b_name LIKE CONCAT('%', #{bName}, '%')
+        </if>
+    </select>
+
+    <select id="getBusinessIncomeUser" parameterType="Map" resultType="com.customer.dto.CBusinessIncomeUserDto">
+        SELECT
+        ps.bdsz,
+        ps.bdsj,
+        IFNULL(b.b_name, '') bName
+        FROM
+        (SELECT
+        id,
+        bdsz,
+        bdsj,
+        b_id,
+        (
+        CASE
+        WHEN (grantType = 1 OR grantType = 4)
+        AND from_id = 0 THEN
+        #{userId}
+        ELSE
+        from_id
+        END
+        ) from_id
+        FROM
+        passive_shandian
+        WHERE
+        bdsz > 0
+        AND (grantType = 1 OR (grantType = 4 and from_id = 0))
+        <if test="startDate != null and startDate != ''">
+            AND DATE_FORMAT(bdsj, '%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(bdsj, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        AND user_id = #{uId}) ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        WHERE
+            ps.from_id = #{fromId}
+    </select>
+
+    <select id="getDistributionIncomeTotal" parameterType="Map" resultType="com.customer.dto.CDistributionIncomeListDto">
+        SELECT
+        IFNULL(ROUND(SUM(ps.bdsz), 2), '0') total
+        FROM
+        passive_shandian ps
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+        WHERE
+        ps.grantType = 4
+        AND ps.bdsz > 0
+        <if test="type == 1">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        AND ps.user_id = #{uId}
+    </select>
+
+    <select id="getDistributionIncomeList" parameterType="Map" resultType="com.customer.dto.CDistributionIncomeDto">
+        SELECT
+        ps.bdsz,
+        ps.bdsj,
+        IFNULL(b.b_name, '') bName,
+        IFNULL(u.phone, '') xingming,
+        cur.id userId,
+        IFNULL(t.name, '') tradeName,
+        IFNULL(r.fullName, '') areaName
+        FROM
+        passive_shandian ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        LEFT JOIN trade t ON ps.trade_id = t.id
+        LEFT JOIN region r ON ps.area_id = r.code
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        JOIN user u ON cur.user_id = u.id
+        WHERE
+        ps.grantType = 4
+        AND ps.bdsz > 0
+        <if test="type == 1">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')
+        </if>
+        <if test="bName != null and bName != ''">
+            AND b.b_name LIKE CONCAT('%', #{bName}, '%')
+        </if>
+        <if test="queryDate != null and queryDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') = #{queryDate}
+        </if>
+        AND ps.user_id = #{uId}
+    </select>
+
+    <select id="getDistributionIncomeUser" parameterType="Map" resultType="com.customer.dto.CDistributionIncomeUserDto">
+        SELECT
+        ps.bdsz,
+        ps.bdsj,
+        IFNULL(b.b_name, '') bName
+        FROM
+        passive_shandian ps
+        LEFT JOIN business b ON ps.b_id = b.id
+        JOIN c_user_role_attribute cur ON ps.from_id = cur.id
+        WHERE
+        ps.grantType = 4
+        AND ps.bdsz > 0
+        <if test="startDate != null and startDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(ps.bdsj, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        AND ps.from_id = #{fromId}
+        AND ps.user_id = #{uId}
+    </select>
+
+</mapper>

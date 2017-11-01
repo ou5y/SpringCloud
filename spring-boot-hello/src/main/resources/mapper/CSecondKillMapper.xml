@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CSecondKillDao">
+
+  <resultMap id="BaseResultMap" type="com.customer.entity.CSecondKill">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    <result column="goods_img" jdbcType="VARCHAR" property="goodsImg" />
+    <result column="price" jdbcType="VARCHAR" property="price" />
+    <result column="original_price" jdbcType="DECIMAL" property="originalPrice" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="sale_out" jdbcType="INTEGER" property="saleOut" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="kill_desc" jdbcType="VARCHAR" property="killDesc" />
+    <result column="concern_number" jdbcType="INTEGER" property="concernNumber" />
+  </resultMap>
+
+  <!-- 删除秒杀活动 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_second_kill
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <!-- 保存秒杀活动 -->
+  <insert id="addCSecondKill" parameterType="Map">
+    insert into c_second_kill (
+                                goods_name,
+                                goods_img,
+                                price,
+                                original_price,
+                                quantity,
+                                start_time,
+                                end_time,
+                                kill_desc,
+                                business_id
+      )values (
+                                #{goodsName},
+                                #{goodsImg},
+                                #{price},
+                                #{originalPrice},
+                                #{quantity},
+                                #{startTime},
+                                #{endTime},
+                                #{killDesc},
+                                #{businessId}
+      )
+  </insert>
+
+  <!-- 更新活动 -->
+  <update id="updateByPrimaryKey" parameterType="Map">
+    update c_second_kill set
+                          goods_name = #{goodsName},
+                          goods_img = #{goodsImg},
+                          price = #{price},
+                          original_price = #{originalPrice},
+                          quantity = #{quantity},
+                          start_time = #{startTime},
+                          end_time = #{endTime},
+                          kill_desc = #{killDesc}
+    where id = #{id}
+  </update>
+
+  <!-- 根据id查询秒杀活动 -->
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, goods_name, goods_img, price, original_price, quantity, sale_out,
+      start_time, end_time, create_time,kill_desc,concern_number
+    from c_second_kill
+    where id = #{id}
+  </select>
+
+  <!-- 查询秒杀活动 -->
+  <select id="queryCSecondKill" parameterType="Map" resultType="com.customer.entity.CSecondKill">
+    select id, goods_name, goods_img, price, original_price, quantity, sale_out,
+      start_time, end_time, create_time,kill_desc,concern_number
+    from c_second_kill
+  </select>
+
+</mapper>

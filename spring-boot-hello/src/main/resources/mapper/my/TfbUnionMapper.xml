@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.my.TfbDao">
+
+    <!-- 根据银行卡号查找银行卡 -->
+    <select id="findByNo" parameterType="Map" resultType="com.customer.entity.my.UnionCard">
+        select id,bank_card_no,bank_name,card_holder,identity_card,card_name,card_type,phone,security_code,valid_date,sign_sn,busi_type
+        from tfb_union_card where user_id=#{userId} and bank_card_no=#{bankCardNo}
+    </select>
+
+    <!-- 根据银行卡号查找银行卡 -->
+    <select id="findByUser" parameterType="Map" resultType="com.customer.entity.my.UnionCard">
+        select id,bank_card_no,bank_name,card_holder,identity_card,card_name,card_type,phone,security_code,valid_date
+        from tfb_union_card where user_id=#{userId}
+    </select>
+
+    <!-- 保存银行卡信息 -->
+    <insert id="addBankCard" parameterType="Map">
+        INSERT INTO `tfb_union_card` (
+                                        `bank_card_no`,
+                                        `bank_name`,
+                                        `card_holder`,
+                                        `identity_card`,
+                                        `card_name`,
+                                        `card_type`,
+                                        `phone`,
+                                        `security_code`,
+                                        `valid_date`,
+                                        `user_id`
+        ) VALUES (
+                                         #{bankCardNo},
+                                         #{bankName},
+                                         #{name},
+                                         #{identifyCard},
+                                         #{cardName},
+                                         #{cardType},
+                                         #{phone},
+                                         #{securityCode},
+                                         #{validDate},
+                                         #{userId}
+         )
+    </insert>
+
+    <!-- 更新银行卡签约序列号 -->
+    <update id="updateSignSn" parameterType="Map">
+        update tfb_union_card set sign_sn=#{signSn} where user_id=#{userId} and bank_card_no=#{bankCardNo}
+    </update>
+
+    <!-- 更新银行卡签约序列号 -->
+    <update id="updateBusiType" parameterType="Map">
+        update tfb_union_card set busi_type=1 where user_id=#{userId} and bank_card_no=#{bankCardNo}
+    </update>
+
+</mapper>

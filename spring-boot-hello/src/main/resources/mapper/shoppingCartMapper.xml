@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.ShoppingCartDao">
+
+  <resultMap id="BaseResultMap" type="com.customer.entity.ShoppingCart">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_name" jdbcType="VARCHAR" property="name" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="business_id" jdbcType="INTEGER" property="businessId" />
+    <result column="business_name" jdbcType="VARCHAR" property="businessName" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+  </resultMap>
+
+  <!-- 购物车总数 -->
+  <select id="countShoppingCart" resultType="int" parameterType="Map">
+    select count(*) total from shopping cart s
+    <include refid="WHERE_SHOPPING_CART_SQL" />
+  </select>
+
+  <!-- 我的购物车 -->
+  <select id="queryMyShoppingCart" resultMap="BaseResultMap" parameterType="Map">
+    select id,goods_name,quantity,price,img_url,create_time,goods_id,business_id,business_name,user_id from `shopping cart` s
+    <include refid="WHERE_SHOPPING_CART_SQL" />
+  </select>
+
+  <sql id="WHERE_SHOPPING_CART_SQL">
+    <where>
+      <if test="userId!=null and userId!=''">
+        and s.user_id=#{userId}
+      </if>
+    </where>
+  </sql>
+
+  <!-- 添加到购物车 -->
+  <insert id="addShoppingCart" parameterType="Map">
+    INSERT INTO `shopping cart` (
+    `goods_name`,
+    `quantity`,
+    `price`,
+    `img_url`,
+    `goods_id`,
+    `user_id`,
+    ) VALUES (
+    #{goodsName},
+    #{quantity},
+    #{price},
+    #{imgUrl},
+    #{goodsId},
+    #{userId}
+    )
+  </insert>
+
+  <!-- 根据id删除收藏 -->
+  <delete id="deleteShoppingCart" parameterType="Map">
+    delete from shopping cart where id=#{id};
+  </delete>
+
+  <!-- 修改购物车商品数量 -->
+  <update id="editShoppingCart" parameterType="Map">
+    UPDATE shopping_cart SET
+    quantity = #{quantity}
+    where id = #{id}
+  </update>
+
+</mapper>
+

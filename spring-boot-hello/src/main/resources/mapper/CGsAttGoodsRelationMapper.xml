@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CGsAttGoodsRelationMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CGsAttGoodsRelation">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="att_option_id" jdbcType="INTEGER" property="attOptionId" />
+    <result column="att_name" jdbcType="VARCHAR" property="attName" />
+    <result column="att_option" jdbcType="VARCHAR" property="attOption" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_gs_att_goods_relation
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.CGsAttGoodsRelation">
+    insert into c_gs_att_goods_relation (id, goods_id, att_option_id, 
+      att_name, att_option)
+    values (#{id,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER}, #{attOptionId,jdbcType=INTEGER}, 
+      #{attName,jdbcType=VARCHAR}, #{attOption,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.CGsAttGoodsRelation">
+    update c_gs_att_goods_relation
+    set goods_id = #{goodsId,jdbcType=INTEGER},
+      att_option_id = #{attOptionId,jdbcType=INTEGER},
+      att_name = #{attName,jdbcType=VARCHAR},
+      att_option = #{attOption,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, goods_id, att_option_id, att_name, att_option
+    from c_gs_att_goods_relation
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, goods_id, att_option_id, att_name, att_option
+    from c_gs_att_goods_relation
+  </select>
+</mapper>

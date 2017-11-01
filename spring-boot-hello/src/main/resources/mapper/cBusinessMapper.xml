@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.CBusinessDao">
+
+  <!-- 查询总条数 -->
+  <select id="countTotal" resultType="int" parameterType="Map">
+    select count(0) total from business b
+    <include refid="WHERE_BUSINESS_SQL" />
+  </select>
+
+    <!-- 查询附近的商家 -->
+    <select id="queryNearbyBusiness" resultType="com.customer.dto.NearbyBusinessDto" parameterType="Map">
+    SELECT b.id,b.b_name bName,IFNULL(b.business_photo,'') storePhotos,b.latitude1,b.longitude1,b.business_address address,
+    t.`name` operateName
+    FROM business b LEFT JOIN trade t ON t.id=b.operate_type
+    <include refid="WHERE_BUSINESS_SQL" />
+    ORDER BY #{orderByStr}
+    <!--limit #{offset},#{pageSize}-->
+    </select>
+
+  <!--&lt;!&ndash; 查询附近的商家 &ndash;&gt;-->
+  <!--<select id="queryNearbyBusiness" resultType="com.customer.dto.NearbyBusinessDto" parameterType="Map">-->
+    <!--SELECT b.id,b.b_name bName,IFNULL(b.business_photo,'') storePhotos,b.latitude1,b.longitude1,b.business_address address,-->
+    <!--t.`name` operateName-->
+    <!--ROUND(6378.138*2*ASIN(SQRT(POW(SIN((#{latitude}*PI()/180-b.latitude1*PI()/180)/2),2)+COS(#{latitude}*PI()/180)-->
+    <!--*COS(b.latitude1*PI()/180)*POW(SIN((#{longitude}*PI()/180-b.longitude1*PI()/180)/2),2)))*1000) AS distance-->
+    <!--FROM business b LEFT JOIN trade t ON t.id=b.operate_type-->
+    <!--<include refid="WHERE_BUSINESS_SQL" />-->
+    <!--ORDER BY #{orderByStr}-->
+    <!--&lt;!&ndash;limit #{offset},#{pageSize}&ndash;&gt;-->
+  <!--</select>-->
+
+    <!--&lt;!&ndash; 查询附近的商家 &ndash;&gt;-->
+    <!--<select id="queryNearbyBusiness" resultType="com.customer.dto.NearbyBusinessDto" parameterType="Map">-->
+        <!--SELECT b.id,b.b_name bName,IFNULL(b.business_photo,'') storePhotos,b.latitude1,b.longitude1,b.business_address address,-->
+        <!--t.`name` operateName,-->
+        <!--null AS distance-->
+        <!--FROM business b LEFT JOIN trade t ON t.id=b.operate_type-->
+        <!--<include refid="WHERE_BUSINESS_SQL" />-->
+        <!--&lt;!&ndash;ORDER BY distance&ndash;&gt;-->
+        <!--&lt;!&ndash;limit #{offset},#{pageSize}&ndash;&gt;-->
+    <!--</select>-->
+
+  <!-- 查询店铺详情-->
+  <select id="queryBusinessDetail" resultType="Map" parameterType="Map">
+    select id,b_name bName,business_photo businessPhoto,business_address businessAddress,store_photos storePhotos,
+    infomation,show_pics showPics,open_time openTime,close_time closeTime,intro,phone
+    from business b
+    <include refid="WHERE_BUSINESS_SQL" />
+  </select>
+
+  <sql id="WHERE_BUSINESS_SQL">
+    <where>
+      <if test="latitude1!=null and latitude2!=null">
+        and b.latitude1&gt;#{latitude1} and b.latitude1&lt;#{latitude2}
+      </if>
+      <if test="longitude1!=null and longitude2!=null">
+        and b.longitude1&gt;#{longitude1} and b.longitude1&lt;#{longitude2}
+      </if>
+      <if test="businessId!=null">
+        and b.id=#{businessId}
+      </if>
+      <if test="state != null and state!='' and state !='-1'">
+        and state = #{state}
+      </if>
+      <if test="uploadUser != null and uploadUser != '' ">
+        and upload_user = #{uploadUser}
+      </if>
+      <if test="tradeId!=null and tradeId!=''">
+          and b.operate_type=#{tradeId}
+      </if>
+      <if test="areaId!=null and areaId!=''">
+          and b.area_id=#{areaId}
+      </if>
+      <if test="name!=null ">
+          and b.b_name like CONCAT('%',#{name},'%')
+      </if>
+    </where>
+  </sql>
+
+  <!-- 根据手机号码查询用户是否存在 -->
+  <select id="selectUserTypeByPhone" parameterType="Map" resultType="Map">
+    select c.id,u.user_type userType,c.role_id roleId,u.id uid from `user` u,c_user_role_attribute c
+    where u.id=c.user_id and u.phone=#{businessPhone}
+    <!-- and c.role_id=2 -->
+  </select>
+
+  <!--获取商家集合-->
+  <select id="getBusinessList" resultType="com.customer.dto.BusinessListDto" parameterType="Map">
+      select b.id,b.b_name,b.legalperson,b.business_photo businessPhoto,
+      b.state,b.upload_date uploadDate,b.legalperson_num
+      from business b
+      <where>
+          <if test="state != null and state!='' and state !='-1'">
+              and b.state = #{state}
+          </if>
+          <if test="uploadUser != null and uploadUser != '' ">
+              and b.upload_user = #{uploadUser}
+          </if>
+      </where>
+  </select>
+
+  <!--获取商家经营类型-->
+  <select id="getBusinessType" resultType="Map" parameterType="java.lang.String">
+    select id,`name`,rangli,quota_type quotaType from trade
+  </select>
+
+  <!-- 根据商家id查询商家详情 -->
+  <select id="queryDetail" resultType="com.customer.entity.CBusiness" parameterType="Map">
+    SELECT
+            business.id,
+            business.b_name,
+            trade.id AS operate_type,
+            trade.`name` AS operate_name,
+            trade.quota_type quotaFlag,
+            business.legalperson,
+            business.legalperson_num,
+            business.identity_card,
+            business.upload_user,
+            business.business_photo,
+            business.business_license,
+            business.business_address,
+            business.state,
+            business.upload_date,
+            business.hole_idcard_photo,
+            business.store_photos,
+            business.promoter_word,
+            business.business_word,
+            business.latitude,
+            business.longitude,
+            business.max_amount,
+            business.province_code,
+            business.city_code,
+            business.area_id,
+            business.user_id,
+            business.xingming,
+            business.phone business_phone,
+            business.business_licence_no,
+            business.register_name,
+            business.quota_type,
+            business.identity_card_up,
+            business.identity_card_down,
+            business.clearance_bank_card_up,
+            business.latitude1,
+            business.longitude1,
+            business.failureCause,
+            business.rangli,
+            c.bank_account_name card_holder,
+            c.bank_account_no bank_card_no,
+            c.bank_name,
+            c.bank_code bankId,
+            c.bank_branch branch_name
+        FROM
+            business business
+            LEFT JOIN trade trade ON business.operate_type = trade.id
+            LEFT JOIN business_support_info c on business.id=c.b_id
+        WHERE business.id =#{id}
+  </select>
+
+  <!-- 查询省市区 -->
+  <select id="queryAreaName" parameterType="Map" resultType="String">
+    select fullName from region where code in (#{provinceCode},#{cityCode},#{areaId})
+  </select>
+
+  <!-- 添加商家 -->
+  <insert id="addBusiness" parameterType="com.customer.entity.CBusiness" keyProperty="id" useGeneratedKeys="true">
+    insert into business(b_name,
+                          legalperson,
+                          legalperson_num,
+                          identity_card,
+                          business_photo,
+                          store_photos,
+                          business_license,
+                          hole_idcard_photo,
+                          business_word,
+                          promoter_word,
+                          operate_type,
+                          business_address,
+                          upload_user,
+                          upload_date,
+                          state,
+                          province_code,
+                          city_code,
+                          area_id,
+                          user_id,
+                          phone,
+                          business_licence_no,
+                          xingming,
+                          latitude,
+                          longitude,
+                          latitude1,
+                          longitude1,
+                          register_name,
+                          quota_type,
+                          identity_card_up,
+                          identity_card_down,
+                          clearance_bank_card_up,
+                          rangli,
+                          max_amount
+    )values(
+                          #{bName},
+                          #{legalPerson},
+                          #{legalPersonNum},
+                          #{identityCard},
+                          #{businessPhoto},
+                          #{storePhotos},
+                          #{businessLicense},
+                          #{holeIdCardPhoto},
+                          #{businessWord},
+                          #{promoterWord},
+                          #{operateType},
+                          #{businessAddress},
+                          #{uploadUser},
+                          now(),
+                          0,
+                          #{provinceCode},
+                          #{cityCode},
+                          #{areaId},
+                          #{userId},
+                          #{phone},
+                          #{businessLicenceNo},
+                          #{xingming},
+                          #{latitude},
+                          #{longitude},
+                          #{latitude1},
+                          #{longitude1},
+                          #{registerName},
+                          #{quotaType},
+                          #{identityCardUp},
+                          #{identityCardDown},
+                          #{clearanceBankCardUp},
+                          #{rangli},
+                          #{maxAmount}
+    )
+  </insert>
+
+  <!-- 店铺辅助信息 -->
+  <insert id="addBusinessSupportInfo" parameterType="com.customer.entity.CBusiness">
+      INSERT INTO `business_support_info` (
+                                              `b_id`,
+                                              `bank_code`,
+                                              `bank_name`,
+                                              `bank_branch`,
+                                              `bank_account_no`,
+                                              `bank_account_name`,
+                                              `cert_name`,
+                                              `cert_phone`,
+                                              `cert_id`,
+                                              `biz_link_man`,
+                                              `biz_phone`,
+                                              `merch_div`,
+                                              `company_name`,
+                                              `merchant_name`,
+                                              `licence_no`
+      ) VALUES (
+                                              #{id},
+                                              #{bankId},
+                                              #{bankName},
+                                              #{branchName},
+                                              #{bankCardNo},
+                                              #{cardHolder},
+                                              #{legalPerson},
+                                              #{legalPersonNum},
+                                              #{identityCard},
+                                              #{xingming},
+                                              #{businessPhone},
+                                              substring(#{provinceCode},1,4),
+                                              #{registerName},
+                                              #{bName},
+                                              #{businessLicenceNo}
+
+      )
+  </insert>
+
+  <!-- 修改商家信息 -->
+  <update id="updateBusiness" parameterType="com.customer.entity.CBusiness">
+    update business set
+                      b_name = #{bName},
+                      operate_type = #{operateType},
+                      legalperson = #{legalPerson},
+                      legalperson_num = #{legalPersonNum},
+                      identity_card = #{identityCard},
+                      upload_user = #{uploadUser},
+                      business_photo = #{businessPhoto},
+                      business_license = #{businessLicense},
+                      business_address = #{businessAddress},
+                      state = #{state},
+                      hole_idcard_photo = #{holeIdCardPhoto},
+                      store_photos = #{storePhotos},
+                      promoter_word = #{promoterWord},
+                      business_word = #{businessWord},
+                      latitude = #{latitude},
+                      longitude = #{longitude},
+                      latitude1 = #{latitude1},
+                      longitude1 = #{longitude1},
+                      user_id = #{userId},
+                      area_id = #{areaId},
+                      province_code = #{provinceCode},
+                      city_code = #{cityCode},
+                      business_licence_no = #{businessLicenceNo},
+                      xingming = #{xingming},
+                      phone = #{phone},
+                      rangli = #{rangli},
+                      quota_type = #{quotaType}
+    where id = #{id}
+  </update>
+
+    <!-- 更新商家状态 -->
+    <update id="updateBusinessState" parameterType="Map">
+        update business set state = #{state}  where id=#{id}
+    </update>
+
+    <!-- 添加结算账户银行信息 -->
+    <insert id="addClearanceAccount" parameterType="Map">
+        INSERT INTO `clearance_account` (
+                                            `bank_card_no`,
+                                            `bank_name`,
+                                            `business_id`,
+                                            `card_name`,
+                                            `card_type`,
+                                            `bank_id`,
+                                            card_holder,
+                                            identity_id,
+                                            branch_name
+        ) VALUES (
+                                            #{bankCardNo},
+                                            #{bankName},
+                                            #{id},
+                                            #{cardName},
+                                            #{cardType},
+                                            #{bankId},
+                                            #{cardHolder},
+                                            #{userId},
+                                            #{branchName}
+        )
+    </insert>
+
+    <!-- 更新结算账户信息 -->
+    <update id="updateClearanceAccount" parameterType="Map">
+        update clearance_account
+            set bank_card_no = #{bankCardNo},
+            bank_name=#{bankName},
+            card_name=#{cardName},
+            card_type=#{cardType},
+            bank_id=#{bankId},
+            card_holder=#{cardHolder}
+        where business_id=#{id}
+    </update>
+
+    <update id="updateBusinessSupportInfo" parameterType="com.customer.entity.CBusiness">
+        update business_support_info SET
+                                              `bank_code` = #{bankId},
+                                              `bank_name` = #{bankName},
+                                              `bank_branch` = #{branchName},
+                                              `bank_account_no` = #{bankCardNo},
+                                              `bank_account_name` = #{cardHolder},
+                                              `cert_name` = #{legalPerson},
+                                              `cert_phone` = #{legalPersonNum},
+                                              `cert_id` = #{identityCard},
+                                              `biz_link_man`= #{xingming},
+                                              `biz_phone`= #{businessPhone},
+                                              `merch_div` = substring(#{provinceCode},1,4),
+                                              `company_name` = #{registerName},
+                                              `merchant_name` = #{bName},
+                                              `licence_no`= #{businessLicenceNo}
+        where b_id=#{id}
+    </update>
+
+    <!--&lt;!&ndash; 商户统计 &ndash;&gt;-->
+    <!--<select id="queryBusinessStatistics" parameterType="Map" resultType="Map">-->
+        <!--select t.*,IFNULL(u.xingming,'') `name` from (-->
+            <!--select CONVERT(sum(p.bdsz),char) total,b.user_id userId,(select count(id) from business where user_id=b.user_id) count-->
+            <!--from passive_shandian p,business b where p.b_id=b.id and p.bdsz>0 and b_id in(-->
+                <!--select id from business where upload_user=#{userId}-->
+                <!--)-->
+            <!--group by b.user_id,b.id-->
+        <!--) t,`user` u,c_user_role_attribute c-->
+        <!--where t.userId=c.id and u.id=c.user_id-->
+    <!--</select>-->
+
+    <!-- 商户统计 -->
+    <select id="queryBusinessStatistics" parameterType="Map" resultType="Map">
+        select CONVERT(sum(bdsz),char) total,b.user_id userId,b.b_name `name`,b.legalperson_num phone,b.id businessId
+        from passive_shandian p,business b where p.b_id=b.id
+        and b.upload_user=#{userId} and bdsz>0 and p.user_id=#{uid} and (p.grantType=1 or p.grantType=4)
+        group by b.id
+    </select>
+
+    <!-- 添加商户角色 -->
+    <insert id="addUserRoleAttribute" parameterType="Map" keyProperty="userId" useGeneratedKeys="true">
+        INSERT INTO `c_user_role_attribute` (
+        `user_id`,
+        `role_id`
+        ) VALUES (
+        #{uid},
+        '2'
+        )
+    </insert>
+
+    <!-- 店铺收益详情 -->
+    <select id="queryStoreRevenue" resultType="Map" parameterType="Map">
+        select p.bdsz,p.bdsj,b.b_name from passive_shandian p,business b
+        where p.b_id=b.id and p.user_id=#{uid} and p.bdsz>0 and (p.grantType=1 or p.grantType=4)
+        and p.b_id =#{businessId}
+    </select>
+
+    <!-- 查询店铺名称是否存在 -->
+    <select id="queryExistBusiness" parameterType="com.customer.entity.CBusiness" resultType="int">
+        select count(0) from business where b_name =#{bName}
+    </select>
+
+</mapper>
+

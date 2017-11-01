@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.StatisticDao">
+
+  <!-- 收藏总数 -->
+  <select id="queryTotalDatas"  resultType="Map">
+    select CONVERT(sum(t1),CHAR) totalBusiness,CONVERT(sum(t2),CHAR) totalCustomer,CONVERT(sum(IFNULL(t3,0)),CHAR) totalAmount
+    from (
+        select count(id) t1,0 as t2,0 as t3 from business
+        UNION
+        select 0 as t1,count(id) t2,0 as t3 from `user`
+        UNION
+        select 0 as t1,0 as t2,sum(money) t3 from order_form where DATEDIFF(create_time,now())=0
+    ) t
+  </select>
+
+    <select id="queryTodayData"  resultType="Map">
+        select CONVERT(total_business,CHAR) totalBusiness,CONVERT(total_customer,CHAR) totalCustomer,CONVERT(sum(IFNULL(total_amount,0)),CHAR) totalAmount
+        from c_today_data where is_open = 1
+        limit 1
+    </select>
+
+    <!-- 查询全部区域 -->
+    <select id="queryAllAreas" resultType="Map" parameterType="Map">
+        select t.*,IFNULL(trade.`name`,'') tradeName from (
+        select u.area_id areaId,region.fullName,u.trade_id tradeId,u.open_limit openLimit
+        from user_agency u,region region
+        where u.area_id=region.`code` and u.user_id=#{fromId}
+        <if test="tradeId!=null and tradeId=='0'.toString()">
+            and u.trade_id=0
+        </if>
+        <if test="tradeId!=null and tradeId!='0'.toString()">
+            and u.trade_id>0
+        </if>
+        ) t left join trade trade on t.tradeId=trade.id
+    </select>
+
+    <!-- 行业代理收益  -->
+    <select id="queryTradeStatistic" parameterType="Map" resultType="Map">
+        select sum(p.bdsz),p.trade_id,t.name from passive_shandian p,trade t
+        where p.trade_id=t.id and p.user_id=#{userId} and p.bdsz>0
+        and p.grantType=#{grantType} and p.from_type=#{fromType}  group by p.trade_id
+    </select>
+
+
+    <!-- 代理业务 -->
+    <select id="queryAgencyStatistics" resultType="Map" parameterType="Map">
+        SELECT
+        (select IFNULL(SUM(ps.bdsz),0) total from passive_shandian ps where ps.grantType=#{grantType}
+        and bdsz>0 and ps.from_type=#{fromType}
+        <if test="userId!=null">
+            and ps.user_id=#{userId}
+        </if>
+        <if test="tradeId!='0'.toString()">
+            and ps.trade_id=#{tradeId}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND ps.bdsj &gt;= #{startDate} and ps.bdsj &lt; #{endDate}
+        </if>
+        <if test="areaLevel==0">
+            and ps.area_id in(
+                select code from region where parentcode in(
+                  select code from region where parentcode=#{areaId}
+                )
+            )
+            ) total,
+            ( SELECT count(CODE) FROM region WHERE parentCode = ua.area_id ) num
+        </if>
+        <if test="areaLevel==1">
+            and ps.area_id in(
+            select code from region where parentcode=#{areaId}
+            )
+            ) total,
+            ( SELECT count(CODE) FROM region WHERE parentCode = ua.area_id ) num
+        </if>
+        <if test="areaLevel==2">
+            and ps.area_id =#{areaId} ) total,
+            0 num
+        </if>
+
+        FROM user_agency ua
+        WHERE ua.user_id = #{fromId} and ua.area_id=#{parentCode} and ua.trade_id=#{tradeId}
+    </select>
+
+    <select id="queryAreaInfo" parameterType="Map" resultType="Map">
+        select t.*,IFNULL(trade.`name`,'') tradeName from (
+        select u.area_id areaId,region.fullName,u.trade_id tradeId
+        from user_agency u,region region
+        where u.area_id=region.`code` and u.user_id=#{fromId} and u.trade_id=#{tradeId} and u.area_id=#{areaId}
+        ) t left join trade trade on t.tradeId=trade.id
+    </select>
+
+    <!-- 查询区域收益明细总记录数 -->
+    <select id="countAreaDetail" resultType="Integer" parameterType="Map">
+        select count(0) from (
+            select bdsz,bdsj,b_id from passive_shandian p
+            where  p.user_id=#{userId} and p.bdsz>0
+            and p.grantType=#{grantType} and p.from_type=#{fromType}
+            <if test="areaLevel==0">
+                and p.area_id in(
+                select code from region where parentcode in(
+                select code from region where parentcode=#{areaId}
+                )
+                )
+            </if>
+            <if test="areaLevel==1">
+                and p.area_id in(
+                select code from region where parentcode=#{areaId}
+                )
+            </if>
+            <if test="areaLevel==2">
+                and p.area_id =#{areaId}
+            </if>
+            <if test="tradeId!='0'.toString()">
+                and p.trade_id=#{tradeId}
+            </if>
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+            </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+    </select>
+
+    <!-- 查询区域总收益 -->
+    <select id="countAreaAll" resultType="String" parameterType="Map">
+        select COALESCE(SUM(bdsz),0) from (
+        select bdsz,bdsj,b_id from passive_shandian p
+        where  p.user_id=#{userId} and p.bdsz>0
+        and p.grantType=#{grantType} and p.from_type=#{fromType}
+        <if test="areaLevel==0">
+            and p.area_id in(
+            select code from region where parentcode in(
+            select code from region where parentcode=#{areaId}
+            )
+            )
+        </if>
+        <if test="areaLevel==1">
+            and p.area_id in(
+            select code from region where parentcode=#{areaId}
+            )
+        </if>
+        <if test="areaLevel==2">
+            and p.area_id =#{areaId}
+        </if>
+        <if test="tradeId!='0'.toString()">
+            and p.trade_id=#{tradeId}
+        </if>
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+        </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+    </select>
+
+    <!-- 区域明细 -->
+    <select id="queryAreaDetail" parameterType="Map" resultType="com.customer.dto.AreaDetailDto">
+        select t.bdsz,t.bdsj,b.b_name,u.phone xingming from (
+            select id,bdsz,bdsj,b_id from passive_shandian p
+            where  p.user_id=#{userId} and p.bdsz>0
+            and p.grantType=#{grantType} and p.from_type=#{fromType}
+            <if test="areaLevel==0">
+                and p.area_id in(
+                  select code from region where parentcode in(
+                    select code from region where parentcode=#{areaId}
+                  )
+               )
+            </if>
+            <if test="areaLevel==1">
+                and p.area_id in(
+                  select code from region where parentcode=#{areaId}
+                )
+            </if>
+            <if test="areaLevel==2">
+                and p.area_id =#{areaId}
+            </if>
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+            </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+        order by t.id desc
+        limit #{offSet},#{pageSize}
+    </select>
+
+    <!-- 查询行业明细总记录数 -->
+    <select id="countTradeDetail" parameterType="Map" resultType="Integer">
+        select count(0) from (
+        select bdsz,bdsj,b_id from passive_shandian p
+        where  p.user_id=#{userId} and p.bdsz>0
+        and p.grantType=#{grantType} and p.from_type=#{fromType}
+        <if test="areaLevel==0">
+            and p.area_id in(
+                select code from region where parentcode in(
+                  select code from region where parentcode=#{areaId}
+                )
+            )
+        </if>
+        <if test="areaLevel==1">
+            and p.area_id in(
+              select code from region where parentcode=#{areaId}
+            )
+        </if>
+        <if test="areaLevel==2">
+            and p.area_id =#{areaId}
+        </if>
+        and p.trade_id=#{tradeId}
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+        </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+    </select>
+
+    <!-- 查询行业明细总记录数 -->
+    <select id="countTradeAll" parameterType="Map" resultType="String">
+        select COALESCE(SUM(bdsz),0) from (
+        select bdsz,bdsj,b_id from passive_shandian p
+        where  p.user_id=#{userId} and p.bdsz>0
+        and p.grantType=#{grantType} and p.from_type=#{fromType}
+        <if test="areaLevel==0">
+            and p.area_id in(
+            select code from region where parentcode in(
+            select code from region where parentcode=#{areaId}
+            )
+            )
+        </if>
+        <if test="areaLevel==1">
+            and p.area_id in(
+            select code from region where parentcode=#{areaId}
+            )
+        </if>
+        <if test="areaLevel==2">
+            and p.area_id =#{areaId}
+        </if>
+        and p.trade_id=#{tradeId}
+        <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+            AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+        </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+    </select>
+
+    <!-- 行业明细 -->
+    <select id="queryTradeDetail" parameterType="Map" resultType="com.customer.dto.AreaDetailDto">
+        select t.bdsz,t.bdsj,b.b_name,u.phone xingming from (
+            select id,bdsz,bdsj,b_id from passive_shandian p
+            where  p.user_id=#{userId} and p.bdsz>0
+            and p.grantType=#{grantType} and p.from_type=#{fromType}
+            <if test="areaLevel==0">
+                and p.area_id in(
+                    select code from region where parentcode in(
+                      select code from region where parentcode=#{areaId}
+                    )
+                )
+            </if>
+            <if test="areaLevel==1">
+                and p.area_id in(
+                select code from region where parentcode=#{areaId}
+                )
+            </if>
+            <if test="areaLevel==2">
+                and p.area_id =#{areaId}
+            </if>
+         and p.trade_id=#{tradeId}
+            <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+                AND p.bdsj&gt;= #{startDate} and p.bdsj &lt; #{endDate}
+            </if>
+        ) t,business b,
+        `user` u,c_user_role_attribute c
+        where t.b_id=b.id and b.upload_user=c.id and u.id=c.user_id
+        <if test="bName!=null and bName!=''">
+            and b.b_name like CONCAT('%',#{bName},'%')
+        </if>
+        order by t.id desc
+        limit #{offSet},#{pageSize}
+    </select>
+
+
+</mapper>

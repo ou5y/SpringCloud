@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CHomepageMapper">
+  <select id="indexBussinessType" resultType="Map">
+    select id,name from trade where (parent_id is null or parent_id = 0) order by id limit 0,8
+  </select>
+
+  <select id="parentBussinessType" resultType="Map">
+    select id,name from trade where (parent_id is null or parent_id = 0) order by id
+  </select>
+
+  <select id="childBussinessType" resultType="Map">
+    select id,name,parent_id parentId from trade where parent_id in (select id from trade) order by parent_id,id
+  </select>
+
+  <select id="recommendStore" parameterType="Map" resultType="com.customer.dto.CStoreListDto">
+    SELECT
+      id,
+      ifnull(b_name, '') bName,
+      ifnull(business_address, '') businessAddress,
+      ifnull(business_photo, '') businessPhoto,
+      tags_name tagsName,
+      per_average perAverage,
+      ifnull(latitude1, '') latitude1,
+      ifnull(longitude1, '') longitude1,
+      5 star,
+      <if test="latitude!=null and latitude!='' and longitude != null and longitude != ''">
+        ifnull(ROUND(6378.138*2*ASIN(SQRT(POW(SIN((#{latitude}*PI()/180-latitude1*PI()/180)/2),2)+COS(35*PI()/180)*COS(latitude1*PI()/180)*POW(SIN((#{longitude}*PI()/180-longitude1*PI()/180)/2),2)))*1000), '') AS distance
+      </if>
+      <if test="latitude==null or latitude=='' or longitude == null or longitude == ''">
+        '' AS distance
+      </if>
+    FROM business
+    WHERE state = 1
+    <if test="areaId != null and areaId != ''">
+      AND (area_id = #{areaId} OR city_code = #{areaId})
+    </if>
+    ORDER BY rand()
+    LIMIT 6
+  </select>
+
+  <select id="storeDetail" parameterType="Map" resultType="com.customer.dto.CStoreDetailDto">
+    select a.id,a.b_name bName,a.business_address businessAddress,a.business_photo businessPhoto,a.legalperson,a.legalperson_num legalpersonNum,a.upload_date uploadDate,b.name operateType,ROUND(avg(IFNULL(c.vote, 0)), 2) star
+    from business a left join trade b on a.operate_type = b.id
+    left join c_votes c on a.id = c.business_id
+    where a.id = #{storeId}
+    group by a.id
+  </select>
+
+  <select id="smallTypeList" parameterType="Map" resultType="Map">
+    select id,name from trade where parent_id = #{bigType} order by id
+  </select>
+
+  <select id="getGoodsList" parameterType="Map" resultType="Map">
+    select a.id,a.name,a.business_id businessId,b.b_name businessName,a.inventory_num inventoryNum,a.sales_num salesNum,a.first_pic firstPic
+    from c_goods a,business b
+    where a.business_id = b.id and b.operate_type = #{type}
+  </select>
+
+  <select id="getBannerList" parameterType="Map" resultType="com.customer.dto.CIndexBannerDto">
+    select id,name,pic,url
+    from c_banner
+    where display = 1
+    and type = #{type}
+    order by sort,create_time desc
+  </select>
+
+  <select id="getSearchList" parameterType="Map" resultType="com.customer.dto.CStoreListDto">
+    select a.id,a.b_name bName,a.business_address businessAddress,a.business_photo businessPhoto,a.tags_name tagsName,b.name operateType,a.per_average perAverage,
+    ROUND(avg(IFNULL(c.vote, 0)), 2) star,
+    <if test="latitude!=null and latitude!='' and longitude != null and longitude != ''">
+      ROUND(6378.138*2*ASIN(SQRT(POW(SIN((#{latitude}*PI()/180-a.latitude*PI()/180)/2),2)+COS(35*PI()/180)*COS(a.latitude*PI()/180)*POW(SIN((#{longitude}*PI()/180-a.longitude*PI()/180)/2),2)))*1000) AS distance
+    </if>
+    <if test="latitude==null or latitude=='' or longitude == null or longitude == ''">
+      '' AS distance
+    </if>
+    from business a left join trade b on a.operate_type = b.id
+    left join c_votes c on a.id = c.business_id
+    where a.state = 1
+    <!--and a.latitude is not null
+    and a.longitude is not null-->
+    and (a.b_name like CONCAT('%', #{content}, '%') or b.name like CONCAT('%', #{content}, '%'))
+    group by a.id
+  </select>
+
+  <select id="getGoodsListByStore" parameterType="Map" resultType="com.customer.dto.CGoodsListDto">
+    select a.id, a.name, a.business_id businessId, b.b_name businessName, a.price, a.inventory_num inventoryNum, a.sales_num salesNum, a.first_pic firstPic
+    from c_goods a,business b
+    where a.business_id = b.id and a.business_id = #{businessId}
+  </select>
+
+  <select id="checkVersion" parameterType="Map" resultType="com.customer.dto.CVersionDto">
+    select id,version_code versionCode,version_name versionName,is_update isUpdate,
+		upgrade_info upgradeInfo,update_url updateUrl,creat_time creatTime
+	from version_manage where app_type=#{appType} order by creat_time desc limit 1
+  </select>
+
+  <select id="queryNotice" parameterType="Map" resultType="com.customer.dto.NoticeDto">
+      select id, is_open isOpen, message, type, app_type appType, creat_time creatTime from notice
+      where 1=1
+      <if test="appType!=null and appType!='' or appType==0">
+        and app_type=#{appType}
+      </if>
+      order by creat_time desc limit 1
+  </select>
+
+  <select id="getIndexNotice" parameterType="Map" resultType="com.customer.dto.IndexNoticeDto">
+    select id, title, content, create_time createTime
+    from sys_notice_content
+    order by create_time desc
+    limit 3
+  </select>
+
+  <select id="getNoticeDetails" parameterType="Map" resultType="com.customer.dto.IndexNoticeDto">
+    select id, title, content, create_time createTime
+    from sys_notice_content
+    where id = #{noticeId}
+  </select>
+
+  <select id="getNoticeList" parameterType="Map" resultType="com.customer.dto.IndexNoticeDto">
+    select id, title, content, create_time createTime
+    from sys_notice_content
+  </select>
+
+  <select id="recommendGoods" parameterType="Map" resultType="com.customer.dto.RecommendGoodsDto">
+    SELECT
+      c.id,
+      ifnull(c.name, '') name,
+      ifnull(c.price, '') price,
+      ifnull(c.shopping_price, '') shoppingPrice,
+      ifnull(c.first_pic, '') firstPic,
+      ifnull(c.sales_num, '') salesNum,
+      '' AS distance
+      <!--<if test="latitude!=null and latitude!='' and longitude != null and longitude != ''">
+        ifnull(ROUND(6378.138*2*ASIN(SQRT(POW(SIN((#{latitude}*PI()/180-b.latitude1*PI()/180)/2),2)+COS(35*PI()/180)*COS(b.latitude1*PI()/180)*POW(SIN((#{longitude}*PI()/180-b.longitude1*PI()/180)/2),2)))*1000), '') AS distance
+      </if>
+      <if test="latitude==null or latitude=='' or longitude == null or longitude == ''">
+        '' AS distance
+      </if>-->
+    FROM c_goods c LEFT JOIN business b ON c.business_id = b.id
+    WHERE c.state = 1
+    AND c.is_rec = 1
+    <!--<if test="areaId != null and areaId != ''">
+      AND b.city_code = #{areaId}
+    </if>-->
+    ORDER BY rand()
+    LIMIT 6
+  </select>
+
+  <select id="countHomePageGoodsList" parameterType="Map" resultType="int">
+    SELECT count(cg.id)
+    from c_goods cg, business b
+    LEFT JOIN trade t ON t.id=b.operate_type
+    where cg.business_id = b.id
+    and cg.state = 1
+    and b.state = 1
+    <if test="latitude1!=null and latitude2!=null">
+      and b.latitude1 &gt;= #{latitude1} and b.latitude1 &lt;= #{latitude2}
+    </if>
+    <if test="longitude1!=null and longitude2!=null">
+      and b.longitude1 &gt;= #{longitude1} and b.longitude1 &lt;= #{longitude2}
+    </if>
+  </select>
+
+  <select id="getHomePageGoodsList" parameterType="Map" resultType="com.customer.dto.HomePageGoodsDto">
+    SELECT cg.id,cg.name,cg.first_pic firstPic,cg.price,cg.shopping_price shoppingPrice,b.latitude1,b.longitude1,t.sort,
+    IFNULL(b.business_address, '') businessAddress,IFNULL(b.b_name, '') bName
+    from c_goods cg, business b
+    LEFT JOIN trade t ON t.id=b.operate_type
+    where cg.business_id = b.id
+    and cg.state = 1
+    and b.state = 1
+    <if test="latitude1!=null and latitude2!=null">
+      and b.latitude1 &gt;= #{latitude1} and b.latitude1 &lt;= #{latitude2}
+    </if>
+    <if test="longitude1!=null and longitude2!=null">
+      and b.longitude1 &gt;= #{longitude1} and b.longitude1 &lt;= #{longitude2}
+    </if>
+  </select>
+
+</mapper>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.goods.BoutiqueMapper">
+
+    <!-- 获取一级分类 -->
+    <select id="getCategoryByParentId" resultType="com.customer.dto.BoutiqueCategoryDto" parameterType="int">
+        select id,name,icon_url as iconUrl
+        from c_boutique_category
+        where parent_id = #{parentId}
+    </select>
+
+    <!--根据分类id查询精品推荐-->
+    <select id="getRecommendGoodsList" parameterType="Map" resultType="com.customer.dto.BoutiqueGoodsDto">
+        select id, name, first_pic firstPic, price
+        from c_goods
+        where category_id in(select id from c_boutique_category where parent_id = #{categoryId} or id = #{categoryId}) and is_rec = 1 and state = 1 and type = 1
+        order by last_update_time desc
+    </select>
+
+    <!--最新所有商品用于首页-->
+    <select id="getIsNewGoods" resultType="com.customer.dto.BoutiqueGoodsDto" parameterType="int">
+        select id, name, first_pic firstPic, price
+        from c_goods
+        where is_new = 1 and state = 1 and type = 1
+        order by last_update_time desc
+        limit 0,#{size}
+    </select>
+
+    <!--精品街首页最新精品-->
+    <select id="getRecommendByCategory" resultType="com.customer.dto.BoutiqueGoodsDto">
+        select id, name, first_pic firstPic, price
+        from c_goods
+        where category_id = #{category} and state = 1 and is_rec = 1 and type = 1
+        order by last_update_time desc
+        limit 0,#{size}
+    </select>
+
+    <!--根据分类id查询商品列表-->
+    <select id="getBoutiqueGoodsList" parameterType="Map" resultType="com.customer.dto.BoutiqueGoodsDto">
+        select id, name, first_pic firstPic, price
+        from c_goods
+        where category_id in(select id from c_boutique_category where parent_id = #{categoryId} or id = #{categoryId}) and state = 1 and type = 1
+        order by last_update_time desc
+    </select>
+
+
+    <!--根据商品id查询所有规格，包含明细-->
+    <select id="getAllSpecByGoodsId" parameterType="int" resultMap="GoodsSpecDtoResultMap">
+        select id,name
+        from t_goods_spec
+        where id in(select spec_id from t_goods_spec_relation where goods_id = #{id}) and is_show = 1
+        order by orders desc
+    </select>
+
+    <select id="getSpecItemBySpecId" resultType="com.customer.dto.goods.GoodsSpecItemDto" parameterType="int">
+        select id,name from t_goods_spec_item where spec_id =#{id} order by orders desc
+    </select>
+
+    <resultMap id="GoodsSpecDtoResultMap" type="com.customer.dto.goods.GoodsSpecDto">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <association property="specItem" column="id" select="getSpecItemBySpecId"/>
+    </resultMap>
+
+</mapper>
+

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.my.pay.PayInfoDao">
+
+    <!-- 保存第三方支付信息 -->
+    <insert id="addPayInfo" parameterType="Map">
+        INSERT INTO `c_pay_info` (
+                                    `user_id`,
+                                    `order_no`,
+                                    `pay_platform`,
+                                    `platform_status`,
+                                    `seller_id`,
+                                    `order_fee`,
+                                    `create_time`
+        ) VALUES (
+                                    #{userId},
+                                    #{orderId},
+                                    #{payPlatform},
+                                    'WAITING_PAY',
+                                    #{sellerId},
+                                    #{orderFee},
+                                    now()
+        )
+    </insert>
+
+    <!-- 查询订单信息是否已经存在 -->
+    <select id="countPayInfo" parameterType="Map" resultType="int">
+        select count(0) from c_pay_info where order_no=#{orderId}
+    </select>
+
+    <!-- 更新第三方支付信息 -->
+    <update id="updatePayInfo" parameterType="Map">
+        UPDATE `c_pay_info` SET
+                `platform_number`=#{platformNumber},
+                `platform_status`=#{platformStatus},
+                `total_fee`=#{totalFee}
+        WHERE `order_no`=#{orderId}
+    </update>
+
+    <!-- 保存分账记录 -->
+    <insert id="saveAgentPay" parameterType="Map">
+        INSERT INTO `tfb_agent_pay` (
+                                        `order_id`,
+                                        `seller_id`,
+                                        `royalty_money`,
+                                        `order_money`,
+                                        `rangli`,
+                                        `bank_card_no`,
+                                        `card_holder`
+        ) VALUES (
+                                        #{orderId},
+                                        #{sellerId},
+                                        #{royaltyMoney},
+                                        #{orderMoney},
+                                        #{rangli},
+                                        #{bankCardNo},
+                                        #{cardHolder}
+        )
+    </insert>
+
+</mapper>

@@ -1,7 +1,5 @@
 package com.example.demo.system.redis;
 
-import com.customer.dto.RoleListDto;
-import com.customer.util.ProtoStuffSerializerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,11 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+
+
 @Configuration
 @ConfigurationProperties(prefix="spring.redis", ignoreNestedProperties = false)
 public class RedisManager {
@@ -23,28 +23,15 @@ public class RedisManager {
 
 	public final static String VIRTUAL_ROLE_PREX = "_user_level_";
 
-	private String host = "127.0.0.1";
-
-	private int port = 6379;
-
-	// 0 - never expire
-	private int expire = 0;
-
-	// timeout for jedis try to connect to redis server, not expire time! In
-	// milliseconds
+	private String host;
+	private int port;
+	private int expire = 0;// 0 - never expire
+	// timeout for jedis try to connect to redis server, not expire time! In（milliseconds）
 	private int timeout = 0;
-
 	private int database = 0;
-
 	private String password = "";
-
-
 	private int maxIdle;
-
-
 	private long maxWaitMillis;
-
-
 	private int maxTotal;
 
 	private static JedisPool jedisPool = null;

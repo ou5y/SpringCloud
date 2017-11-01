@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.my.OpenDao">
+
+    <!-- 更新关系 -->
+    <update id="updateRecommendRelation" parameterType="Map">
+        update `user` set parent_id=#{parentId},directly_id=#{directlyId}
+        where phone= #{recommendedPhone}
+    </update>
+
+    <!-- 保存推荐记录 -->
+    <insert id="addOpen" parameterType="Map">
+        INSERT INTO `c_recommend_log` (
+                                        `recommend_phone`,
+                                        `recommended_phone`,
+                                        `user_id`,
+                                        `level_id`,
+                                        `level_name`
+        ) VALUES (
+                                        #{recommendPhone},
+                                        #{recommendedPhone},
+                                        #{userId},
+                                        #{roleId},
+                                        #{roleName}
+        )
+    </insert>
+
+    <!-- 是否存在 -->
+    <select id="queryExist" parameterType="Map" resultType="int">
+        select count(id) from c_recommend_log
+        where recommended_phone=#{recommendedPhone} and recommend_phone=#{recommendPhone} and state=0
+    </select>
+
+    <!-- 是否存在 -->
+    <select id="queryExistRecommended" parameterType="Map" resultType="int">
+        select count(id) from c_recommend_log
+        where recommended_phone=#{recommendedPhone}
+    </select>
+
+    <!-- 是否存在 -->
+    <select id="queryExistRole" parameterType="Map" resultType="int">
+        select count(*) from c_platform_status where identity_id=#{identityId} and level_id=#{roleId}
+    </select>
+
+    <!-- 查询推荐人的parentId -->
+    <select id="queryParentId" parameterType="Map" resultType="Map">
+        select id,directly_id directlyId from `user` where phone=#{recommendPhone}
+    </select>
+
+    <!-- 查询推荐人身份 -->
+    <select id="queryRecommendStatus" parameterType="Map" resultType="com.customer.dto.RecommendStatusDto">
+        select identity_id,level_id,level_name,is_pass
+        from c_platform_status where identity_id in(
+            select id from c_user_role_attribute where id=#{userId} and role_id=1
+        ) and level_id in(1,6) and is_pass='Y'
+    </select>
+
+    <!-- 查询被推荐人身份 -->
+    <select id="queryRecommendedStatus" parameterType="Map" resultType="com.customer.dto.RecommendStatusDto">
+        select identity_id,level_id,level_name,is_pass
+        from c_platform_status where identity_id in(
+            select id from c_user_role_attribute where user_id=(
+                      select id from `user` where phone=#{recommendedPhone}
+            ) and role_id=1
+        ) and level_id in(1,2,6,7) and is_pass='Y'
+    </select>
+
+    <!-- 查询Platform记录是否存在 -->
+    <select id="queryPlatform" resultType="int" parameterType="Map">
+        select count(identity_id),level_id levelId,level_name levelName from c_platform_status where identity_id=(
+            select id from c_user_role_attribute where user_id=(
+              select id from `user` where phone=#{recommendedPhone}
+            ) and role_id=1
+        ) and level_id in(1,2,6)
+    </select>
+
+    <!-- 保存PlatformStatus -->
+    <insert id="addPlatformStatus" parameterType="Map">
+        INSERT INTO `c_platform_status` (
+                                        `identity_id`,
+                                        `level_id`,
+                                        `level_name`
+        ) VALUES (
+                                        #{identityId},
+                                        #{roleId},
+                                        #{roleName}
+         )
+    </insert>
+
+    <!-- 更新PlatformStatus -->
+    <update id="updatePlatformStatus" parameterType="Map">
+        update c_platform_status p,c_user_role_attribute c,`user` u
+        set p.level_id=#{roleId},p.level_name=#{roleName},p.is_pass='Y',p.create_time=now()
+        where p.identity_id=c.id and c.user_id=u.id and u.phone=#{recommendedPhone} and c.role_id=1 and p.level_id in(1,2);
+    </update>
+
+    <!-- 开通记录 -->
+    <select id="openLog" parameterType="Map" resultType="Map">
+        select recommend_phone recommendPhone,recommended_phone recommendedPhone,create_time createTime,state
+        from c_recommend_log where user_id=#{userId}
+    </select>
+
+    <!-- 查询推荐人是否存在 -->
+    <select id="queryRecommendMan" resultType="int" parameterType="Map">
+        select count(id) from `user` where phone=#{recommendPhone}
+    </select>
+
+    <!-- 查询被推荐人是否存在 -->
+    <select id="queryRecommendedMan" resultType="int" parameterType="Map">
+        select count(id) from `user` where phone=#{recommendedPhone}
+    </select>
+
+    <!-- 查询PlatformStatus -->
+    <select id="queryPlatformStatus" parameterType="Map" resultType="int">
+        select count(identity_id) from c_platform_status where identity_id=#{userId} and level_id=#{levelId}
+    </select>
+
+    <!-- 查询IdentityId -->
+    <select id="queryIdentityId" resultType="Map" parameterType="Map">
+      SELECT
+			id
+		FROM
+			c_user_role_attribute
+		WHERE
+			user_id = (
+				SELECT
+					id
+				FROM
+					`user`
+				WHERE
+					phone = #{recommendedPhone}
+			)
+			and role_id=1
+    </select>
+
+    <!-- 查询每日开通上限 -->
+    <select id="queryOpenLimit" parameterType="Map" resultType="Map">
+        select open_limit openLimit,
+            (select count(id) from c_recommend_log where user_id=#{userId}
+            ) remainingQuota
+        from c_user_role_attribute where id=#{userId}
+    </select>
+
+    <!-- 查询配送到号码身份 -->
+    <select id="queryAgencyUserStatus" parameterType="Map" resultType="Map">
+        select p.level_id,p.level_name,p.is_pass,u.id agencyUser,u.directly_id directlyId
+        from `user` u,c_user_role_attribute c,c_platform_status p
+        where u.id=c.user_id and c.id=p.identity_id and u.phone=#{agencyUserPhone}
+        and p.level_id in(1,2,6,9) and p.is_pass='Y'
+    </select>
+
+    <!-- 查询待开通号码身份 -->
+    <select id="queryBeOpenedUserStatus" parameterType="Map" resultType="Map">
+--         select identity_id,level_id,level_name,is_pass
+--         from c_platform_status where identity_id in(
+--         select id from c_user_role_attribute where user_id=(
+--         select id from `user` where phone=#{beOpenedUserPhone}
+--         ) and role_id=1
+--         ) and level_id in(1,2,6) and is_pass='Y'
+
+        select p.level_id,p.level_name,p.is_pass,u.id userId
+        from `user` u,c_user_role_attribute c,c_recommend_log r,c_platform_status p
+        where u.id=c.user_id and c.id=p.identity_id and u.phone=r.recommended_phone
+        and r.recommended_phone=#{beOpenedUserPhone}
+        and r.state=0 and p.level_id in(1,2,6) and p.is_pass='Y'
+    </select>
+
+    <!-- 查询待开通号码 userId -->
+    <select id="queryBeOpenedUserId" resultType="Map" parameterType="Map">
+        select u.id,c.id identityId from `user` u,c_user_role_attribute c  where u.id=c.user_id  and u.phone=#{beOpenedUserPhone} and c.role_id=1
+    </select>
+
+    <!-- 待开通推荐人身份 -->
+    <select id="queryRecommendUserStatus" parameterType="Map" resultType="Map">
+        select p.level_id,p.level_name,p.is_pass,u.id userId,u.phone,u.directly_id directlyId
+        from `user` u,c_user_role_attribute c,c_platform_status p
+        where u.id=c.user_id and c.id=p.identity_id
+        and u.phone=#{uploadUserPhone} and p.level_id =6 and p.is_pass='Y' and c.role_id=1
+    </select>
+
+    <!-- 添加配送关系 -->
+    <insert id="addPushAgent" parameterType="Map">
+        insert into `push_agent` (
+                                    `user_id`,
+                                    `chief_id`,
+                                    `deputy_id`,
+                                    `area_id`,
+                                    `trade_id`,
+                                    `agency_user`,
+                                    `create_time`,
+                                    `operator_id`
+        ) VALUES (
+                                    #{userId},
+                                    #{chiefId},
+                                    #{deputyId},
+                                    #{areaId},
+                                    #{tradeId},
+                                    #{agencyUser},
+                                    now(),
+                                    #{cuserId}
+        )
+    </insert>
+
+    <!-- 查询配送银牌是否已经存在 -->
+    <select id="queryExistPushAgent" parameterType="Map" resultType="int">
+        select count(0) from push_agent where
+        user_id=#{userId} and
+        chief_id=#{chiefId} and
+        deputy_id=#{deputyId} and
+        area_id=#{areaId} and
+        trade_id=#{tradeId} and
+        agency_user=#{agencyUser}
+    </select>
+
+    <!-- 开通名单记录 -->
+    <select id="queryRecommendLog" parameterType="Map" resultType="com.customer.dto.my.RecommendLogDto">
+         select c.id,c.recommend_phone,c.recommended_phone,c.level_id,c.level_name,IFNULL(u.avatar,'') avatar,cu.id identityId,c.state
+        from c_recommend_log c,`user` u,c_user_role_attribute cu
+        where c.recommended_phone=u.phone and u.id=cu.user_id and c.recommended_phone=#{recommendedPhone} and cu.role_id=1
+        <if test="state!=null">
+            and c.state=#{state}
+        </if>
+    </select>
+
+    <!-- 批量更新 -->
+    <update id="updateOperatorId" parameterType="Map">
+        update c_recommend_log set operator_id=#{operatorId},state=1,update_time=now()
+        where id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="queryBeOpenedUser" parameterType="Map" resultType="Map">
+        select p.level_id levelId,p.level_name levelName,p.is_pass,u.id userId,u.phone
+        from `user` u,c_user_role_attribute c,c_platform_status p
+        where u.id=c.user_id and c.id=p.identity_id
+        and u.phone=#{beOpenedUserPhone} and p.level_id in(1,2,6,7,9) and p.is_pass='Y' and c.role_id=1
+    </select>
+
+    <!-- 查询审核记录 -->
+    <select id="countOperatorLog" parameterType="Map" resultType="int">
+        select count(0) from c_recommend_log where operator_id=#{userId}
+    </select>
+
+    <!-- 查询审核记录 -->
+    <select id="queryOperatorLog" parameterType="Map" resultType="Map">
+        select recommend_phone recommendPhone,recommended_phone recommendedPhone,update_time createTime,state from c_recommend_log where operator_id=#{userId}
+        order by update_time desc
+        limit #{offset},#{pageSize}
+    </select>
+
+    <!-- 查询已经开通配送银牌数 -->
+    <select id="countPushAgentByOperator" parameterType="Map" resultType="int">
+        select count(0) from push_agent where area_id=#{areaId} and trade_id=#{tradeId} and operator_id=#{fromId}
+    </select>
+
+    <!-- 查询审核记录 -->
+    <select id="countPushAgentList" parameterType="Map" resultType="int">
+        select count(0)
+        from push_agent p
+        left join `user` agencyUser on p.agency_user= agencyUser.id
+        left join `user` u on p.user_id=u.id
+        left join trade t on p.trade_id=t.id
+        LEFT JOIN region r on r.`code`=p.area_id
+        where p.operator_id=#{userId}
+    </select>
+
+    <!-- 配送记录 -->
+    <select id="queryPushAgentList" resultType="Map" parameterType="Map">
+        select agencyUser.phone agencyUser,u.phone,IFNULL(t.`name`,'') tradeName,r.fullName,p.create_time createTime
+        from push_agent p
+        left join `user` agencyUser on p.agency_user= agencyUser.id
+        left join `user` u on p.user_id=u.id
+        left join trade t on p.trade_id=t.id
+        LEFT JOIN region r on r.`code`=p.area_id
+        where p.operator_id=#{userId}
+        order by p.id desc
+        limit #{offset},#{pageSize}
+    </select>
+
+</mapper>

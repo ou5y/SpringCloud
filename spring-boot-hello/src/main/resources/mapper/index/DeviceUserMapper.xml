@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.index.DeviceUserDao">
+
+  <!-- 查询设备是否可用 -->
+  <select id="queryIsEnable" parameterType="Map" resultType="com.customer.dto.index.DeviceUserDto">
+    select device_no,is_enable,user_id,source from device_user where device_no=#{deviceNo}
+  </select>
+
+  <!-- 添加设备 -->
+  <insert id="addDevice" parameterType="Map" >
+    INSERT INTO `device_user`
+    (
+                `device_no`,
+                `source`,
+                `user_id`
+    ) VALUES (
+                #{deviceNo},
+                #{source},
+                #{userId}
+    )
+  </insert>
+
+  <update id="updateDevice" parameterType="Map">
+      UPDATE `device_user` SET
+        `user_id`= #{userId}
+      WHERE device_no=#{deviceNo}
+
+  </update>
+
+</mapper>

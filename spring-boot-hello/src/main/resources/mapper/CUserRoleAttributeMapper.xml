@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CUserRoleAttributeMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CUserRoleAttribute">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="shandian" jdbcType="DECIMAL" property="shandian" />
+    <result column="integral" jdbcType="BIGINT" property="integral" />
+    <result column="love" jdbcType="REAL" property="love" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_user_role_attribute
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+                      parameterType="com.customer.entity.CUserRoleAttribute">
+    insert into c_user_role_attribute (user_id, role_id)
+    values (#{userId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.CUserRoleAttribute">
+    update c_user_role_attribute
+    set user_id = #{userId,jdbcType=INTEGER},
+      role_id = #{roleId,jdbcType=INTEGER},
+      shandian = #{shandian,jdbcType=DECIMAL},
+      integral = #{integral,jdbcType=BIGINT},
+      love = #{love,jdbcType=REAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, user_id, role_id, shandian, integral, love, create_time, last_update_time
+    from c_user_role_attribute
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, user_id, role_id, shandian, integral, love, create_time, last_update_time
+    from c_user_role_attribute
+  </select>
+
+  <!-- 注册送积分 -->
+  <insert id="saveCUserIntegral" useGeneratedKeys="true" keyProperty="id"
+          parameterType="com.customer.entity.CUserRoleAttribute">
+    insert into c_user_role_attribute (user_id, role_id,integral)
+    values (#{userId}, #{roleId},#{number})
+  </insert>
+
+  <!-- 注册送主动善点 -->
+  <insert id="saveCUserShandian" useGeneratedKeys="true" keyProperty="id"
+          parameterType="com.customer.entity.CUserRoleAttribute">
+    insert into c_user_role_attribute (user_id, role_id,shandian)
+    values (#{userId}, #{roleId},#{number})
+  </insert>
+
+  <!-- 注册送再消分 -->
+  <insert id="saveCUserReusePoint" useGeneratedKeys="true" keyProperty="id"
+          parameterType="com.customer.entity.CUserRoleAttribute">
+    insert into c_user_role_attribute (user_id, role_id,reuse_point)
+    values (#{userId}, #{roleId},#{number})
+  </insert>
+
+  <!-- 注册  更新推荐人送积分 -->
+  <update id="updateUserIntegral" parameterType="Map">
+    UPDATE c_user_role_attribute set integral=#{jieyu}
+    where id=#{recommendId}
+  </update>
+
+  <!-- 注册 更新推荐人主动善点 -->
+  <update id="updateUserShandian" parameterType="Map">
+    UPDATE c_user_role_attribute set shandian=#{jieyu}
+    where id=#{recommendId}
+  </update>
+
+  <!-- 注册 更新推荐人再消分 -->
+  <update id="updateUserReusePoint" parameterType="Map">
+    update c_user_role_attribute set reuse_point=#{jieyu}
+    where id=#{recommendId}
+  </update>
+
+  <!-- 查询推荐人c_user_role_attribute id -->
+  <select id="queryRecommendId" parameterType="Integer" resultType="Map">
+    select id recommendId,integral,shandian,reuse_point reusePoint from c_user_role_attribute where user_id=#{0} and role_id=1
+  </select>
+
+  <!-- 保存推荐人积分变动记录 -->
+  <insert id="addRecommChangeRecord" parameterType="Map">
+    INSERT INTO `xfz_dzb` (
+                              `leixing`,
+                              `user_id`,
+                              `bdsz`,
+                              `jieyu`,
+                              `bdsj`,
+                              `grantType`,
+                              `source_type`
+    )VALUES(
+                              #{leixing},
+                              #{recommendId},
+                              #{number},
+                              #{jieyu},
+                              now(),
+                              '1',
+                              0
+	)
+  </insert>
+
+  <!-- 保存注册用户积分变动记录 -->
+  <insert id="addChangeRecord" parameterType="Map">
+    INSERT INTO `xfz_dzb` (
+                            `leixing`,
+                            `user_id`,
+                            `bdsz`,
+                            `jieyu`,
+                            `bdsj`,
+                            `grantType`,
+                            `source_type`
+    )VALUES(
+                            #{leixing},
+                            #{cuserId},
+                            #{number},
+                            #{jieyu},
+                            now(),
+                            '1',
+                            0
+    )
+  </insert>
+
+</mapper>

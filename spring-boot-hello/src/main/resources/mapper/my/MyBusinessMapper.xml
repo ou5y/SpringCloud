@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.my.MyBusinessDao">
+
+    <select id="getIncomeTotalList" parameterType="Map" resultType="com.customer.dto.IncomeTotalDto">
+        SELECT
+            c.level_id levelId,
+            c.level_name levelName,
+            COUNT(DISTINCT c.identity_id) totalPerson,
+            ROUND(SUM(c.bdsz), 2) totalIncome
+        FROM
+            (
+                SELECT
+                    b.level_id,
+                    b.level_name,
+                    b.identity_id,
+                    IFNULL(a.bdsz, 0) bdsz
+                FROM
+                    (
+                        SELECT
+                            b.level_id,
+                            b.level_name,
+                            b.identity_id
+                        FROM
+                            (
+                                SELECT
+                                    id
+                                FROM
+                                    c_user_role_attribute
+                                WHERE
+                                    role_id = 1
+                                AND user_id IN (
+                                    SELECT
+                                        id
+                                    FROM
+                                        `user`
+                                    WHERE
+                                        parent_id = #{uId}
+                                )
+                            ) a,
+                            c_platform_status b
+                        WHERE
+                            b.is_pass = 'Y'
+                        AND a.id = b.identity_id
+                    ) b
+                LEFT JOIN (
+                    SELECT
+                        from_id,
+                        SUM(bdsz) bdsz
+                    FROM
+                        passive_shandian
+                    WHERE
+                        from_id IS NOT NULL
+                    AND grantType = 1
+                    AND user_id = #{uId}
+                    GROUP BY
+                        from_id
+                ) a ON a.from_id = b.identity_id
+                GROUP BY
+                    b.level_id,
+                    b.level_name,
+                    b.identity_id
+                UNION ALL
+                    SELECT
+                        b.level_id,
+                        b.level_name,
+                        b.identity_id,
+                        IFNULL(a.bdsz, 0) bdsz
+                    FROM
+                        (
+                            SELECT
+                                99 level_id,
+                                '银牌' level_name,
+                                cra.id identity_id
+                            FROM
+                                push_agent pa,
+                                c_user_role_attribute cra
+                            WHERE
+                                pa.user_id = cra.user_id
+                            AND cra.role_id = 1
+                            AND (
+                                pa.agency_user = #{uId}
+                                OR pa.chief_id = #{uId}
+                            )
+                        ) b
+                    LEFT JOIN (
+                        SELECT
+                            from_id,
+                            SUM(bdsz) bdsz
+                        FROM
+                            passive_shandian
+                        WHERE
+                            from_id IS NOT NULL
+                        AND grantType = 4
+                        AND user_id = #{uId}
+                        GROUP BY
+                            from_id
+                    ) a ON a.from_id = b.identity_id
+                    GROUP BY
+                        b.level_id,
+                        b.level_name,
+                        b.identity_id
+            ) c
+        GROUP BY
+            c.level_id,
+            c.level_name
+    </select>
+
+    <select id="getIncomeChangeList" parameterType="Map" resultType="com.customer.dto.IncomeChangeDto">
+        SELECT
+        c.bdsj,
+        ROUND(SUM(c.bdsz), 2) bdsz
+        FROM
+        (
+        SELECT
+        a.bdsj,
+        IFNULL(a.bdsz, 0) bdsz
+        FROM
+        (
+        SELECT
+        b.level_id,
+        b.identity_id
+        FROM
+        (
+        SELECT
+        id
+        FROM
+        c_user_role_attribute
+        WHERE
+        role_id = 1
+        AND user_id IN (
+        SELECT
+        id
+        FROM
+        `user`
+        WHERE
+        parent_id = #{uId}
+        )
+        ) a,
+        c_platform_status b
+        WHERE
+        b.is_pass = 'Y'
+        AND a.id = b.identity_id
+        ) b
+        LEFT JOIN (
+        SELECT
+        from_id,
+        date_format(bdsj, '%Y-%m-%d') bdsj,
+        SUM(bdsz) bdsz
+        FROM
+        passive_shandian
+        WHERE
+        from_id IS NOT NULL
+        AND grantType = 1
+        AND user_id = #{uId}
+        GROUP BY
+        from_id,
+        date_format(bdsj, '%Y-%m-%d')
+        ) a ON a.from_id = b.identity_id
+        WHERE
+        1 = 1
+        <if test="levelId != null and levelId != '' and levelId != 0">
+            AND b.level_id = #{levelId}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND a.bdsj &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND a.bdsj &lt;= #{endDate}
+        </if>
+        UNION ALL
+        SELECT
+        a.bdsj,
+        IFNULL(a.bdsz, 0) bdsz
+        FROM
+        (
+        SELECT
+        99 level_id,
+        cra.id identity_id
+        FROM
+        push_agent pa,
+        c_user_role_attribute cra
+        WHERE
+        pa.user_id = cra.user_id
+        AND cra.role_id = 1
+        AND (
+        pa.agency_user = #{uId}
+        OR pa.chief_id = #{uId}
+        )
+        ) b
+        LEFT JOIN (
+        SELECT
+        from_id,
+        date_format(bdsj, '%Y-%m-%d') bdsj,
+        SUM(bdsz) bdsz
+        FROM
+        passive_shandian
+        WHERE
+        from_id IS NOT NULL
+        AND grantType = 4
+        AND user_id = #{uId}
+        GROUP BY
+        from_id,
+        date_format(bdsj, '%Y-%m-%d')
+        ) a ON a.from_id = b.identity_id
+        WHERE
+        1 = 1
+        <if test="levelId != null and levelId != '' and levelId != 0">
+            AND b.level_id = #{levelId}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND a.bdsj &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND a.bdsj &lt;= #{endDate}
+        </if>
+        ) c
+        GROUP BY
+        c.bdsj
+        ORDER BY
+        c.bdsj
+    </select>
+
+    <select id="getIncomeUserList" parameterType="Map" resultType="com.customer.dto.IncomeUserDto">
+        SELECT
+        c.userId,
+        ROUND(c.totalIncome, 2) totalIncome,
+        IFNULL(e.xingming, '') name,
+        e.phone,
+        IFNULL(e.avatar, '') avatar,
+        c.totalNums
+        FROM
+        (
+        SELECT
+        g.userId,
+        g.totalIncome,
+        COUNT(DISTINCT f.id) totalNums
+        FROM
+        (
+        SELECT
+        c.identity_id userId,
+        SUM(c.bdsz) totalIncome
+        FROM
+        (
+        SELECT
+        b.identity_id,
+        IFNULL(a.bdsz, 0) bdsz
+        FROM
+        (
+        SELECT
+        b.level_id,
+        b.identity_id
+        FROM
+        (
+        SELECT
+        id
+        FROM
+        c_user_role_attribute
+        WHERE
+        role_id = 1
+        AND user_id IN (
+        SELECT
+        id
+        FROM
+        `user`
+        WHERE
+        parent_id = #{uId}
+        )
+        ) a,
+        c_platform_status b
+        WHERE
+        b.is_pass = 'Y'
+        AND a.id = b.identity_id
+        ) b
+        LEFT JOIN (
+        SELECT
+        from_id,
+        SUM(bdsz) bdsz
+        FROM
+        passive_shandian
+        WHERE
+        from_id IS NOT NULL
+        AND grantType = 1
+        AND user_id = #{uId}
+        GROUP BY
+        from_id
+        ) a ON a.from_id = b.identity_id
+        WHERE
+        b.level_id = #{levelId}
+        GROUP BY
+        b.identity_id
+        UNION ALL
+        SELECT
+        b.identity_id,
+        IFNULL(a.bdsz, 0) bdsz
+        FROM
+        (
+        SELECT
+        99 level_id,
+        cra.id identity_id
+        FROM
+        push_agent pa,
+        c_user_role_attribute cra
+        WHERE
+        pa.user_id = cra.user_id
+        AND cra.role_id = 1
+        AND (
+        pa.agency_user = #{uId}
+        OR pa.chief_id = #{uId}
+        )
+        ) b
+        LEFT JOIN (
+        SELECT
+        from_id,
+        SUM(bdsz) bdsz
+        FROM
+        passive_shandian
+        WHERE
+        from_id IS NOT NULL
+        AND grantType = 4
+        AND user_id = #{uId}
+        GROUP BY
+        from_id
+        ) a ON a.from_id = b.identity_id
+        WHERE
+        b.level_id = #{levelId}
+        GROUP BY
+        b.identity_id
+        ) c
+        GROUP BY
+        c.identity_id
+        ) g
+        LEFT JOIN business f ON g.userId = f.upload_user
+        GROUP BY
+        g.userId,
+        g.totalIncome
+        ) c
+        LEFT JOIN c_user_role_attribute d ON c.userId = d.id
+        LEFT JOIN `user` e ON d.user_id = e.id
+        WHERE
+        1 = 1
+        <if test="content != null and content != ''">
+            AND (e.name like concat('%', #{content}, '%') OR e.phone like concat('%', #{content}, '%'))
+        </if>
+    </select>
+
+    <select id="getIncomeDetailList" parameterType="Map" resultType="com.customer.dto.IncomeDetailDto">
+        SELECT
+            ROUND(a.bdsz, 2) bdsz,
+            a.bdsj,
+            a.b_id bId,
+            IFNULL(c.b_name, '') bName
+        FROM
+            passive_shandian a
+        LEFT JOIN business c ON a.b_id = c.id
+        WHERE
+            a.from_id IS NOT NULL
+        <if test="startDate != null and startDate != ''">
+            AND date_format(a.bdsj, '%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND date_format(a.bdsj, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        <if test="levelId != null and levelId != '' and levelId != 99">
+            AND a.grantType = 1
+        </if>
+        <if test="levelId != null and levelId != '' and levelId == 99">
+            AND a.grantType = 4
+        </if>
+        AND a.from_id = #{id}
+        AND a.user_id = #{uId}
+    </select>
+
+</mapper>

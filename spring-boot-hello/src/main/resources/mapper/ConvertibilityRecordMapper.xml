@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.ConvertibilityRecordMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.ConvertibilityRecord">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="c_shandian" jdbcType="INTEGER" property="cShandian" />
+    <result column="jieyu" jdbcType="DOUBLE" property="jieyu" />
+    <result column="poundage" jdbcType="DECIMAL" property="poundage" />
+    <result column="arrival_mode" jdbcType="INTEGER" property="arrivalMode" />
+    <result column="sjdk" jdbcType="DECIMAL" property="sjdk" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="qrsj" jdbcType="TIMESTAMP" property="qrsj" />
+    <result column="bank_id" jdbcType="INTEGER" property="bankId" />
+    <result column="bankcard_no" jdbcType="VARCHAR" property="bankcardNo" />
+    <result column="failureCause" jdbcType="VARCHAR" property="failurecause" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="bank_card_no" jdbcType="VARCHAR" property="bankCardNo" />
+    <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
+    <result column="card_holder" jdbcType="VARCHAR" property="cardHolder" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from convertibility_record
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.ConvertibilityRecord">
+    insert into convertibility_record (id, user_id, c_shandian, 
+      jieyu, poundage, arrival_mode, 
+      sjdk, state, create_date, 
+      qrsj, bank_id, bankcard_no, 
+      failureCause, type, bank_card_no, 
+      bank_name, card_holder)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{cShandian,jdbcType=INTEGER}, 
+      #{jieyu,jdbcType=DOUBLE}, #{poundage,jdbcType=DECIMAL}, #{arrivalMode,jdbcType=INTEGER}, 
+      #{sjdk,jdbcType=DECIMAL}, #{state,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{qrsj,jdbcType=TIMESTAMP}, #{bankId,jdbcType=INTEGER}, #{bankcardNo,jdbcType=VARCHAR}, 
+      #{failurecause,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{bankCardNo,jdbcType=VARCHAR}, 
+      #{bankName,jdbcType=VARCHAR}, #{cardHolder,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.ConvertibilityRecord">
+    update convertibility_record
+    set user_id = #{userId,jdbcType=INTEGER},
+      c_shandian = #{cShandian,jdbcType=INTEGER},
+      jieyu = #{jieyu,jdbcType=DOUBLE},
+      poundage = #{poundage,jdbcType=DECIMAL},
+      arrival_mode = #{arrivalMode,jdbcType=INTEGER},
+      sjdk = #{sjdk,jdbcType=DECIMAL},
+      state = #{state,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      qrsj = #{qrsj,jdbcType=TIMESTAMP},
+      bank_id = #{bankId,jdbcType=INTEGER},
+      bankcard_no = #{bankcardNo,jdbcType=VARCHAR},
+      failureCause = #{failurecause,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      bank_card_no = #{bankCardNo,jdbcType=VARCHAR},
+      bank_name = #{bankName,jdbcType=VARCHAR},
+      card_holder = #{cardHolder,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, user_id, c_shandian, jieyu, poundage, arrival_mode, sjdk, state, create_date, 
+    qrsj, bank_id, bankcard_no, failureCause, type, bank_card_no, bank_name, card_holder
+    from convertibility_record
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, user_id, c_shandian, jieyu, poundage, arrival_mode, sjdk, state, create_date, 
+    qrsj, bank_id, bankcard_no, failureCause, type, bank_card_no, bank_name, card_holder
+    from convertibility_record
+  </select>
+</mapper>

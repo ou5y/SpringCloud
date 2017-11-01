@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.index.BusinessGoodsDao">
+
+    <select id="getBusinessDetails" parameterType="Map" resultType="com.customer.dto.index.BusinessDetailsDto">
+        SELECT
+            b.id,
+            IFNULL(b.b_name, '') bName,
+            IFNULL(b.business_photo, '') businessPhoto,
+            IFNULL(b.business_address, '') businessAddress,
+            IFNULL(b.latitude1, '') latitude1,
+            IFNULL(b.longitude1, '') longitude1,
+            IFNULL(b.xingming, '') xingming,
+            IFNULL(u.phone, '') phone,
+            IFNULL(t.name, '') operateType,
+            IFNULL(b.open_time, '') openTime,
+            IFNULL(b.close_time, '') closeTime,
+            IFNULL(b.intro, '') intro
+        FROM
+            business b
+        LEFT JOIN trade t ON b.operate_type = t.id
+        LEFT JOIN c_user_role_attribute cu ON b.user_id = cu.id
+        LEFT JOIN user u ON cu.user_id = u.id
+        WHERE
+            b.id = #{businessId}
+    </select>
+
+    <select id="getBusinessGoodsList" parameterType="Map" resultType="com.customer.dto.index.BusinessGoodsDto">
+        select id, name, first_pic firstPic, price, shopping_price shoppingPrice,sales_num salesNum
+        from c_goods
+        where state = 1
+        <if test="content != null and content != '' or content == 0">
+            and name like concat('%', #{content}, '%')
+        </if>
+        and business_id = #{businessId}
+    </select>
+
+    <select id="getGoodsDetails" parameterType="Map" resultType="com.customer.dto.index.GoodsDetailsDto">
+        SELECT
+            id,
+            name,
+            business_id businessId,
+            loop_pics loopPics,
+            price,
+            shopping_price shoppingPrice,
+            sales_num salesNum,
+            params,
+            detail,
+            show_pics showPics,
+            rangli
+        FROM
+            c_goods
+        WHERE
+            id = #{goodsId}
+    </select>
+
+    <select id="shareGoods" parameterType="Map" resultType="com.customer.dto.index.ShareDto">
+        SELECT
+            s.title,
+            IFNULL(g.name, '') content,
+            CONCAT(s.url, #{goodsId}) url,
+            IFNULL(g.first_pic, '') pic
+        FROM
+            c_share s LEFT JOIN c_goods g ON g.id = #{goodsId}
+        WHERE
+            s.type = 1
+        ORDER BY s.create_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

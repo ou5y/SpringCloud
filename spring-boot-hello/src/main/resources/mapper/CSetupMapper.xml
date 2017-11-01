@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.customer.dao.CSetupMapper">
+
+    <update id="editAvatar" parameterType="Map">
+        update user set update_time = now(), avatar = #{avatar}
+        where id = (select user_id from c_user_role_attribute where id = #{userId})
+    </update>
+
+    <update id="editUserName" parameterType="Map">
+        update user set update_time = now(), name = #{userName}
+        where id = (select user_id from c_user_role_attribute where id = #{userId})
+    </update>
+
+    <insert id="addSuggest" parameterType="Map">
+        insert into user_suggest (content, user_id, creat_time) values (#{content}, #{userId}, now())
+    </insert>
+
+    <insert id="addAddress" parameterType="Map">
+        insert into user_address (user_id, name, phone, province, city, area, full_address)
+        values (#{userId}, #{name}, #{phone}, #{province}, #{city}, #{area}, #{fullAddress})
+    </insert>
+
+    <select id="getAddressList" parameterType="Map" resultType="com.customer.dto.CUserAddressDto">
+        select a.id, a.name, a.phone, b.fullName provinceDesc, c.fullName cityDesc, d.fullName areaDesc, a.full_address fullAddress, a.is_default isDefault
+        from user_address a
+        left join region b on a.province = b.code
+        left join region c on a.city = c.code
+        left join region d on a.area = d.code
+        where a.user_id = #{userId}
+    </select>
+
+    <update id="removeDefaultAddressByUserId" parameterType="Map">
+        update user_address set last_update_time = now(), is_default = 0
+        where is_default = 1 and user_id = #{userId}
+    </update>
+
+    <update id="setDefaultAddress" parameterType="Map">
+        update user_address set last_update_time = now(), is_default = 1
+        where id = #{addressId}
+    </update>
+    
+    <delete id="deleteAddress" parameterType="Map">
+        delete from user_address where id = #{addressId}
+    </delete>
+
+    <select id="addressDetail" parameterType="Map" resultType="com.customer.dto.CUserAddressDto">
+        select id, user_id userId, name, phone, province, city, area, full_address fullAddress, is_default isDefault
+        from user_address
+        where id = #{addressId}
+    </select>
+
+    <update id="editAddress" parameterType="Map">
+        update user_address set name = #{name}, phone = #{phone}, province = #{province}, city = #{city}, area = #{area}, full_address = #{fullAddress}, last_update_time = now()
+        where id = #{addressId}
+    </update>
+
+    <select id="getCommonProblem" parameterType="Map" resultType="com.customer.dto.CommonProblemDto">
+        select id, name, url, type, create_time createTime
+        from c_common_problem
+        where app_type = 1
+        order by type, create_time desc
+    </select>
+
+</mapper>
+

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CPlatformStatusMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CPlatformStatus">
+    <id column="identity_id" jdbcType="INTEGER" property="identityId" />
+    <id column="level_id" jdbcType="INTEGER" property="levelId" />
+    <result column="level_name" jdbcType="VARCHAR" property="levelName" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from c_platform_status
+    where identity_id = #{identityId,jdbcType=INTEGER}
+      and level_id = #{levelId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.CPlatformStatus">
+    insert into c_platform_status (identity_id, level_id, level_name
+      )
+    values (#{identityId,jdbcType=INTEGER}, #{levelId,jdbcType=INTEGER}, #{levelName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.CPlatformStatus">
+    update c_platform_status
+    set level_name = #{levelName,jdbcType=VARCHAR}
+    where identity_id = #{identityId,jdbcType=INTEGER}
+      and level_id = #{levelId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select identity_id, level_id, level_name
+    from c_platform_status
+    where identity_id = #{identityId,jdbcType=INTEGER}
+      and level_id = #{levelId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select identity_id, level_id, level_name
+    from c_platform_status
+  </select>
+</mapper>

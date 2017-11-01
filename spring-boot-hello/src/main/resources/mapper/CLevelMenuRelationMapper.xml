@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CLevelMenuRelationMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CLevelMenuRelation">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="level_id" jdbcType="INTEGER" property="levelId" />
+    <result column="menu_id" jdbcType="VARCHAR" property="menuId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_level_menu_relation
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.CLevelMenuRelation">
+    insert into c_level_menu_relation (id, level_id, menu_id, 
+      create_time, last_update_time)
+    values (#{id,jdbcType=INTEGER}, #{levelId,jdbcType=INTEGER}, #{menuId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{lastUpdateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.CLevelMenuRelation">
+    update c_level_menu_relation
+    set level_id = #{levelId,jdbcType=INTEGER},
+      menu_id = #{menuId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, level_id, menu_id, create_time, last_update_time
+    from c_level_menu_relation
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, level_id, menu_id, create_time, last_update_time
+    from c_level_menu_relation
+  </select>
+</mapper>

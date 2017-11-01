@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.customer.dao.CGsSpeOptionMapper">
+  <resultMap id="BaseResultMap" type="com.customer.entity.CGsSpeOption">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="spe_option_id" jdbcType="INTEGER" property="speOptionId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from c_gs_spe_option
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.customer.entity.CGsSpeOption">
+    insert into c_gs_spe_option (id, goods_id, spe_option_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER}, #{speOptionId,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.customer.entity.CGsSpeOption">
+    update c_gs_spe_option
+    set goods_id = #{goodsId,jdbcType=INTEGER},
+      spe_option_id = #{speOptionId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, goods_id, spe_option_id
+    from c_gs_spe_option
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, goods_id, spe_option_id
+    from c_gs_spe_option
+  </select>
+</mapper>
