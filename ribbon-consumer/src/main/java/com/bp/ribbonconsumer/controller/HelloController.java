@@ -62,7 +62,7 @@ public class HelloController {
 
 
         // * * * * * * * * POST请求方式 * * * * * * * * *
-        // 跟getForObject类似，postForEntity也存在多个重载方法
+        // 跟getForEntity类似，postForEntity也存在多个重载方法
         // 同时和getForObject一样，postForObject也有多个重载方法
         // 注意点，第二个参数可以是一个普通对象，也可以是HTTPEntity对象
         // 当第二参数非HTTPEntity对象时，会把请求对象转换成一个HTTPEntity对象
