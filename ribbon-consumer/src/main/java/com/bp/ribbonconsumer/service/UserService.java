@@ -1,12 +1,16 @@
 package com.bp.ribbonconsumer.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.bp.ribbonconsumer.entity.User;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.annotation.ObservableExecutionMode;
 import com.netflix.hystrix.contrib.javanica.command.AsyncResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import rx.Observable;
@@ -24,6 +28,17 @@ public class UserService {
     @Autowired
     private RestTemplate restTemplate;
 
+    public HttpEntity<User> getHttpEntity(){
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("application/json;charset=UTF-8");
+        headers.setContentType(type);
+        headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+        HttpEntity<User> httpEntity = new HttpEntity<>(headers);
+        //如果是用request传送报文的话，可以使用下面这种，参数params型就给规定个请求头类型就行了
+        //HttpEntity<User> httpEntity = new HttpEntity<>(user, headers);
+        return httpEntity;
+    }
+
     /**
      * Hystrix默认超时为2000ms，可以设置
      */
@@ -36,8 +51,7 @@ public class UserService {
     public User getUserBySyncPOST(Integer id){
         //同步方式请求数据
         System.out.println("进来了："+id);
-        User user = new User(id);
-        return restTemplate.postForObject("http://hello-service/post-user", user, User.class);
+        return restTemplate.postForObject("http://hello-service/post-user?id={1}", getHttpEntity(), User.class, id);
     }
 
     @HystrixCommand(fallbackMethod = "userBack",
@@ -49,9 +63,7 @@ public class UserService {
     public User getUserBySyncGET(Integer id){
         //同步方式请求数据
         System.out.println("GET进来了："+id);
-        User user = new User(id);
-        user = restTemplate.getForObject("http://hello-service/get-user/{1}", User.class, id.toString());
-        System.out.println("GET-User返回的结果是："+user);
+        User user = restTemplate.getForObject("http://hello-service/get-user/{1}", User.class, id.toString());
         return user;
     }
 
@@ -67,8 +79,7 @@ public class UserService {
         return new AsyncResult<User>() {
             @Override
             public User invoke() {
-                User user = new User(id);
-                return restTemplate.postForObject("http://hello-service/post-user", user, User.class);
+                return restTemplate.postForObject("http://hello-service/post-user?id={1}", getHttpEntity(), User.class, id);
             }
         };
     }
@@ -95,8 +106,7 @@ public class UserService {
             public void call(Subscriber<? super User> observable) {
                 try {
                     if (!observable.isUnsubscribed()){
-                        User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/post-user", temp, User.class);
+                        User temp = restTemplate.postForObject("http://hello-service/post-user?id={1}", getHttpEntity(), User.class, id);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }
@@ -123,8 +133,7 @@ public class UserService {
             public void call(Subscriber<? super User> observable) {
                 try {
                     if (!observable.isUnsubscribed()){
-                        User temp = new User(id);
-                        temp = restTemplate.postForObject("http://hello-service/post-user", temp, User.class);
+                        User temp = restTemplate.postForObject("http://hello-service/post-user?id={1}", getHttpEntity(), User.class, id);
                         observable.onNext(temp);
                         observable.onCompleted();
                     }

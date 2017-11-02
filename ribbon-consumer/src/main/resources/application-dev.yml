@@ -1,0 +1,9 @@
+#日志
+logging:
+  config: classpath:logback-boot.xml
+  
+endpoints:
+  shutdown:
+    enabled: true
+    sensitive: false
+  

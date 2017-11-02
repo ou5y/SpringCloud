@@ -4,8 +4,26 @@ server:
   # port: ${random.int[9000,10000]}
 
 spring:
+  profiles:
+    active: dev
   application:
     name: ribbon-consumer
+  cloud:
+    loadbalancer:
+      retry:
+        # 是否开启Ribbon负载均衡的重试机制（缺省false）
+        enabled: false
+
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        isolation:
+#          thread:
+#            # 断路器的超时时间需要大于Ribbon的超时时间，不然会触发重试
+#            timeoutInMilliseconds: 1500
+
+
 
 eureka:
   # eureka.instance一般都是org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean中的属性
@@ -88,4 +106,3 @@ eureka:
     prefer-same-zone-eureka: true
     # 获取实例时是否过滤，仅保留UP状态的实例（缺省true）
     filter-only-up-instances: true
-

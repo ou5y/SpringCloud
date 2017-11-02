@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import rx.Observable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.Future;
@@ -44,6 +45,9 @@ public class UserController {
     public String getUserByAsyncPOST(@ApiParam(value = "用户ID", required = true) @RequestParam Integer id){
         try {
             Future<User> future = userService.getUserByAsyncPOST(id);
+            if (future.isDone()){
+                System.out.println("完成请求");
+            }
             User user = future.get();
             return user ==null ? "..." : JSON.toJSONString(user);
         }catch (Exception e){
@@ -52,12 +56,39 @@ public class UserController {
         }
     }
 
-//    //通过@HystrixCommand注解异步请求服务
-//    @RequestMapping(value = "/user-observer-post", method = RequestMethod.POST)
-//    public String getUserByObservablePOST(HttpServletRequest request){
-//        Integer id = Integer.parseInt(request.getParameter("id"));
-//        Observable<User> observable = userService.getUserByObservable(id);
-//        return user ==null ? "..." : JSON.toJSONString(user);
-//    }
+    @ApiOperation(value = "获取用户信息POST", notes = "通过Observable/Subscribe的observe()执行方式请求服务")
+    @RequestMapping(value = "/user-observer-post", method = RequestMethod.POST)
+    public String getUserByObservablePOST(@ApiParam(value = "用户ID", required = true) @RequestParam Integer id){
+        try {
+            Observable<User> observable = userService.getUserByObservablePOST(id);
+            Future<User> future = observable.toBlocking().toFuture();
+            if (future.isDone()){
+                System.out.println("完成请求");
+            }
+            User user = future.get();
+            return user ==null ? "..." : JSON.toJSONString(user);
+        }catch (Exception e){
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+
+    @ApiOperation(value = "获取用户信息POST", notes = "通过Observable/Subscribe的observe()执行方式请求服务")
+    @RequestMapping(value = "/user-toObserver-post", method = RequestMethod.POST)
+    public String getUserByToObservablePOST(@ApiParam(value = "用户ID", required = true) @RequestParam Integer id){
+        try {
+            Observable<User> observable = userService.getUserByToObservablePOST(id);
+            Future<User> future = observable.toBlocking().toFuture();
+            if (future.isDone()){
+                System.out.println("完成请求");
+            }
+            User user = future.get();
+            return user ==null ? "..." : JSON.toJSONString(user);
+        }catch (Exception e){
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
 
 }
