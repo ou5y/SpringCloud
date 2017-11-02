@@ -1,13 +1,10 @@
 package com.bp.ribbonconsumer.service;
 
-import com.netflix.hystrix.HystrixObservableCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -17,9 +14,9 @@ public class HelloService {
     private RestTemplate restTemplate;
 
     @HystrixCommand(fallbackMethod = "helloFallback",
-                commandProperties = {
-                        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
-                })
+            commandProperties = {
+                    @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+            })
     //Hystrix默认超时为2000ms，可以设置
     public String helloService(String name){
         long start = System.currentTimeMillis();
@@ -41,5 +38,8 @@ public class HelloService {
     public String helloFallback(String name){
         return String.format("request error：\t%s", name);
     }
+
+
+
 
 }
